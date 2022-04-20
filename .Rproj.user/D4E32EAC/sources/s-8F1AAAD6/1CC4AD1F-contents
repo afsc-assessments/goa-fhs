@@ -28,12 +28,11 @@ newsbssdir <- "C:/Users/maia.kapur/Work/assessments/newsbss/"
 
 username_AFSC <- showPrompt(title="Username", message="Enter your AFSC username:", default="")
 password_AFSC <- askForPassword(prompt="Enter your AFSC password:")
-
 AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
 
 username_AKFIN <- showPrompt(title="Username", message="Enter your AKFIN username:", default="")
 password_AKFIN <- askForPassword(prompt="Enter your AKFIN password:")
-
+AKFIN <- odbcConnect("AKFIN",username_AKFIN,password_AKFIN,  believeNRows = FALSE)
 
 species <- 10130 #throughout make sure the SpeciesCode = 10130 for the survey, 103 for observer data
 sp_area <- "'GOA'"
