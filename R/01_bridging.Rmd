@@ -1,0 +1,144 @@
+---
+title: "Bridging GOA FHS Models"
+output: html_notebook
+---
+# Bridging from SS3v3.24U to SSv3.30.17
+C. Monnahan began this effort in summer of 2021. He found that the `ss_trans.exe` software was unable to work on the 2017 model as-was due to the following line in the .dat file:
+`-1 0 #_surveytiming_in_season`.  R. Methot suggested converting this line to `-1.5  #_surveytiming_in_season`, which enabled the transition function to complete,
+but modified the timing of the survey, thus producing discrepant likelihoods. R. Methot then suggested changing the survey index month to 1.0 (in the new v3.30 dat file), but added that v3.24 could only produce expected length-composition values using midseason age-length keys. In other words, the previous version of this model was estimating length composition values assuming that the age-length key applied to the middle of the year, so there will necessarily be a discrepancy between the structure and magnitude of vulnerable biomass to the survey if those data are specified as being observed at the beginning of the year.
+
+To work around this, Rick indicated we could instead adjust only the survey composition month ("seas") to 7.0, essentially aligning the compositional observations with the mid-year biomass. We acknowledge this is a kludge considering the compositions and indices come from the same surveys; for future benchmark updates, scientists may elect to change the survey data season universally (in line with the model labeled `old-MLEs` below). This cycle, we elected to use the approach which produced results most similar to the 2017 benchmark.
+
+The following documents the steps taken to explore this issue and arrive at a bridged baseline model in SS3v3.30.17. The likelihoods and derived quantities are similar (and indistinguishable for management purposes) but we do not believe values will ever be an exact match due to differences in how survey timing is handled between versions.
+```{r, include = FALSE, warning = FALSE, message = FALSE}
+require(r4ss)
+require(here)
+require(tidyverse)
+
+models <- c('3.24U','3.30_old_mles', '3.30_adjust_timing', '3.30_converted')
+colrs <- c('black',alpha('goldenrod',0.2),alpha('dodgerblue2',0.2),'seagreen4')
+outlist <- lapply(paste0(here('model_runs','01_bridging','cole',models)),
+                  function(x) c(model=x, SS_output(x, covar=FALSE, printstats=FALSE, verbose=FALSE)))
+ 
+group1 <- SSsummarize(list(outlist[[1]],outlist[[2]],outlist[[3]]))
+group2 <- SSsummarize(list(outlist[[1]],outlist[[2]],outlist[[3]],outlist[[4]])) 
+```
+
+
+## Transition with updated survey timing
+### Survey index, length and CAAL month = 7.0 
+Take the `.ss_new` files from model 3.24U, update the survey index **and** composition timing to 7.0, and run `ss_trans.exe v3.30.17` using command `-maxI -1`. This command overrides the max phase set in the starter file (effectively disabling estimation).
+
+## Pass old MLEs for rec devs
+### Survey index, length and CAAL month = 7.0 
+This model takes the `.ss_new` files from the transitioned model, and pastes in the MLEs for recruitment devs from the original model (3.24) into the `.par` file (both recdev early and main). This exercise demonstrates that the population dynamics are the same when the forecasted recruitment devs from the original model (3.24U) are passed into the `.ss_new` files from the transitioned model.
+ 
+## Adjust timing
+### Survey index month = 1.0, length and CAAL month = 7.0 
+Using the `.ss_new` files from the previous model (with `3.24U`'s rec devs), turn of the estimation of forecasted recruitment devs (`forecast dev phase = -1` in starter), **change the survey index timing back to month = 1.0** and re-run using the original MLEs (`ss.par`, no estimation). This is effectively re-introducing the survey timing as specified in the original model while keeping all the optimized the parameters the same; the fit to the index does improve, but it is not an exact match. **This demonstrates that the discrepancies between versions is caused by the way survey timing is handled in the internal dynamics of v3.30+.**
+ 
+
+## Optimize (full conversion)
+This is the same as the previous model, but with optimization enabled. **This model ("converted", green line below) acts as the baseline transitioned model for 3.30.17.** After optimization, the index matches well, but it scales the population up ($R_0$ increases from 12.8219 to 12.8948).  
+
+```{r, echo = F, warning = FALSE, message = FALSE}
+
+SSplotComparisons(group2,plot  = T, legendlabels=models,
+                  uncertainty=FALSE, subplots=1)
+
+```
+
+```{r, echo = F, warning = FALSE, message = FALSE}
+SSplotComparisons(group2,plot  = T, legendlabels=models,
+                  uncertainty=FALSE, subplots=13)
+```
+Note that the vulnerable biomass (to the survey) has changed between versions, due to timing.
+```{r, echo = F, warning = FALSE, message = FALSE}
+SSplotComparisons(group2,plot  = T, legendlabels=models,
+                  uncertainty=FALSE, subplots=1)
+SSplotComparisons(group2,plot  = T, legendlabels=models,
+                  uncertainty=FALSE, subplots=16)
+bio <- lapply(outlist, function(x)
+  cbind(model=x$model, x$timeseries[,c('Yr','SpawnBio','Bio_all')])) %>% bind_rows
+indices <- lapply(outlist, function(x)
+  cbind(model=x$model, x$cpue[,c('Yr','Vuln_bio')])) %>% bind_rows
+
+p1 <- ggplot(bio, aes(Yr, SpawnBio, color=model)) + 
+  geom_line(lwd = 1) + geom_point() + ylim(0,NA) + 
+  ggsidekick::theme_sleek(base_size = 14) + theme(legend.position =  'none')+
+  scale_color_manual(values = colrs, labels = models)
+
+p2 <- ggplot(bio, aes(Yr, Bio_all, color=model))+
+  geom_line(lwd = 1) + geom_point() + ylim(0,NA) + 
+  ggsidekick::theme_sleek(base_size = 14) + theme(legend.position = 'none')+
+  scale_color_manual(values = colrs, labels = models)
+
+p3 <- ggplot(indices, aes(Yr, Vuln_bio, color=model))  +
+  geom_line(lwd = 1) + geom_point() + ylim(0,NA) + 
+  ggsidekick::theme_sleek(base_size = 14) + theme(legend.position = 'bottom')+
+  scale_color_manual(values = colrs, labels = models)
+
+require(patchwork) 
+(p1 | p2) /p3
+```
+
+Tabular comparison of index estimates across models.
+```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
+indices %>% mutate(model = basename(model)) %>% pivot_wider(c('Yr'), names_from='model', values_from='Vuln_bio')
+```
+
+Tabular comparison of likelihoods across models.
+```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
+likes <- lapply(outlist, function(x)
+  data.frame(component=row.names(x$likelihoods_used), 
+             model=basename(x$model), x$likelihoods_used)) %>%
+  bind_rows %>% remove_rownames %>% arrange(component, model) %>% filter(abs(values)>.01)
+likes%>% pivot_wider(c('component'), names_from='model', values_from='values') %>%
+  select(component, '3.24U','3.30_old_mles','3.30_adjust_timing','3.30_converted' )
+```
+Tabular comparison of model scale ($R_0$ estimates) across models.
+```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
+r0 <- lapply(outlist, function(x)
+  cbind(model=basename(x$model), x$parameters[,c('Label','Value')])) %>%
+  bind_rows %>% remove_rownames %>% filter(Label %in% c("SR_LN(R0)"))
+r0 %>% pivot_wider(c('Label'), names_from='model', values_from='Value')
+```
+
+
+ 
+## Attempt survey index timing month  = 7
+### Survey index month = 7.0, length and CAAL month = 7.0 
+
+Out of curiosity, we investigated the impact of (correctly) specifying the survey index month as 7.0 and disabling optimization, using the parameter values from `3.30_converted` above. Total SSB is distinct among the three (with the updated timing model even more different), though the survey fits are indistinguishable.
+```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
+models <- c('3.24U','m02_3.30_converted','m03_update_timing','m04_update_ageing_error','m05_VAST_index')
+## m01 = v3.24U and m02 = 3.30_converted above, just loaded individually now
+m01 <- SS_output(here('model_runs','01_bridging','cole','m01_2017_3.24U'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m02 <- SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m03 <- SS_output(here('model_runs','01_bridging','cole','m03_update_timing'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m04 <- SS_output(here('model_runs','01_bridging','cole','m04_update_ageing_error'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+
+SSplotComparisons(SSsummarize(list(m01,m02,m03)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
+SSplotComparisons(SSsummarize(list(m01,m02,m03)),  uncertainty=TRUE, subplot = 13, legendlabels = models)
+```
+
+
+## VAST data 
+I received the model-based index with data through 2021 from GAP in Spring 2022. Since I plan to present this as a sensitivity to the proposed base model, we should also illustrate how the use of VAST would have affected the previous [converted] benchmark. This model is identical to `m02_3.30_converted` otherwise (the survey index timing is 1.0). As we might expect, the SSB is higher in the VAST version since the model-based inputs are higher than the design-based since ~2000. Reassuringly the dynamics are largely similar between converted models for the years where the VAST & design-based inputs are more alike.
+
+
+```{r pressure, echo=FALSE, out.width = '40%'}
+knitr::include_graphics(here('figs','2022-04-18-index_VASTvsDesign.png'))
+```
+
+
+```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
+m05 <- SS_output(here('model_runs','01_bridging','cole','m05_VAST_index'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+SSplotComparisons(SSsummarize(list(m01,m02,m05)),  uncertainty=TRUE, subplot = 1, legendlabels = models[c(1,2,5)])
+SSplotComparisons(SSsummarize(list(m01,m02,m05)),  uncertainty=TRUE, subplot = 13, legendlabels = models[c(1,2,5)])
+```
+
+# New aging error matrix
+The SSC recommended exploration/addition of a new aging error matrix. To that end, we have a few different options, and it is desirable to illustrate how they affect the base model (no new data) before proceeding.
+
+# Data Bridging 
