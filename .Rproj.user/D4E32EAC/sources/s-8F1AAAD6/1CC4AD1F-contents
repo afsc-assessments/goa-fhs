@@ -18,6 +18,7 @@
 # Packages and RODBC setup ----
 require(RODBC)
 require(dplyr)
+require(tidyverse)
 require(here)
 require(ggplot2); require(ggsidekick)
 require(r4ss)
@@ -261,7 +262,7 @@ ggplot(index, aes(x = yr, y = obs))+
 length.bins <- seq(6,70,2) 
 source(paste0(newsbssdir,"functions/BIN_LEN_DATA.R"))
 #* length comps----
-#** fishery length comps ----
+#** fishery length comps [1982-1988 disabled] ----
 #** survey length comps ----
 ## In the .dat file these are presented as run-on frequencies for males and females separately. Based extraction code
 ## on source(paste0(newsbssdir,"inputs_piecebypiece/Get_GOA_Survey_Length_and_Age_Comp/Get_GOA_Length_Comps.R"))
@@ -283,8 +284,11 @@ Length_df<- sqlQuery(AFSC,l.query)
 write.csv(Length_df,file = here('data','comp',paste0(Sys.Date(),'-goa_lengthcomp_raw.csv')),row.names = FALSE)
 
 ## nsamp query
-## The survey sample size (nhauls) was derived using W Paullson's source("C:\\GitProjects\\newsbss\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_Stats.R")
-the.l.query<-paste0("SELECT c.YEAR,\n ",
+## The survey sample size (nhauls) was derived using W Paullson's code.
+## Carey indicates that lengths only come from "good" hauls anyway,
+## though I notice these values vary slightly (about 5 hauls) from what was used in 2017.
+## source("C:\\GitProjects\\newsbss\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_Stats.R")
+hauljoin_query <-paste0("SELECT c.YEAR,\n ",
                     "l.SPECIES_CODE,\n ",
                     "c.HAULJOIN,\n ",
                     "l.LENGTH,\n ",
@@ -306,22 +310,13 @@ the.l.query<-paste0("SELECT c.YEAR,\n ",
                     "ORDER BY l.species_code,\n ",
                     "  c.YEAR")
 
-thedata <- sqlQuery(AFSC,the.l.query)
+hauljoin <- sqlQuery(AFSC,hauljoin_query)
 
-thedata$ID <-thedata$HAULJOIN
+## for each year, sum the nhauls. Wayne's code also does this for males and females, but this is all  we need for SS.
+nhauls <- hauljoin %>% 
+  group_by(YEAR) %>%
+  summarise(nhaul = n_distinct(ID))
 
-if (with_unsexed == F) {
-  thedata<-thedata[thedata$SEX!=3,]
-}
-
-theyrs = unique(thedata$YEAR)
-numyrs = length(unique(thedata$YEAR))
-thehauls = vector("numeric",length = numyrs)
-theinds = vector("numeric",length = numyrs)
-thehauls_M = vector("numeric",length = numyrs)
-theinds_M = vector("numeric",length = numyrs)
-thehauls_F = vector("numeric",length = numyrs)
-theinds_F = vector("numeric",length = numyrs)
 
 ## In Carey's code line 78 she aggregates (sums) within sex-year-bins, and uses the total annual number of samples
 ## as the denominator (should it not be the total number of samples of that sex?) 
@@ -348,11 +343,11 @@ length_df_long1 <- merge(length_df_long,
          variable = ifelse(variable == 'FEMALES', 1, 2)) %>%
   select(-nobs, -nsamp) %>% 
   # ## fill missing year combos
-  complete(., YEAR, variable, BIN) %>%
+  tidyr::complete(., YEAR, variable, BIN) %>%
   arrange(., YEAR, BIN, variable) %>%
     mutate(freq = ifelse(is.na(freq),0,freq)) 
 
-frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 2, sex = 3, part = 0, Nsamp = NA)
+frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 2, sex = 3, part = 0, Nsamp = nhauls$nhaul)
 
 survey_length_comps <- cbind(frontmatter,
       length_df_long1 %>%
@@ -364,35 +359,20 @@ survey_length_comps <- cbind(frontmatter,
     pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
     select(-YEAR))
 
+#* spot check survey lcomps ----
+## should be within rounding range
+mod17$lendbase %>% 
+  filter(Fleet == 2 & Yr == 2001 & Bin == 10 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(survey_length_comps[7,'10'],4)
+
+mod17$lendbase %>% 
+  filter(Fleet == 2 & Yr == 2007 & Bin == 26 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(survey_length_comps[10,'26'],4)
 
 write.csv(survey_length_comps,file = here('data','comp',paste0(Sys.Date(),'-goa_lengthcomp_forSS.csv')),row.names = FALSE)
-
-
-long.df<-long.df[order(long.df$variable,long.df$YEAR,long.df$BIN,long.df$value),]
-long.df<-aggregate(value ~ variable + YEAR + BIN,long.df,sum)
-long.df<-long.df[order(long.df$variable,long.df$YEAR,long.df$BIN,long.df$value),]
-# calc proportions
-sum.df<-aggregate(value ~ YEAR,long.df,sum)
-sum.df$sumfreq<-sum.df$value
-sum.df<-subset(sum.df,select = -c(value))
-long.df<-merge(long.df,sum.df,all = TRUE)
-long.df$Prop<-long.df$value/long.df$sumfreq
-long.df<-subset(long.df,select = -c(sumfreq,value))
-#work on flipping with males to the right of females
-long.df$SexNum<-as.numeric(long.df$variable == "MALES")
-long.df$SexLength<-as.numeric(paste0(long.df$SexNum,0,long.df$BIN))
-long.df<-subset(long.df,select = c(YEAR,SexLength,Prop))
-long.df<-long.df[order(long.df$YEAR,long.df$SexLength,long.df$Prop),]
-FlipComp.df<-dcast(long.df,YEAR ~ SexLength,sum)
-
-# nms<-c(length.bins,paste0("10",length.bins))
-# Missing<-setdiff(nms,names(FlipComp.df))
-# FlipComp.df[Missing]<-0
-# FlipComp.df<-FlipComp.df[,c("YEAR",nms)]
-# #number of hauls info from a different program, just copy-paste - easier.
-# write.csv(FlipComp.df,file = paste0(MyDir,MyFolder,"\\GOA_Length_Comps_Flipped_Unsexed_",Unsexed,".csv"))
-
-
+ 
 #* age comps----
 #** survey CAALs ----
 #** survey marginal ages [not used] ----
