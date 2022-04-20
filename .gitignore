@@ -1,0 +1,6 @@
+*.pdf
+*.docx
+*.zip
+*.csv
+*data/
+*model_runs/
