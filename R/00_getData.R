@@ -1,4 +1,3 @@
-
 ## M Sosa Kapur building upon C McGilliard and C Monnahan
 # maia.kapur@noaa.gov
 # Spring 2022
@@ -12,8 +11,8 @@
 ## as well as in the finalized SS3v3.30+ format, which is made using code [suffix '_forSS'].
 ## Using newsbss package from M:\Monnahan\newsbss; this hasn't been updated since 15 Sep 2021
 ## Guidance from the GOA_Flathead_readme.md provided by Carey. She indicates which newsbss function
-## applies for each data component. I did not find those functions to be standalone (they've been modified
-## for dover/rex sole) so I largely copied and pasted into here, and streamlined where applicable.
+## applies for each data component. I did not find those functions to be standalone (they've been modified for dover/rex sole) 
+## so I largely copied and pasted into here, and streamlined where applicable.
 
 # Packages and RODBC setup ----
 require(RODBC)
@@ -262,6 +261,7 @@ ggplot(index, aes(x = yr, y = obs))+
 length.bins <- seq(6,70,2) 
 ## read in various functions from Carey's scripts
 source(paste0(newsbssdir,"functions/BIN_LEN_DATA.R"))
+source(paste0(newsbssdir,"functions/BIN_AGE_DATA.R"))
 source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_CATCH_AT_SIZE_PIECES.R"))
 source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_DOM_SPCOMP_LEN_COMBO.R"))
 source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_FOR_SPCOMP_LEN_COMBO.R"))
@@ -524,13 +524,74 @@ write.csv(survey_length_comps,file = here('data','comp',paste0(Sys.Date(),'-goa_
 #** survey CAALs ----
 #Survey conditional age-at-lengths
 #do the SQL query and write the data necessary to read in to the next step here (which will also plot a bunch of age-length ggplots):
-source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_and_Plot.R")
-
-#Run this to get the conditional age-at-length data roughly formatted for assessment input
-source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\GET_GOA_CONDITIONAL_AGE_AT_LENGTH.R")
-#run it for eastern == 0 (this will write output combined over areas)
+# source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_and_Plot.R")
  
 #max_age = 29
+age_bins<-seq(from = 1, to = 29, by = 1)
+
+ALQuery<-paste0("SELECT RACEBASE.SPECIMEN.HAULJOIN,\n ",
+                "RACEBASE.SPECIMEN.REGION,\n ",
+                "RACEBASE.SPECIMEN.SPECIMENID,\n ",
+                "RACEBASE.SPECIMEN.BIOSTRATUM,\n ",
+                "RACEBASE.SPECIMEN.SPECIES_CODE,\n ",
+                "RACEBASE.SPECIMEN.LENGTH,\n ",
+                "RACEBASE.SPECIMEN.WEIGHT,\n ",
+                "RACEBASE.SPECIMEN.SEX,\n ",
+                "RACEBASE.SPECIMEN.AGE,\n ",
+                "RACEBASE.HAUL.START_TIME,\n ",
+                "RACEBASE.HAUL.BOTTOM_DEPTH,\n ",
+                "RACEBASE.HAUL.STRATUM,\n ",
+                "RACEBASE.HAUL.GEAR_TEMPERATURE,\n ",
+                "RACEBASE.HAUL.BOTTOM_TYPE,\n ",
+                "RACEBASE.HAUL.GEAR_DEPTH,\n ",
+                "RACEBASE.HAUL.PERFORMANCE,\n ",
+                "RACEBASE.HAUL.DURATION,\n ",
+                "RACEBASE.HAUL.DISTANCE_FISHED,\n ",
+                "RACEBASE.HAUL.NET_WIDTH,\n ",
+                "RACEBASE.HAUL.NET_HEIGHT,\n ",
+                "RACEBASE.HAUL.NET_MEASURED,\n ",
+                "RACEBASE.HAUL.START_LATITUDE,\n ",
+                "RACEBASE.HAUL.END_LATITUDE,\n ",
+                "RACEBASE.HAUL.START_LONGITUDE,\n ",
+                "RACEBASE.HAUL.END_LONGITUDE,\n ",
+                "RACEBASE.HAUL.SURFACE_TEMPERATURE,\n ",
+                "RACEBASE.HAUL.GEAR,\n ",
+                "RACEBASE.HAUL.HAULJOIN,\n ",
+                "RACEBASE.HAUL.BOTTOM_DEPTH,\n ",
+                "RACEBASE.HAUL.ABUNDANCE_HAUL,\n ",
+                "GOA.GOA_STRATA.INPFC_AREA,\n ",
+                "GOA.GOA_STRATA.MIN_DEPTH,\n ",
+                "GOA.GOA_STRATA.MAX_DEPTH,\n ",
+                "GOA.GOA_STRATA.DESCRIPTION,\n ",
+                "GOA.GOA_STRATA.REGULATORY_AREA_NAME,\n ",
+                "GOA.GOA_STRATA.STRATUM_TYPE\n ",
+                "FROM RACEBASE.SPECIMEN\n ",
+                "INNER JOIN RACEBASE.HAUL\n ",
+                "ON RACEBASE.SPECIMEN.HAULJOIN = RACEBASE.HAUL.HAULJOIN\n ",
+                "INNER JOIN GOA.GOA_STRATA\n ",
+                "ON RACEBASE.HAUL.STRATUM           = GOA.GOA_STRATA.STRATUM\n ",
+                "WHERE RACEBASE.SPECIMEN.REGION     = 'GOA'\n ",
+                "AND GOA.GOA_STRATA.SURVEY = 'GOA'\n ",
+                "AND RACEBASE.SPECIMEN.SPECIES_CODE = 10180\n ",
+                "AND RACEBASE.HAUL.ABUNDANCE_HAUL   = 'Y'")
+
+
+AL.df<- sqlQuery(AFSC,ALQuery)  %>% 
+  mutate(YEAR = as.numeric(substr(START_TIME, 1, 4)),
+         Months = months(as.Date(START_TIME)),
+         Quarters = quarters(as.Date(START_TIME)),
+         Cohort = YEAR-AGE,
+         GrowthMorph = ifelse(REGULATORY_AREA_NAME == "EASTERN GOA", "EASTERN",'NOT_EASTERN')) %>%
+  ## Carey's code looks at complete cases via weight, but her notes indicate length - changing this
+  filter(!is.na(AGE) & !is.na(LENGTH)) %>%
+  BIN_AGE_DATA(.) 
+
+write.csv(AL.df,file = here('data','comp',paste0(Sys.Date(),'-goa_agecomp_raw.csv')),row.names = FALSE)
+
+
+#Run this to get the conditional age-at-length data roughly formatted for assessment input
+# source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\GET_GOA_CONDITIONAL_AGE_AT_LENGTH.R")
+#run it for eastern == 0 (this will write output combined over areas)
 
 
 #** survey marginal ages [as ghost] ----
