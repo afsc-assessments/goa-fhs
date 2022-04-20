@@ -260,9 +260,149 @@ ggplot(index, aes(x = yr, y = obs))+
 
 # Comps ----
 length.bins <- seq(6,70,2) 
+## read in various functions from Carey's scripts
 source(paste0(newsbssdir,"functions/BIN_LEN_DATA.R"))
+source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_CATCH_AT_SIZE_PIECES.R"))
+source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_DOM_SPCOMP_LEN_COMBO.R"))
+source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_FOR_SPCOMP_LEN_COMBO.R"))
+
 #* length comps----
-#** fishery length comps [1982-1988 disabled] ----
+#** fishery length comps ----
+# data ommitted in 1982:1988,2000, 2008 because less than 15 hauls    
+## these are presented as straight up numbers (though unclear how these are decimals); the nhauls are a separate value
+## Get_Fishery_Lengths_With_Extrapolated_Number.R
+## Go query domestic (DLCOMP) and foreign (FLCOMP) fishery length information from OBSINT and NORPAQ
+## Using extrapolated number (and the equivalent from foreign data), calculate population-level
+## length comps in terms of numbers return a dataframe with those comps (comps) as well as the total population numbers 
+## summed over males, females, and length bins for later use (totals)
+## it does not appear that unsexed values were used, nor was gear considered in the frequency calculation
+fish_lcomp0 <- rbind(GET_CATCH_AT_SIZE_PIECES(type="D",fsh_sp_str=103,sp_area,len_bins=length.bins,bin=TRUE),
+                     GET_CATCH_AT_SIZE_PIECES(type="F",fsh_sp_str=103,sp_area,len_bins=length.bins,bin=TRUE)) %>%
+  filter(SEX != 'U')
+
+write.csv(fish_lcomp0,file = here('data','comp',paste0(Sys.Date(),'-fishery_lengthcomp_raw.csv')),row.names = FALSE)
+
+#Nsamp for Fishery lengths (and tables for the SAFE):
+#Get_Fishery_Length_HaulStats_With_NORPAQ.R"
+low.nmfs.area = "'600'" #"'600'" #500 
+hi.nmfs.area = "'699'" #"'699'"  #544
+## foreign fishery nhauls from NORPAQ (>= 1989)
+Fnhaul_query <-paste0("SELECT NORPAC.FOREIGN_LENGTH.SPECIES,\n ",
+                  "NORPAC.FOREIGN_LENGTH.SEX,\n ",
+                  "NORPAC.FOREIGN_LENGTH.YEAR,\n ",
+                  "NORPAC.FOREIGN_LENGTH.FREQUENCY,\n ",
+                  "NORPAC.FOREIGN_HAUL.GENERIC_AREA,\n ",
+                  "NORPAC.FOREIGN_LENGTH.SIZE_GROUP,\n ",
+                  "NORPAC.FOREIGN_HAUL.HAUL_JOIN,\n ",
+                  "NORPAC.FOREIGN_HAUL.HOOKS_PER_SKATE,\n ",
+                  "NORPAC.FOREIGN_HAUL.NUMBER_OF_POTS\n ",
+                  "FROM NORPAC.FOREIGN_LENGTH\n ",
+                  "INNER JOIN NORPAC.FOREIGN_HAUL\n ",
+                  "ON NORPAC.FOREIGN_HAUL.HAUL_JOIN    = NORPAC.FOREIGN_LENGTH.HAUL_JOIN\n ",
+                  "WHERE NORPAC.FOREIGN_LENGTH.SPECIES = ",103,"\n ",
+                  "AND NORPAC.FOREIGN_HAUL.GENERIC_AREA BETWEEN ",low.nmfs.area," AND ",hi.nmfs.area)
+
+hauljoin <- sqlQuery(AFSC,Fnhaul_query)
+hauljoin <-hauljoin[hauljoin$GENERIC_AREA!=670,]
+hauljoin$ID<-hauljoin$HAUL_JOIN
+## for each year, sum the nhauls. Wayne's code also does this for males and females, but this is all  we need for SS.
+nhauls_for <- hauljoin %>% 
+  group_by(YEAR) %>%
+  summarise(nhaul = n_distinct(ID))
+
+## domestic fishery nhauls from NORPAQ (>= 1989)
+Dnhaul_query <-paste0("SELECT OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.SPECIES,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.SEX,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.LENGTH,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.FREQUENCY,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.CRUISE,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.PERMIT,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.GEAR_PERFORMANCE,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.YEAR,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.GEAR,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.NMFS_AREA,\n ",
+                 "OBSINT.DEBRIEFED_LENGTH.HAUL_OFFLOAD,\n ",
+                 "OBSINT.DEBRIEFED_HAUL.HAUL_SEQ,\n ",
+                 "SUBSTR(TO_CHAR(OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN),9,19) AS LAST1,\n ",
+                 "SUBSTR(TO_CHAR(OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN),1,8) AS FIRST1\n ",
+                 "FROM OBSINT.DEBRIEFED_LENGTH\n ",
+                 "INNER JOIN OBSINT.DEBRIEFED_HAUL\n ",
+                 "ON OBSINT.DEBRIEFED_HAUL.HAUL_JOIN    = OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN\n ",
+                 "WHERE OBSINT.DEBRIEFED_LENGTH.SPECIES = ",103,"\n ",
+                 "AND OBSINT.DEBRIEFED_LENGTH.NMFS_AREA BETWEEN ",low.nmfs.area," AND ",hi.nmfs.area)
+
+
+hauljoin <- sqlQuery(AFSC,nhaul_query)
+hauljoin <-hauljoin[hauljoin$NMFS_AREA!=670,]
+hauljoin$ID<-paste0(hauljoin$FIRST1,hauljoin$LAST1)
+## for each year, sum the nhauls. Wayne's code also does this for males and females, but this is all  we need for SS.
+nhauls_dom <- hauljoin %>% 
+  group_by(YEAR) %>%
+  summarise(nhaul = n_distinct(ID))
+
+ 
+ 
+# fish_lcomp0 %>% 
+#   filter(LNUMBERS!=0) %>%
+#   group_by(YEAR, SEX) %>%
+#   summarise(n = n()) %>% View()
+ 
+fish_lcomp <- fish_lcomp0 %>%
+  group_by(YEAR, LENGTH, SEX) %>%
+  #1988-1990 are in both foreign and domestic and represent different fisheries at that time
+  #Add length frequencies for years where both foreign and domestic fisheries were operating:
+  summarise(nobs = sum(LNUMBERS))  
+
+## get total number of samples in each year/sex/bin combo
+length_df_long1 <- merge(fish_lcomp,
+                         fish_lcomp %>% 
+                           group_by(YEAR) %>% 
+                           ## denominator is total number of samples this year
+                           summarise(nsamp = sum(nobs)),
+                         by = c('YEAR')) %>%
+  ## calculate frequencies 
+  mutate(freq = nobs/nsamp,
+         variable = ifelse(SEX == 'F', 1, 2)) %>%
+  select(-nobs, -nsamp, -SEX) %>% 
+  # ## fill missing year combos
+  tidyr::complete(., YEAR, variable, LENGTH ) %>%
+  arrange(., YEAR, LENGTH, variable) %>%
+  mutate(freq = ifelse(is.na(freq),0,freq))  
+
+frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 1,
+                          sex = 3, part = 0, Nsamp = c(nhauls_for$nhaul, nhauls_dom$nhaul))
+## turn off fleets
+frontmatter$fleet[frontmatter$yr %in% c(1982:1988,2000,2008)] <- -1
+
+fishery_length_comps <- cbind(frontmatter,
+                             length_df_long1 %>%
+                               filter(variable == 1) %>%
+                               pivot_wider(., id_cols = YEAR, names_from = LENGTH, values_from = freq) %>%
+                               select(-YEAR),
+                             length_df_long1 %>%
+                               filter(variable == 2) %>%
+                               pivot_wider(., id_cols = YEAR, names_from = LENGTH,values_from = freq) %>%
+                               select(-YEAR))
+
+#* spot check fishery lcomps ----
+## should be within rounding range
+mod17$lendbase %>% 
+  filter(Fleet == 1 & Yr == 2001 & Bin == 46 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(fishery_length_comps[19,'46'],4) 
+
+fishery_length_comps[32,'Nsamp'] == 106
+
+mod17$lendbase %>% 
+  filter(Fleet == 1 & Yr == 2007 & Bin == 26 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(fishery_length_comps[25,'26'],4)
+
+
+write.csv(fishery_length_comps,file = here('data','comp',paste0(Sys.Date(),'-fishery_lengthcomp_forSS.csv')),row.names = FALSE)
+
+
 #** survey length comps ----
 ## In the .dat file these are presented as run-on frequencies for males and females separately. Based extraction code
 ## on source(paste0(newsbssdir,"inputs_piecebypiece/Get_GOA_Survey_Length_and_Age_Comp/Get_GOA_Length_Comps.R"))
@@ -317,9 +457,16 @@ nhauls <- hauljoin %>%
   group_by(YEAR) %>%
   summarise(nhaul = n_distinct(ID))
 
+# ## Do the full table for report
+# hauljoin %>% 
+#   mutate(sex = ifelse(SEX == 1, 'Total',ifelse(SEX == 2,'Female','Male')))
+#   group_by(YEAR,SEX) %>%
+#   
+#   summarise(nhaul = n_distinct(ID)) %>%
+#   pivot_wider(names_from = SEX, values_from = nhaul)
 
 ## In Carey's code line 78 she aggregates (sums) within sex-year-bins, and uses the total annual number of samples
-## as the denominator (should it not be the total number of samples of that sex?) 
+## as the denominator for both
 
 length_df_long <- Length_df %>%
   mutate(LENGTH = LENGTH/10) %>% ## convert to cm
@@ -375,4 +522,18 @@ write.csv(survey_length_comps,file = here('data','comp',paste0(Sys.Date(),'-goa_
  
 #* age comps----
 #** survey CAALs ----
-#** survey marginal ages [not used] ----
+#Survey conditional age-at-lengths
+#do the SQL query and write the data necessary to read in to the next step here (which will also plot a bunch of age-length ggplots):
+source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_and_Plot.R")
+
+#Run this to get the conditional age-at-length data roughly formatted for assessment input
+source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\GET_GOA_CONDITIONAL_AGE_AT_LENGTH.R")
+#run it for eastern == 0 (this will write output combined over areas)
+ 
+#max_age = 29
+
+
+#** survey marginal ages [as ghost] ----
+#GOA marginal age comps (include so that you can see the ghosted fits in r4ss output)
+# source("C:\\GitProjects\\newsbss\\Get_GOA_Survey_AgeComposition.R")
+ 
