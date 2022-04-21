@@ -38,13 +38,13 @@ species <- 10130 #throughout make sure the SpeciesCode = 10130 for the survey, 1
 sp_area <- "'GOA'"
 fyear <- 2022
 
-## load last model
-mod17 <-  SS_output(here('model_runs','2017-mod'))
+## load last model, converted version
+# mod17 <-  SS_output(here('model_runs','2017-mod'))
+
+mod17 <-  SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'))
 SSplotData(mod17) ## we need one fishery of catches, one survey, 2x Lcomps, and 1x CAALS
 
-# Catches ----
-
-
+# Catches ---- 
 ## manually download any needed years of weekly catches from 
 ## https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish
 #* dwnld catch ----
@@ -52,9 +52,9 @@ source(paste0(newsbssdir,"functions/get_catch.R"))
 fsh_sp_area <- "'CG','SE','WG','WY','EY'"
 message("Querying AKFIN to get catch..")
 catch0 <- GET_CATCH(fsh_sp_area=fsh_sp_area,
-                   fsh_sp_label="'FSOL'",
-                   final_year=fyear,
-                   ADD_OLD_FILE=FALSE)$CATCH
+                    fsh_sp_label="'FSOL'",
+                    final_year=fyear,
+                    ADD_OLD_FILE=FALSE)$CATCH
 catch0 <- arrange(catch0, YEAR, ZONE, GEAR1)
 write.csv(catch0, file=here('data','catch',paste0(Sys.Date(),'-catch-raw.csv') ), row.names=FALSE)
 
@@ -82,10 +82,10 @@ catch <- catch0 %>%
   group_by(YEAR) %>% 
   summarise(catch = sum(TONS)) %>%
   merge(., 
-  data.frame(cbind(YEAR = mod17$catch$Yr,
-                          TONS = mod17$catch$Obs)) %>%
-  filter(YEAR < 1991),
-  by = 'YEAR', all = T) %>%
+        data.frame(cbind(YEAR = mod17$catch$Yr,
+                         TONS = mod17$catch$Obs)) %>%
+          filter(YEAR < 1991),
+        by = 'YEAR', all = T) %>%
   mutate(catch_mt = ifelse(is.na(catch), round(TONS,2), round(catch,2)),
          catch_se = 0.01,
          seas = 1,
@@ -190,7 +190,7 @@ ggsave(last_plot(),
 
 ## design based with VAST
 vast <- read.csv(here('data','survey','hippoglossoides_elassodon',
-'table_for_ss3.csv')) %>%
+                      'table_for_ss3.csv')) %>%
   mutate(src = 'Model-Based (VAST)',
          value=Estimate_metric_tons/1000,
          lci = (Estimate_metric_tons -1.96*SD_mt)/1000 ,
@@ -258,7 +258,8 @@ ggplot(index, aes(x = yr, y = obs))+
 
 
 # Comps ----
-length.bins <- seq(6,70,2) 
+length_bins <- seq(6,70,2) 
+age_bins <- seq(1,29,1);max_age <- max(age_bins)
 ## read in various functions from Carey's scripts
 source(paste0(newsbssdir,"functions/BIN_LEN_DATA.R"))
 source(paste0(newsbssdir,"functions/BIN_AGE_DATA.R"))
@@ -266,7 +267,44 @@ source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_CATCH_AT_S
 source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_DOM_SPCOMP_LEN_COMBO.R"))
 source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_FOR_SPCOMP_LEN_COMBO.R"))
 
-#* length comps----
+#* survey nhauls ----
+
+## nsamp query
+## The survey sample size (nhauls) was derived using W Paullson's code.
+## Carey indicates that lengths only come from "good" hauls anyway,
+## though I notice these values vary slightly (about 5 hauls) from what was used in 2017.
+## source("C:\\GitProjects\\newsbss\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_Stats.R")
+hauljoin_query <-paste0("SELECT c.YEAR,\n ",
+                        "l.SPECIES_CODE,\n ",
+                        "c.HAULJOIN,\n ",
+                        "l.LENGTH,\n ",
+                        "l.FREQUENCY,\n ",
+                        "l.SEX\n ",
+                        "FROM racebase.length l,\n ",
+                        "goa.cpue c\n ",
+                        "WHERE l.HAULJOIN     = c.HAULJOIN\n ",
+                        "AND l.CATCHJOIN      = c.CATCHJOIN\n ",
+                        "AND l.REGION         = c.SURVEY\n ",
+                        "AND (l.SPECIES_CODE IN (",species,")\n ",
+                        "AND l.REGION         = ",sp_area,")\n ",
+                        "GROUP BY c.YEAR,\n ",
+                        "  l.SPECIES_CODE,\n ",
+                        "  c.HAULJOIN,\n ",
+                        "  l.LENGTH,\n ",
+                        "  l.FREQUENCY,\n ",
+                        "  l.SEX\n ",
+                        "ORDER BY l.species_code,\n ",
+                        "  c.YEAR")
+
+hauljoin <- sqlQuery(AFSC,hauljoin_query)
+
+## for each year, sum the nhauls. Wayne's code also does this for males and females, but this is all we need for SS.
+nhauls <- hauljoin %>% 
+  group_by(YEAR) %>%
+  summarise(nhaul = n_distinct(HAULJOIN))
+
+write.csv(nhauls, here('data','comp',paste0(Sys.Date(),"-survey_nhauls.csv")), row.names = FALSE)
+#* length comps---- 
 #** fishery length comps ----
 # data ommitted in 1982:1988,2000, 2008 because less than 15 hauls    
 ## these are presented as straight up numbers (though unclear how these are decimals); the nhauls are a separate value
@@ -276,8 +314,8 @@ source(paste0(newsbssdir,"inputs_piecebypiece/get_fishery_lengths/GET_FOR_SPCOMP
 ## length comps in terms of numbers return a dataframe with those comps (comps) as well as the total population numbers 
 ## summed over males, females, and length bins for later use (totals)
 ## it does not appear that unsexed values were used, nor was gear considered in the frequency calculation
-fish_lcomp0 <- rbind(GET_CATCH_AT_SIZE_PIECES(type="D",fsh_sp_str=103,sp_area,len_bins=length.bins,bin=TRUE),
-                     GET_CATCH_AT_SIZE_PIECES(type="F",fsh_sp_str=103,sp_area,len_bins=length.bins,bin=TRUE)) %>%
+fish_lcomp0 <- rbind(GET_CATCH_AT_SIZE_PIECES(type="D",fsh_sp_str=103,sp_area,len_bins=length_bins,bin=TRUE),
+                     GET_CATCH_AT_SIZE_PIECES(type="F",fsh_sp_str=103,sp_area,len_bins=length_bins,bin=TRUE)) %>%
   filter(SEX != 'U')
 
 write.csv(fish_lcomp0,file = here('data','comp',paste0(Sys.Date(),'-fishery_lengthcomp_raw.csv')),row.names = FALSE)
@@ -288,19 +326,19 @@ low.nmfs.area = "'600'" #"'600'" #500
 hi.nmfs.area = "'699'" #"'699'"  #544
 ## foreign fishery nhauls from NORPAQ (>= 1989)
 Fnhaul_query <-paste0("SELECT NORPAC.FOREIGN_LENGTH.SPECIES,\n ",
-                  "NORPAC.FOREIGN_LENGTH.SEX,\n ",
-                  "NORPAC.FOREIGN_LENGTH.YEAR,\n ",
-                  "NORPAC.FOREIGN_LENGTH.FREQUENCY,\n ",
-                  "NORPAC.FOREIGN_HAUL.GENERIC_AREA,\n ",
-                  "NORPAC.FOREIGN_LENGTH.SIZE_GROUP,\n ",
-                  "NORPAC.FOREIGN_HAUL.HAUL_JOIN,\n ",
-                  "NORPAC.FOREIGN_HAUL.HOOKS_PER_SKATE,\n ",
-                  "NORPAC.FOREIGN_HAUL.NUMBER_OF_POTS\n ",
-                  "FROM NORPAC.FOREIGN_LENGTH\n ",
-                  "INNER JOIN NORPAC.FOREIGN_HAUL\n ",
-                  "ON NORPAC.FOREIGN_HAUL.HAUL_JOIN    = NORPAC.FOREIGN_LENGTH.HAUL_JOIN\n ",
-                  "WHERE NORPAC.FOREIGN_LENGTH.SPECIES = ",103,"\n ",
-                  "AND NORPAC.FOREIGN_HAUL.GENERIC_AREA BETWEEN ",low.nmfs.area," AND ",hi.nmfs.area)
+                      "NORPAC.FOREIGN_LENGTH.SEX,\n ",
+                      "NORPAC.FOREIGN_LENGTH.YEAR,\n ",
+                      "NORPAC.FOREIGN_LENGTH.FREQUENCY,\n ",
+                      "NORPAC.FOREIGN_HAUL.GENERIC_AREA,\n ",
+                      "NORPAC.FOREIGN_LENGTH.SIZE_GROUP,\n ",
+                      "NORPAC.FOREIGN_HAUL.HAUL_JOIN,\n ",
+                      "NORPAC.FOREIGN_HAUL.HOOKS_PER_SKATE,\n ",
+                      "NORPAC.FOREIGN_HAUL.NUMBER_OF_POTS\n ",
+                      "FROM NORPAC.FOREIGN_LENGTH\n ",
+                      "INNER JOIN NORPAC.FOREIGN_HAUL\n ",
+                      "ON NORPAC.FOREIGN_HAUL.HAUL_JOIN    = NORPAC.FOREIGN_LENGTH.HAUL_JOIN\n ",
+                      "WHERE NORPAC.FOREIGN_LENGTH.SPECIES = ",103,"\n ",
+                      "AND NORPAC.FOREIGN_HAUL.GENERIC_AREA BETWEEN ",low.nmfs.area," AND ",hi.nmfs.area)
 
 hauljoin <- sqlQuery(AFSC,Fnhaul_query)
 hauljoin <-hauljoin[hauljoin$GENERIC_AREA!=670,]
@@ -312,28 +350,28 @@ nhauls_for <- hauljoin %>%
 
 ## domestic fishery nhauls from NORPAQ (>= 1989)
 Dnhaul_query <-paste0("SELECT OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.SPECIES,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.SEX,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.LENGTH,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.FREQUENCY,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.CRUISE,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.PERMIT,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.GEAR_PERFORMANCE,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.YEAR,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.GEAR,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.NMFS_AREA,\n ",
-                 "OBSINT.DEBRIEFED_LENGTH.HAUL_OFFLOAD,\n ",
-                 "OBSINT.DEBRIEFED_HAUL.HAUL_SEQ,\n ",
-                 "SUBSTR(TO_CHAR(OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN),9,19) AS LAST1,\n ",
-                 "SUBSTR(TO_CHAR(OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN),1,8) AS FIRST1\n ",
-                 "FROM OBSINT.DEBRIEFED_LENGTH\n ",
-                 "INNER JOIN OBSINT.DEBRIEFED_HAUL\n ",
-                 "ON OBSINT.DEBRIEFED_HAUL.HAUL_JOIN    = OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN\n ",
-                 "WHERE OBSINT.DEBRIEFED_LENGTH.SPECIES = ",103,"\n ",
-                 "AND OBSINT.DEBRIEFED_LENGTH.NMFS_AREA BETWEEN ",low.nmfs.area," AND ",hi.nmfs.area)
+                      "OBSINT.DEBRIEFED_LENGTH.SPECIES,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.SEX,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.LENGTH,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.FREQUENCY,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.CRUISE,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.PERMIT,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.GEAR_PERFORMANCE,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.YEAR,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.GEAR,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.NMFS_AREA,\n ",
+                      "OBSINT.DEBRIEFED_LENGTH.HAUL_OFFLOAD,\n ",
+                      "OBSINT.DEBRIEFED_HAUL.HAUL_SEQ,\n ",
+                      "SUBSTR(TO_CHAR(OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN),9,19) AS LAST1,\n ",
+                      "SUBSTR(TO_CHAR(OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN),1,8) AS FIRST1\n ",
+                      "FROM OBSINT.DEBRIEFED_LENGTH\n ",
+                      "INNER JOIN OBSINT.DEBRIEFED_HAUL\n ",
+                      "ON OBSINT.DEBRIEFED_HAUL.HAUL_JOIN    = OBSINT.DEBRIEFED_LENGTH.HAUL_JOIN\n ",
+                      "WHERE OBSINT.DEBRIEFED_LENGTH.SPECIES = ",103,"\n ",
+                      "AND OBSINT.DEBRIEFED_LENGTH.NMFS_AREA BETWEEN ",low.nmfs.area," AND ",hi.nmfs.area)
 
 
-hauljoin <- sqlQuery(AFSC,nhaul_query)
+hauljoin <- sqlQuery(AFSC,Dnhaul_query)
 hauljoin <-hauljoin[hauljoin$NMFS_AREA!=670,]
 hauljoin$ID<-paste0(hauljoin$FIRST1,hauljoin$LAST1)
 ## for each year, sum the nhauls. Wayne's code also does this for males and females, but this is all  we need for SS.
@@ -341,13 +379,13 @@ nhauls_dom <- hauljoin %>%
   group_by(YEAR) %>%
   summarise(nhaul = n_distinct(ID))
 
- 
- 
+
+
 # fish_lcomp0 %>% 
 #   filter(LNUMBERS!=0) %>%
 #   group_by(YEAR, SEX) %>%
 #   summarise(n = n()) %>% View()
- 
+
 fish_lcomp <- fish_lcomp0 %>%
   group_by(YEAR, LENGTH, SEX) %>%
   #1988-1990 are in both foreign and domestic and represent different fisheries at that time
@@ -376,17 +414,18 @@ frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 
 frontmatter$fleet[frontmatter$yr %in% c(1982:1988,2000,2008)] <- -1
 
 fishery_length_comps <- cbind(frontmatter,
-                             length_df_long1 %>%
-                               filter(variable == 1) %>%
-                               pivot_wider(., id_cols = YEAR, names_from = LENGTH, values_from = freq) %>%
-                               select(-YEAR),
-                             length_df_long1 %>%
-                               filter(variable == 2) %>%
-                               pivot_wider(., id_cols = YEAR, names_from = LENGTH,values_from = freq) %>%
-                               select(-YEAR))
+                              length_df_long1 %>%
+                                filter(variable == 1) %>%
+                                pivot_wider(., id_cols = YEAR, names_from = LENGTH, values_from = freq) %>%
+                                select(-YEAR),
+                              length_df_long1 %>%
+                                filter(variable == 2) %>%
+                                pivot_wider(., id_cols = YEAR, names_from = LENGTH,values_from = freq) %>%
+                                select(-YEAR))
 
 #* spot check fishery lcomps ----
-## should be within rounding range
+## should be within rounding range. Note that the values in the dat file are in full integers, whereas
+## what gets reformatted via SS_output is scaled to 1. So long as these match at the same scale it's OK.
 mod17$lendbase %>% 
   filter(Fleet == 1 & Yr == 2001 & Bin == 46 & Sex == 1) %>% 
   select(Obs) %>% round(.,4) ==
@@ -423,39 +462,6 @@ l.query<-paste0("SELECT GOA.SIZECOMP_TOTAL.SURVEY,\n ",
 Length_df<- sqlQuery(AFSC,l.query)
 write.csv(Length_df,file = here('data','comp',paste0(Sys.Date(),'-goa_lengthcomp_raw.csv')),row.names = FALSE)
 
-## nsamp query
-## The survey sample size (nhauls) was derived using W Paullson's code.
-## Carey indicates that lengths only come from "good" hauls anyway,
-## though I notice these values vary slightly (about 5 hauls) from what was used in 2017.
-## source("C:\\GitProjects\\newsbss\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_Stats.R")
-hauljoin_query <-paste0("SELECT c.YEAR,\n ",
-                    "l.SPECIES_CODE,\n ",
-                    "c.HAULJOIN,\n ",
-                    "l.LENGTH,\n ",
-                    "l.FREQUENCY,\n ",
-                    "l.SEX\n ",
-                    "FROM racebase.length l,\n ",
-                    "goa.cpue c\n ",
-                    "WHERE l.HAULJOIN     = c.HAULJOIN\n ",
-                    "AND l.CATCHJOIN      = c.CATCHJOIN\n ",
-                    "AND l.REGION         = c.SURVEY\n ",
-                    "AND (l.SPECIES_CODE IN (",species,")\n ",
-                    "AND l.REGION         = ",sp_area,")\n ",
-                    "GROUP BY c.YEAR,\n ",
-                    "  l.SPECIES_CODE,\n ",
-                    "  c.HAULJOIN,\n ",
-                    "  l.LENGTH,\n ",
-                    "  l.FREQUENCY,\n ",
-                    "  l.SEX\n ",
-                    "ORDER BY l.species_code,\n ",
-                    "  c.YEAR")
-
-hauljoin <- sqlQuery(AFSC,hauljoin_query)
-
-## for each year, sum the nhauls. Wayne's code also does this for males and females, but this is all  we need for SS.
-nhauls <- hauljoin %>% 
-  group_by(YEAR) %>%
-  summarise(nhaul = n_distinct(ID))
 
 # ## Do the full table for report
 # hauljoin %>% 
@@ -472,10 +478,14 @@ length_df_long <- Length_df %>%
   mutate(LENGTH = LENGTH/10) %>% ## convert to cm
   select(YEAR,LENGTH,MALES,FEMALES) %>%
   melt(., id = c("YEAR","LENGTH")) %>%
-  BIN_LEN_DATA(.,length.bins) %>%
+  BIN_LEN_DATA(.,length_bins) %>%
   group_by(YEAR, variable, BIN) %>% 
   ## combine observations within length bins
-  summarise(nobs = sum(value))
+  summarise(nobs = sum(value)) %>%
+  rbind(.,
+        c(NA,N))
+
+# length_df_long$BIN <- factor(length_df_long$BIN, levels = age_bins)
 
 ## get total number of samples in each year/sex/bin combo
 length_df_long1 <- merge(length_df_long,
@@ -492,19 +502,19 @@ length_df_long1 <- merge(length_df_long,
   # ## fill missing year combos
   tidyr::complete(., YEAR, variable, BIN) %>%
   arrange(., YEAR, BIN, variable) %>%
-    mutate(freq = ifelse(is.na(freq),0,freq)) 
+  mutate(freq = ifelse(is.na(freq),0,freq)) 
 
 frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 2, sex = 3, part = 0, Nsamp = nhauls$nhaul)
 
 survey_length_comps <- cbind(frontmatter,
-      length_df_long1 %>%
-  filter(variable == 1) %>%
-  pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
-  select(-YEAR),
-  length_df_long1 %>%
-    filter(variable == 2) %>%
-    pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
-    select(-YEAR))
+                             length_df_long1 %>%
+                               filter(variable == 1) %>%
+                               pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
+                               select(-YEAR),
+                             length_df_long1 %>%
+                               filter(variable == 2) %>%
+                               pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
+                               select(-YEAR))
 
 #* spot check survey lcomps ----
 ## should be within rounding range
@@ -514,20 +524,24 @@ mod17$lendbase %>%
   round(survey_length_comps[7,'10'],4)
 
 mod17$lendbase %>% 
+  filter(Fleet == 2 & Yr == 2001 & Bin == 60 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(survey_length_comps[7,'10'],4)
+
+mod17$lendbase %>% 
   filter(Fleet == 2 & Yr == 2007 & Bin == 26 & Sex == 1) %>% 
   select(Obs) %>% round(.,4) ==
   round(survey_length_comps[10,'26'],4)
 
 write.csv(survey_length_comps,file = here('data','comp',paste0(Sys.Date(),'-goa_lengthcomp_forSS.csv')),row.names = FALSE)
- 
+
 #* age comps----
 #** survey CAALs ----
 #Survey conditional age-at-lengths
 #do the SQL query and write the data necessary to read in to the next step here (which will also plot a bunch of age-length ggplots):
 # source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\Get_Survey_Length_Age_and_Plot.R")
- 
-#max_age = 29
-age_bins<-seq(from = 1, to = 29, by = 1)
+## data repeat for both sexes; bins are uneven (don't have complete dimensions)
+## note that in data males are 1, where as in SS females are 1
 
 ALQuery<-paste0("SELECT RACEBASE.SPECIMEN.HAULJOIN,\n ",
                 "RACEBASE.SPECIMEN.REGION,\n ",
@@ -572,29 +586,159 @@ ALQuery<-paste0("SELECT RACEBASE.SPECIMEN.HAULJOIN,\n ",
                 "ON RACEBASE.HAUL.STRATUM           = GOA.GOA_STRATA.STRATUM\n ",
                 "WHERE RACEBASE.SPECIMEN.REGION     = 'GOA'\n ",
                 "AND GOA.GOA_STRATA.SURVEY = 'GOA'\n ",
-                "AND RACEBASE.SPECIMEN.SPECIES_CODE = 10180\n ",
+                # "AND RACEBASE.SPECIMEN.SPECIES_CODE = ",10180,"\n ",
+                "AND RACEBASE.SPECIMEN.SPECIES_CODE = ",species,"\n ",
                 "AND RACEBASE.HAUL.ABUNDANCE_HAUL   = 'Y'")
 
 
-AL.df<- sqlQuery(AFSC,ALQuery)  %>% 
-  mutate(YEAR = as.numeric(substr(START_TIME, 1, 4)),
-         Months = months(as.Date(START_TIME)),
-         Quarters = quarters(as.Date(START_TIME)),
-         Cohort = YEAR-AGE,
-         GrowthMorph = ifelse(REGULATORY_AREA_NAME == "EASTERN GOA", "EASTERN",'NOT_EASTERN')) %>%
-  ## Carey's code looks at complete cases via weight, but her notes indicate length - changing this
-  filter(!is.na(AGE) & !is.na(LENGTH)) %>%
-  BIN_AGE_DATA(.) 
+AL_df<- sqlQuery(AFSC,ALQuery)  %>% 
+  filter(SEX != 3 
+         & !is.na(AGE) 
+         # & !is.na(LENGTH) 
+         & !is.na(WEIGHT)) %>% #drop unsexed
+  mutate(  LENGTH = round(LENGTH/10,0),  #bin the length obs as cm
+           YEAR = as.numeric(substr(START_TIME, 1, 4)),
+           Months = months(as.Date(START_TIME)),
+           Quarters = quarters(as.Date(START_TIME)),
+           Cohort = YEAR-AGE,
+           GrowthMorph = ifelse(REGULATORY_AREA_NAME == "EASTERN GOA", "EASTERN",'NOT_EASTERN')) %>%
+  ## Carey's code looks at complete cases via age and weight , but her notes indicate length - changing this
+  # filter(!is.na(AGE) & !is.na(LENGTH)  ) %>%
+  BIN_AGE_DATA(.,age_bins) 
 
-write.csv(AL.df,file = here('data','comp',paste0(Sys.Date(),'-goa_agecomp_raw.csv')),row.names = FALSE)
+AL_df %>% filter(YEAR == 2001 & LENGTH %in% c(14,15) )
+AL_df %>% filter(YEAR == 1990 &  LENGTH > 140 & LENGTH < 150)
 
 
+write.csv(AL_df,file = here('data','comp',paste0(Sys.Date(),'-goa_CAAL_raw.csv')),row.names = FALSE)
 #Run this to get the conditional age-at-length data roughly formatted for assessment input
 # source("C:\\GitProjects\\newsbss\\Inputs_PieceByPiece\\Get_GOA_Survey_Length_and_Age_Comp\\GET_GOA_CONDITIONAL_AGE_AT_LENGTH.R")
 #run it for eastern == 0 (this will write output combined over areas)
+## now count the number of observations in each age bin
+AL_df_long <- AL_df %>% 
+  BIN_LEN_DATA(.,len_bins = length_bins)   %>%
+  mutate(lBIN = BIN) %>%select(-BIN) %>%
+  filter(!is.na(lBIN) & !is.na(aBIN)) %>%
+  select(YEAR,  WEIGHT, SEX,AGE, aBIN, LENGTH, lBIN) %>%
+  # filter(YEAR == 1990 & lBIN <22) %>%
+  group_by(YEAR, SEX, lBIN, aBIN) %>%
+  ## this sums records across sex
+  summarise(nobs = n()) %>%
+  # ## fill missing year-length-age combos
+  arrange(., as.numeric(aBIN)) 
+
+AL_df_wide_F <-     AL_df_long %>%
+  filter(SEX == 2) %>% select(-SEX) %>%
+  pivot_wider(id_cols = c(YEAR,lBIN), names_from =  aBIN, values_from = nobs) %>%
+  arrange(YEAR, lBIN)
+
+AL_df_wide_M <-  AL_df_long %>%
+  filter(SEX == 1) %>% select(-SEX) %>%
+  pivot_wider(id_cols = c(YEAR,lBIN), names_from =  aBIN, values_from = nobs) %>%
+  arrange(YEAR, lBIN)
+
+goa_caal_obs <- rbind(AL_df_wide_F,AL_df_wide_M) %>% data.frame() 
+## fill front matter
+AL_df_wide <- goa_caal_obs %>%
+  mutate(month = 7, fleet = 2,
+         sex = c(rep(1, nrow(AL_df_wide_F)), 
+                 rep(2,nrow(AL_df_wide_M))),  part = 0, ageerr = 0,
+         Lbin_lo = lBIN,  Lbin_hi = lBIN,
+         Nsamp = c(rowSums(AL_df_wide_F[3:ncol(AL_df_wide_F)],na.rm = T),
+                   rowSums(AL_df_wide_M[3:ncol(AL_df_wide_M)],na.rm = T))) %>%
+  select(yr=YEAR,month, fleet, sex, part, ageerr,  Lbin_lo, Lbin_hi, Nsamp, everything(), -lBIN  ) %>%
+  ## duplicate columns x sex
+  cbind(., goa_caal_obs[,3:ncol(goa_caal_obs)])
+## overwrite NAs
+AL_df_wide[is.na(AL_df_wide)] <- 0
+
+
+#* spot check survey CAALs ----
+
+## females year 2007 8cm age 1 should have 1 obs and a total nsamp of 3
+mod17$condbase %>% filter(Fleet == 2 & Sex == 1 & Yr == 2007 & Lbin_lo  == 8 & Bin == 1) %>%
+  mutate(obs2 = round(Obs*Nsamp_in,0)) %>%
+  select(Yr, Sex, Nsamp_in, Lbin_lo, Bin, obs2)
+subset(AL_df_wide,yr == 2007 & sex == 1 &  Lbin_lo  == 8)
+
+
+## males year 2007 36cm age 15 should have 1 obs and a total nsamp of 8
+mod17$condbase %>% filter(Fleet == 2 & Sex == 1 & Yr == 1990 
+                          # & Bin == 9
+                          & Lbin_lo  == 36 
+) %>%
+  mutate(obs2 = round(Obs*Nsamp_in,0)) %>%
+  select(Yr, Sex, Nsamp_in, Lbin_lo, Bin, obs2)
+subset(AL_df_wide,yr == 1990 & sex == 1 &  Lbin_lo  == 36)
+
+
+mod17$condbase %>% filter(Fleet == 2 & Sex == 2 & Yr == 2015 
+                          & Bin == 5
+                          & Lbin_lo  == 24
+) %>%
+  mutate(obs2 = round(Obs*Nsamp_in,0)) %>%
+  select(Yr, Sex, Nsamp_in, Lbin_lo, Bin, obs2)
+subset(AL_df_wide,yr == 2015 & sex == 2 &  Lbin_lo  == 24)
+
+## disable data before 1990
+AL_df_wide$fleet[AL_df_wide$yr < 1990] <- -2
+
+write.csv(Final.df,file = here('data','comp',paste0(Sys.Date(),'-goa_CAAL_forSS.csv')),row.names = FALSE)
+
+
+
 
 
 #** survey marginal ages [as ghost] ----
 #GOA marginal age comps (include so that you can see the ghosted fits in r4ss output)
 # source("C:\\GitProjects\\newsbss\\Get_GOA_Survey_AgeComposition.R")
- 
+
+
+MyQuery<-paste0("SELECT GOA.AGECOMP_TOTAL.SURVEY,\n ",
+                "GOA.AGECOMP_TOTAL.SURVEY_YEAR,\n ",
+                "GOA.AGECOMP_TOTAL.SPECIES_CODE,\n ",
+                "GOA.AGECOMP_TOTAL.AGE,\n ",
+                "GOA.AGECOMP_TOTAL.SEX,\n ",
+                "GOA.AGECOMP_TOTAL.AGEPOP\n",
+                "FROM GOA.AGECOMP_TOTAL\n ",
+                "WHERE GOA.AGECOMP_TOTAL.SURVEY     =", sp_area,"\n ",
+                "AND GOA.AGECOMP_TOTAL.SPECIES_CODE = ",species)
+
+
+AgeComp.df<-sqlQuery(AFSC,MyQuery)
+AgeComp.df<-AgeComp.df[AgeComp.df$AGE >=0 & AgeComp.df$SEX <3,]
+write.csv(AgeComp.df,file = here('data','comp',paste0(Sys.Date(),"-goa_marginal_agecomp_raw.csv")),row.names = FALSE)
+
+#Bin ages
+AgeComp.df<-BIN_AGE_DATA(AgeComp.df,age_bins)
+
+#Make into proportions that sum to 1 over males + females
+Ages.df<-aggregate(AGEPOP ~ SURVEY_YEAR + SEX + aBIN,AgeComp.df,sum)
+SumAges.df<-aggregate(AGEPOP ~ SURVEY_YEAR,AgeComp.df,sum)
+SumAges.df$SumOverA<-SumAges.df$AGEPOP
+SumAges.df<-subset(SumAges.df,select = -c(AGEPOP))
+
+Ages.df<-merge(Ages.df,SumAges.df,all=TRUE)
+Ages.df$Proportion<-Ages.df$AGEPOP/Ages.df$SumOverA
+Ages.df<-subset(Ages.df,select = -c(SumOverA,AGEPOP))
+
+#Flip to SS format
+Ages.df$SexNum<-as.numeric(Ages.df$SEX==1) #males
+Ages.df$SexAge<-as.numeric(paste0(Ages.df$SexNum,0,Ages.df$aBIN))
+
+FlipComp1.df<-dcast(Ages.df,SURVEY_YEAR ~ SexAge,sum,value.var = "Proportion") #this isn't really summing anything, or shouldn't be. Just transposing. Function is not at all straightforward
+
+nms<-c(AgeBins,paste0("10",AgeBins))
+Missing<-setdiff(nms,names(FlipComp1.df))
+FlipComp1.df[Missing]<-0
+FlipComp1.df<-FlipComp1.df[,c("SURVEY_YEAR",nms)]
+
+
+#Hauls come separately from above, make sure you're using the right ones
+goa_marginals <- merge(FlipComp1.df, nhauls, by.x = 'SURVEY_YEAR', by.y = 'YEAR') %>%
+  mutate(month = 7, fleet = 2, sex = 3, part = 0, ageerr = 1, Lbin_lo = -1, Lbin_hi = -1 ) %>%
+  select(yr = SURVEY_YEAR, month, fleet, sex, part, ageerr, Lbin_lo, Lbin_hi, Nsamp= nhaul, everything())
+
+write.csv(goa_marginals,file = here('data','comp',paste0(Sys.Date(),"-goa_marginal_agecomp_forSS.csv")),row.names = FALSE)
+
+
