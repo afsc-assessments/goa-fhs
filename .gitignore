@@ -4,3 +4,8 @@
 *.csv
 *data/
 *model_runs/
+*sources/
+*notebooks/
+*Rhistory
+*shared
+.Rhistory
