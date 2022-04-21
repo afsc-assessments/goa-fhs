@@ -1,5 +1,6 @@
 ---
-title: "Bridging GOA FHS Models"
+title: "GOA FHS Assessment Bridging (version & data)"
+author: "M Sosa Kapur maia.kapur@noaa.gov"
 output: html_notebook
 ---
 # Bridging from SS3v3.24U to SSv3.30.17
@@ -96,7 +97,7 @@ likes <- lapply(outlist, function(x)
 likes%>% pivot_wider(c('component'), names_from='model', values_from='values') %>%
   select(component, '3.24U','3.30_old_mles','3.30_adjust_timing','3.30_converted' )
 ```
-Tabular comparison of model scale ($R_0$ estimates) across models.
+Tabular comparison of model scale (R0 estimates) across models.
 ```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
 r0 <- lapply(outlist, function(x)
   cbind(model=basename(x$model), x$parameters[,c('Label','Value')])) %>%
@@ -113,7 +114,7 @@ Out of curiosity, we investigated the impact of (correctly) specifying the surve
 ```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
 models <- c('3.24U','m02_3.30_converted','m03_update_timing','m04_update_ageing_error','m05_VAST_index')
 ## m01 = v3.24U and m02 = 3.30_converted above, just loaded individually now
-m01 <- SS_output(here('model_runs','01_bridging','cole','m01_2017_3.24U'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m01 <- m0_0 <- SS_output(here('model_runs','01_bridging','cole','m01_2017_3.24U'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m02 <- SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m03 <- SS_output(here('model_runs','01_bridging','cole','m03_update_timing'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m04 <- SS_output(here('model_runs','01_bridging','cole','m04_update_ageing_error'), covar=TRUE, verbose=FALSE, printstats=FALSE)
@@ -142,3 +143,64 @@ SSplotComparisons(SSsummarize(list(m01,m02,m05)),  uncertainty=TRUE, subplot = 1
 The SSC recommended exploration/addition of a new aging error matrix. To that end, we have a few different options, and it is desirable to illustrate how they affect the base model (no new data) before proceeding.
 
 # Data Bridging 
+I copied `m02_2017_3.30.17` into the main `model_runs` dir and renamed it to "m0_0".
+Here I start with the transitioned model and sequentially add data. Unless otherwise specified, the entire data series was replaced with the new extraction to accomodate for any changes in our databases. There are no changes made to the parameter specifications (priors, start values, etc).
+The following changes were also made to peripheral SS3 files before beginning; these apply to models `m0_1` onwards:
+
++ In `control.ss`, the main period of recruitment devs apparently hasn't changed from 2012 upon the last assessment. For consistency I will leave that as-is for now, but likely will adjust as a sensitivity. However, I did change `_end_yr_for_ramp_in_MPD` to 2026.4. Time blocks do not cross the endyr so I made no adjustments there.
+
++ In `data.ss` change `endyr` to 2022.
+
++ Ensure estimation is turned on in `starter.ss`
+
++ In `forecast.ss` first year for caps and allocations = 2023, update rebuilder years, though **note** we do not use the forecast file whatsoever in this assessment.
+
++ Functionality check was conducted in dir `/m0_0check` to confirm that time series estimation is pushed forward as expected.
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+models = c('m0_0','m0_0check')
+m0_0check <- SS_output(here('model_runs','m0_0check'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
+SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot = 11, legendlabels = models)
+```
+
+## Add catch `m0_1`
+Right now 2022 catches have the 2021 numbers as a placeholder, will project closer to the time of.
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+models = c('2017 Base','+catch', '+survey', '+fish_len','+goa_len','+CAAL')
+m0_1 <- SS_output(here('model_runs','m0_1'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SS_plots(m0_1,    png = T, dir = here('model_runs','m0_1'))
+SSplotComparisons(SSsummarize(list(m0_0,m0_1 )),  plot = FALSE, png = T, plotdir = here('model_runs','m0_1'), uncertainty=TRUE,  legendlabels = models)
+```
+## Add design-based survey index `m0_2`
+In addition to the 2019 & 2021 datapoints, this time series has a different value for 2001, about 18mt less than previous. Discussion with RACE and review of both the AFSC database and previous SAFE tables indicated we should go with this value -- it is not clear where the ~170mt value came from previously.
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+m0_2 <- SS_output(here('model_runs','m0_2'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SS_plots(m0_2, png = T, dir = here('model_runs','m0_2'))
+SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_2'), uncertainty=TRUE,  legendlabels = models)
+```
+## Add fishery length comps `m_03`
+As previously, data before 1989 are included but turned off. I noticed that the input data in the previous model is in somewhat strange raw numbers (i.e an observed number of 132.708 within a sample size of 46). When you run `ss_output()` on the original data, it returns `lendbase` scaled to 1, which I used to spot check that the extracted data was accurate in the `00_getData.R` script. So, I replaced the entire data frame in this step, acknowledging that the input scale is different.
+
+The aggregate fit is OK but the residuals in the early period are awful (this was the case before as well).
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+m0_3 <- SS_output(here('model_runs','m0_3'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
+SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models)
+# SSplotComps(m0_3, fleets = 1, kind = 'LEN', subplot = 21)
+# SSplotComps(m0_3, fleets = 1, kind = 'LEN', subplot = 24)
+```
+```{r, echo=FALSE, out.height = '25%'}
+knitr::include_graphics(here('model_runs','m0_3','plots','comp_lenfit__aggregated_across_time.png'))
+knitr::include_graphics(here('model_runs','m0_3','plots','comp_lenfit_residsflt1mkt0_page2.png'))
+```
+
+## Add survey length comps `m_04`
+The nsamp (nhauls) has changed by 1 or so across years between the old version and this.
+
+
+## Add CAALs (plus marginal ghost fleet)
+
+
+
