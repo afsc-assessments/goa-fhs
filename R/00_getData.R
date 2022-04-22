@@ -478,7 +478,8 @@ goa_lcomp_expand  <-  goa_lcomp_long %>%
   left_join(.,goa_lcomp_long) %>%
   group_by(YEAR, variable, BIN) %>%
   summarise(nobs = sum(value))
-
+## fill NAs with zero
+goa_lcomp_expand$nobs[is.na(goa_lcomp_expand$nobs)] <- 0
 ## get total number of samples in each year/sex/bin combo
 goa_lcomp_freq <- merge(goa_lcomp_expand,
                          goa_lcomp_expand %>% 
@@ -490,11 +491,18 @@ goa_lcomp_freq <- merge(goa_lcomp_expand,
   mutate(freq = nobs/nsamp,
          variable = ifelse(variable == 'FEMALES', 1, 2)) %>%
   select(-nobs, -nsamp) %>% 
-  ## fill with all extant data combinations
-  tidyr::complete(., YEAR, variable, BIN) %>%
+  ## fill with all extant data combinations, using zeros for unobserved
+  tidyr::complete(., YEAR, variable, BIN, fill = list(freq =0)) %>%
   arrange(., YEAR, BIN, variable) %>%
   mutate(freq = ifelse(is.na(freq),0,freq)) 
   
+
+goa_lcomp_freq %>% 
+  group_by(YEAR, variable, BIN ) %>%
+  filter(YEAR == 2015)  %>% 
+  summarise(n())
+
+goa_lcomp_freq 
 ## confirm we have all bins  
 sort(unique(goa_lcomp_freq$BIN))
 
@@ -514,7 +522,18 @@ survey_length_comps <- cbind(frontmatter,
                                select(-YEAR))
 
 #* spot check survey lcomps ----
+
 ## should be within rounding range
+mod17$lendbase %>% 
+  filter(Fleet == 2 & Yr == 2003 & Bin == 20 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(survey_length_comps[8,'20'],4)
+
+mod17$lendbase %>% 
+  filter(Fleet == 2 & Yr == 2015  & Bin == 36 & Sex == 1) %>% 
+  select(Obs) %>% round(.,4) ==
+  round(survey_length_comps[14,'36'],4)
+
 mod17$lendbase %>% 
   filter(Fleet == 2 & Yr == 2001 & Bin == 10 & Sex == 1) %>% 
   select(Obs) %>% round(.,4) ==
