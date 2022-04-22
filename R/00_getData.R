@@ -459,59 +459,56 @@ l.query<-paste0("SELECT GOA.SIZECOMP_TOTAL.SURVEY,\n ",
                 "FROM GOA.SIZECOMP_TOTAL\n ",
                 "WHERE GOA.SIZECOMP_TOTAL.SURVEY     = 'GOA'\n ",
                 "AND GOA.SIZECOMP_TOTAL.SPECIES_CODE = ",species)
-Length_df<- sqlQuery(AFSC,l.query)
-write.csv(Length_df,file = here('data','comp',paste0(Sys.Date(),'-goa_lengthcomp_raw.csv')),row.names = FALSE)
 
+goa_lcomp_raw <- sqlQuery(AFSC,l.query) 
 
-# ## Do the full table for report
-# hauljoin %>% 
-#   mutate(sex = ifelse(SEX == 1, 'Total',ifelse(SEX == 2,'Female','Male')))
-#   group_by(YEAR,SEX) %>%
-#   
-#   summarise(nhaul = n_distinct(ID)) %>%
-#   pivot_wider(names_from = SEX, values_from = nhaul)
+write.csv(goa_lcomp_raw,file = here('data','comp','raw',paste0(Sys.Date(),'-goa_lengthcomp_raw.csv')),row.names = FALSE)
 
-## In Carey's code line 78 she aggregates (sums) within sex-year-bins, and uses the total annual number of samples
-## as the denominator for both
-
-length_df_long <- Length_df %>%
-  mutate(LENGTH = LENGTH/10) %>% ## convert to cm
-  select(YEAR,LENGTH,MALES,FEMALES) %>%
-  melt(., id = c("YEAR","LENGTH")) %>%
+goa_lcomp_long <- goa_lcomp_raw %>%
+  mutate(LENGTH = LENGTH/10)  %>%
   BIN_LEN_DATA(.,length_bins) %>%
-  group_by(YEAR, variable, BIN) %>% 
-  ## combine observations within length bins
-  summarise(nobs = sum(value)) %>%
-  rbind(.,
-        c(NA,N))
+  select(YEAR,BIN,MALES,FEMALES) %>%
+  melt(., id = c("YEAR","BIN")) # %>%
 
-# length_df_long$BIN <- factor(length_df_long$BIN, levels = age_bins)
+goa_lcomp_expand  <-  goa_lcomp_long %>%
+  group_by(YEAR, variable) %>%
+  ## ensure full range of LBINS are included (there are no obs between 62:68,
+  ## so complete() won't fill those in unless included)
+  expand(BIN = full_seq(BIN, 2)) %>% 
+  left_join(.,goa_lcomp_long) %>%
+  group_by(YEAR, variable, BIN) %>%
+  summarise(nobs = sum(value))
 
 ## get total number of samples in each year/sex/bin combo
-length_df_long1 <- merge(length_df_long,
-                         length_df_long %>% 
+goa_lcomp_freq <- merge(goa_lcomp_expand,
+                         goa_lcomp_expand %>% 
                            group_by(YEAR) %>% 
                            ## denominator is total number of samples this year
                            summarise(nsamp = sum(nobs)),
                          by = c('YEAR')) %>%
-  # filter(YEAR == 1984 & BIN == 24)
   ## calculate frequencies 
   mutate(freq = nobs/nsamp,
          variable = ifelse(variable == 'FEMALES', 1, 2)) %>%
   select(-nobs, -nsamp) %>% 
-  # ## fill missing year combos
+  ## fill with all extant data combinations
   tidyr::complete(., YEAR, variable, BIN) %>%
   arrange(., YEAR, BIN, variable) %>%
   mutate(freq = ifelse(is.na(freq),0,freq)) 
+  
+## confirm we have all bins  
+sort(unique(goa_lcomp_freq$BIN))
 
-frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 2, sex = 3, part = 0, Nsamp = nhauls$nhaul)
+## there are no observations between 62 and 69
+unique(goa_lcomp_expand$LENGTH/10) %>% sort()
+
+frontmatter <- data.frame(yr = unique(goa_lcomp_freq$YEAR), month = 7, fleet = 2, sex = 3, part = 0, Nsamp = nhauls$nhaul)
 
 survey_length_comps <- cbind(frontmatter,
-                             length_df_long1 %>%
+                             goa_lcomp_freq %>%
                                filter(variable == 1) %>%
                                pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
                                select(-YEAR),
-                             length_df_long1 %>%
+                             goa_lcomp_freq %>%
                                filter(variable == 2) %>%
                                pivot_wider(., id_cols = YEAR, names_from = BIN, values_from = freq) %>%
                                select(-YEAR))
@@ -526,7 +523,7 @@ mod17$lendbase %>%
 mod17$lendbase %>% 
   filter(Fleet == 2 & Yr == 2001 & Bin == 60 & Sex == 1) %>% 
   select(Obs) %>% round(.,4) ==
-  round(survey_length_comps[7,'10'],4)
+  round(survey_length_comps[7,'60'],4)
 
 mod17$lendbase %>% 
   filter(Fleet == 2 & Yr == 2007 & Bin == 26 & Sex == 1) %>% 
