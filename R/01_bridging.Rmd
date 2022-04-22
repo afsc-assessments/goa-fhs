@@ -184,23 +184,43 @@ As previously, data before 1989 are included but turned off. I noticed that the 
 
 The aggregate fit is OK but the residuals in the early period are awful (this was the case before as well).
 
+The following years of the fishery length comps are ghosted: `r paste(unique(m0_3$ghostlendbase$Yr), collapse = ", ")` 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_3 <- SS_output(here('model_runs','m0_3'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
-SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models)
-# SSplotComps(m0_3, fleets = 1, kind = 'LEN', subplot = 21)
-# SSplotComps(m0_3, fleets = 1, kind = 'LEN', subplot = 24)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models)
+
+
+
+
 ```
+
 ```{r, echo=FALSE, out.height = '25%'}
 knitr::include_graphics(here('model_runs','m0_3','plots','comp_lenfit__aggregated_across_time.png'))
 knitr::include_graphics(here('model_runs','m0_3','plots','comp_lenfit_residsflt1mkt0_page2.png'))
 ```
 
 ## Add survey length comps `m_04`
-The nsamp (nhauls) has changed by 1 or so across years between the old version and this.
+The nsamp (nhauls) has changed by 1 or so across years between the old version and this. I updated the data-prep method from Carey's code into `tidyverse` and spot checked that the values were consistent among entries (with a rounding tolerance of 1e-4). 
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+m0_4 <- SS_output(here('model_runs','m0_4'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SS_plots(m0_4,   png = T, dir =   here('model_runs','m0_4'))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models)
+```
 
 
-## Add CAALs (plus marginal ghost fleet)
 
+## Add CAALs (plus marginal ghost fleet) `m0_5`
+Here I incorporate the conditional ages at length as well as the marginal ages; the latter are read in as a ghost fleet and don't contribute to the likelihoods. **Note the marginal ghost fleet is still missing values from 2017. 2019. Need to track down `AGEPOP` variable (which is in RACEBASE but not in provided csvs) to calculate freqs for those years**.
+
+
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+m0_5 <- SS_output(here('model_runs','m0_5'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+SS_plots(m0_5,   png = T, dir =   here('model_runs','m0_5'))
+SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4,m0_5)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5'), uncertainty=TRUE,  legendlabels = models)
+```
+
+Now that all the data are added let's do some sanity checks.
 
 
