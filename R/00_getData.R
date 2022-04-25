@@ -731,25 +731,25 @@ MyQuery<-paste0("SELECT GOA.AGECOMP_TOTAL.SURVEY,\n ",
 
 
 goa_marginal_age_raw <-sqlQuery(AFSC,MyQuery)
-goa_marginal_age_raw <- goa_marginal_age_raw[goa_marginal_age_raw$AGE >=0 & goa_marginal_age_raw$SEX <3,] %>%
-  rbind(., 
-        ## load 2017, 2019 years from aging group (storm and ocean explorer are separate for 2019)
-        
-        rbind(read.csv(here('data','comp','raw','148201701103.csv')),
-              read.csv(here('data','comp','raw','148201901103.csv')),
-              read.csv(here('data','comp','raw','143201901103.csv'))) %>%
-          mutate(SURVEY = 'GOA',SURVEY_YEAR = lubridate::year(date_collected), AGEPOP = NA) %>%
-          select(SURVEY, SURVEY_YEAR, SPECIES_CODE = species, AGE = age, SEX = sex, AGEPOP) %>%
-          filter(SEX != 3 & AGE >= 0))
+# goa_marginal_age_raw <- goa_marginal_age_raw[goa_marginal_age_raw$AGE >=0 & goa_marginal_age_raw$SEX <3,] %>%
+#   rbind(., 
+#         ## load 2017, 2019 years from aging group (storm and ocean explorer are separate for 2019)
+#         
+#         rbind(read.csv(here('data','comp','raw','148201701103.csv')),
+#               read.csv(here('data','comp','raw','148201901103.csv')),
+#               read.csv(here('data','comp','raw','143201901103.csv'))) %>%
+#           mutate(SURVEY = 'GOA',SURVEY_YEAR = lubridate::year(date_collected), AGEPOP = NA) %>%
+#           select(SURVEY, SURVEY_YEAR, SPECIES_CODE = species, AGE = age, SEX = sex, AGEPOP) %>%
+#           filter(SEX != 3 & AGE >= 0))
 
 write.csv(goa_marginal_age_raw,file = here('data','comp','raw',paste0(Sys.Date(),"-goa_marginal_agecomp_raw.csv")),row.names = FALSE)
 
 #Bin ages
-AgeComp.df<-BIN_AGE_DATA(goa_marginal_age_raw,age_bins)
+goa_marginal_age0<-BIN_AGE_DATA(goa_marginal_age_raw,age_bins)
 
 #Make into proportions that sum to 1 over males + females
-Ages.df<-aggregate(AGEPOP ~ SURVEY_YEAR + SEX + aBIN,AgeComp.df,sum)
-SumAges.df<-aggregate(AGEPOP ~ SURVEY_YEAR,AgeComp.df,sum)
+Ages.df<-aggregate(AGEPOP ~ SURVEY_YEAR + SEX + aBIN,goa_marginal_age0,sum)
+SumAges.df<-aggregate(AGEPOP ~ SURVEY_YEAR,goa_marginal_age0,sum)
 SumAges.df$SumOverA<-SumAges.df$AGEPOP
 SumAges.df<-subset(SumAges.df,select = -c(AGEPOP))
 
