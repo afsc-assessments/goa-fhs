@@ -114,7 +114,7 @@ Out of curiosity, we investigated the impact of (correctly) specifying the surve
 ```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
 models <- c('3.24U','m02_3.30_converted','m03_update_timing','m04_update_ageing_error','m05_VAST_index')
 ## m01 = v3.24U and m02 = 3.30_converted above, just loaded individually now
-m01 <- m0_0 <- SS_output(here('model_runs','01_bridging','cole','m01_2017_3.24U'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m01  <- SS_output(here('model_runs','01_bridging','cole','m01_2017_3.24U'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m02 <- SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m03 <- SS_output(here('model_runs','01_bridging','cole','m03_update_timing'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m04 <- SS_output(here('model_runs','01_bridging','cole','m04_update_ageing_error'), covar=TRUE, verbose=FALSE, printstats=FALSE)
@@ -128,16 +128,21 @@ SSplotComparisons(SSsummarize(list(m01,m02,m03)),  uncertainty=TRUE, subplot = 1
 I received the model-based index with data through 2021 from GAP in Spring 2022. Since I plan to present this as a sensitivity to the proposed base model, we should also illustrate how the use of VAST would have affected the previous [converted] benchmark. This model is identical to `m02_3.30_converted` otherwise (the survey index timing is 1.0). As we might expect, the SSB is higher in the VAST version since the model-based inputs are higher than the design-based since ~2000. Reassuringly the dynamics are largely similar between converted models for the years where the VAST & design-based inputs are more alike.
 
 
-```{r pressure, echo=FALSE, out.width = '40%'}
+```{r echo=FALSE, out.width = '40%'}
 knitr::include_graphics(here('figs','2022-04-18-index_VASTvsDesign.png'))
 ```
 
 
 ```{r, include = T, echo = FALSE, warning = FALSE, message = FALSE}
 m05 <- SS_output(here('model_runs','01_bridging','cole','m05_VAST_index'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+
+```
+
+```{r echo=FALSE, out.width = '40%'}
 SSplotComparisons(SSsummarize(list(m01,m02,m05)),  uncertainty=TRUE, subplot = 1, legendlabels = models[c(1,2,5)])
 SSplotComparisons(SSsummarize(list(m01,m02,m05)),  uncertainty=TRUE, subplot = 13, legendlabels = models[c(1,2,5)])
 ```
+
 
 # New aging error matrix
 The SSC recommended exploration/addition of a new aging error matrix. To that end, we have a few different options, and it is desirable to illustrate how they affect the base model (no new data) before proceeding.
@@ -159,24 +164,26 @@ The following changes were also made to peripheral SS3 files before beginning; t
 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c('m0_0','m0_0check')
+m0_0 <- SS_output(here('model_runs','m0_0'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 m0_0check <- SS_output(here('model_runs','m0_0check'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
 SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot = 11, legendlabels = models)
 ```
 
 ## Add catch `m0_1`
-Right now 2022 catches have the 2021 numbers as a placeholder, will project closer to the time of.
+Right now 2022 catches are a placeholder, will project closer to the time of.
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c('2017 Base','+catch', '+survey', '+fish_len','+goa_len','+CAAL')
 m0_1 <- SS_output(here('model_runs','m0_1'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_1,    png = T, dir = here('model_runs','m0_1'))
-SSplotComparisons(SSsummarize(list(m0_0,m0_1 )),  plot = FALSE, png = T, plotdir = here('model_runs','m0_1'), uncertainty=TRUE,  legendlabels = models)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1 )),  plot = FALSE, png = T, plotdir = here('model_runs','m0_1'), uncertainty=TRUE,  legendlabels = models)
+# knitr::include_graphics(here('model_runs','m0_1','plots','data_plot2.png'))
 ```
 ## Add design-based survey index `m0_2`
 In addition to the 2019 & 2021 datapoints, this time series has a different value for 2001, about 18mt less than previous. Discussion with RACE and review of both the AFSC database and previous SAFE tables indicated we should go with this value -- it is not clear where the ~170mt value came from previously.
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_2 <- SS_output(here('model_runs','m0_2'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-# SS_plots(m0_2, png = T, dir = here('model_runs','m0_2'))
+SS_plots(m0_2, png = T, dir = here('model_runs','m0_2'))
 SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_2'), uncertainty=TRUE,  legendlabels = models)
 ```
 ## Add fishery length comps `m_03`
@@ -187,12 +194,8 @@ The aggregate fit is OK but the residuals in the early period are awful (this wa
 The following years of the fishery length comps are ghosted: `r paste(unique(m0_3$ghostlendbase$Yr), collapse = ", ")` 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_3 <- SS_output(here('model_runs','m0_3'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-# SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models)
-
-
-
-
+SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
+  SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models) 
 ```
 
 ```{r, echo=FALSE, out.height = '25%'}
@@ -204,15 +207,16 @@ knitr::include_graphics(here('model_runs','m0_3','plots','comp_lenfit_residsflt1
 The nsamp (nhauls) has changed by 1 or so across years between the old version and this. I updated the data-prep method from Carey's code into `tidyverse` and spot checked that the values were consistent among entries (with a rounding tolerance of 1e-4). 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_4 <- SS_output(here('model_runs','m0_4'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-# SS_plots(m0_4,   png = T, dir =   here('model_runs','m0_4'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models)
+SS_plots(m0_4,   png = T, dir =   here('model_runs','m0_4'))
+SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models)
 ```
 
 
 
-## Add CAALs (plus marginal ghost fleet) `m0_5`
-Here I incorporate the conditional ages at length as well as the marginal ages; the latter are read in as a ghost fleet and don't contribute to the likelihoods. **Note the marginal ghost fleet is still missing values from 2017. 2019. Need to track down `AGEPOP` variable (which is in RACEBASE but not in provided csvs) to calculate freqs for those years**.
+## Add survey CAALs & marginal survey ages as ghost fleet `m0_5`
+Here I incorporate the conditional ages at length as well as the marginal ages, both from the GOA survey thru year 2019; the latter are read in as a ghost fleet and don't contribute to the likelihoods. **Note the marginal ghost fleet is still missing values from 2017 & 2019. Need to track down `AGEPOP` variable (which is in RACEBASE but not in provided csvs) to calculate freqs for those years**.
 
+Also note that this model has not yet dealt with the various `warning` messages, and has retained the Francis weighting values from the benchmark. Notably, those values downweight the age comp data to 0.34.
 
 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
@@ -221,6 +225,89 @@ SS_plots(m0_5,   png = T, dir =   here('model_runs','m0_5'))
 SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4,m0_5)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5'), uncertainty=TRUE,  legendlabels = models)
 ```
 
-Now that all the data are added let's do some sanity checks.
+# Sanity Checks and Explorations
+
+Now that all the data are added let's do some sanity checks. It's evident that the survey data made the biggest change in the SSB trend, and did so in a logical direction. The 2017 base model erroneously uses a value of ~170k mt in the 2001 survey, which has since been revised/corrected down to about 150k mt.
+
+```{r, echo=FALSE, out.width = '25%'}
+knitr::include_graphics(here('model_runs','m0_5','compare2_spawnbio_uncertainty.png'))
+```
+## What survey data causes downshift? `m0_5b:d`
+
+Here are some tests runs with the survey data:
+
++ `m0_5b`: this is `m0_5` **year 2001** reverted to the ~170,000k value which was used previously in year 2001, to see if downshifting this year bends the trend downards;
++ `m0_5c`: this is `m0_5` with  survey data truncated back to 2017 (to see if the later years alone are causing the downshift, which would be sensible considering the trend), and
++ `m0_5d`: this is `m0_5` with both the changes mentioned above (revert year 2001 and remove values after 2017). This is generally equivalent to using the 2017 benchmark survey data since all values besides 2001 were consistent between design-based survey pulls.
+
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+models = c("2017 base", "m0_5", "m0_5b [reverted 2001 survey]", 
+           "m0_5c [truncate survey]", "m0_5d [revert & truncate]")
+m0_5b <- SS_output(here('model_runs','m0_5b'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m0_5c <- SS_output(here('model_runs','m0_5c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m0_5d <- SS_output(here('model_runs','m0_5d'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_5,m0_5b,m0_5c,m0_5d)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5d'), uncertainty=TRUE,  legendlabels = models)
+```
+
+```{r  echo = F, warning = FALSE, message = FALSE, out.width='25%'}
+knitr::include_graphics(here('model_runs','m0_5d','compare2_spawnbio_uncertainty.png'))
+knitr::include_graphics(here('model_runs','m0_5d','compare13_indices.png'))
+```
+This exercise demonstrates that a) the ~20 mt difference in the 2001 survey is not driving the changes between models, as `m0_5b` below is still downshifted, and b) truncation alone is enough to get the trend back in line with the 2017 base model. Thus I do not plan to change individual years of survey data.
+
+*However*, the fits to those down years is quite poor.I notice that fits to CAALs and lengths are quite good especially in recent years, but the CAAL sd diagnostic plots are *rough and worsening* for later years; my hope is this can get addressed via the aging error updates, and possibly by extending the main rec devs period.
+
+Specifically, the observed CAALs are decently stable and well fit in recent years, but the SDs are huge and missed basically throughout (these plots are from `m0_5`), pointing to an aging error issue. Since the expected SDs are uniformly higher, it suggests that the model things there is more variance in age at length than what we've provided. Coupled with the fact that we have rec-devs disabled since 2012 (when the main period ends), we aren't allowing for the decreased observed index to be reflected in reduced recruitment output.
+
+```{r  echo = F, warning = FALSE, message = FALSE, out.width='25%'}
+knitr::include_graphics(here('model_runs','m0_5','plots','comp_condAALfit_Andre_plotsflt2mkt0_page3.png' ))
+knitr::include_graphics(here('model_runs','m0_5','plots','comp_condAALfit_Andre_plotsflt2mkt0_page4.png' ))
+```
+
+## What happens when the main rec-dev period gets pushed out? `m0_6`
+
+This model takes `m0_5` and extends the main rec-dev period to 2021 in the control file. Line 127 was shifted from 2012 to 2021, and line 136 (last year of full bias adjustment) shifted to 2019.1. This allows the model to take information from the next ~10 years of surveys/comps into account when calculating rec devs.
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+models = c("2017 base", "m0_5", "m0_6 [rec dev shift]")
+m0_6 <- SS_output(here('model_runs','m0_6'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SS_plots(m0_6,   png = T, dir =   here('model_runs','m0_6'))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_5,m0_6)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_6'), uncertainty=TRUE,  legendlabels = models)
+```
+Updating the rec-devs does not seem to cause better fits to the survey, nor does it indicate low recruitment in the years leading up to the low survey observations.While I think it makes sense to extend the main rec-dev period, this is clearly not enough to grant the flexibility required to better fit the recent years of survey data.
+```{r  echo = F, warning = FALSE, message = FALSE, out.width='25%'}
+knitr::include_graphics(here('model_runs','m0_6','compare2_spawnbio_uncertainty.png'))
+knitr::include_graphics(here('model_runs','m0_6','compare11_recdevs.png'))
+knitr::include_graphics(here('model_runs','m0_6','compare13_indices.png'))
+```
+
+## Can the model as-is better fit the VAST data? `m0_7`
+
+This takes model `m0_5` (retains the rec-dev main period ending in 2012) and replaces the series with the model-based VAST data, which has a stabler, higher trend in recent years. Note the points on the comparison plot below are likely the design based inputs.
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+models = c("2017 base", "m0_5", "m0_7 [VAST data instead]")
+m0_7 <- SS_output(here('model_runs','m0_6'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# SS_plots(m0_7,   png = T, dir =   here('model_runs','m0_7'))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_5,m0_7)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_7'), uncertainty=TRUE,  legendlabels = models)
+```
+
+
+The model seems largely insensitive to the survey data, at least at the scale difference we're seeing here. The stability and upward trend in recent years is conserved at the expense of poor fits to the index. That said, there really is not a ton of information in our index, which means the model is likely relying more heavily on other information sources (namely lengths).
+
+
+
+
+```{r  echo = F, warning = FALSE, message = FALSE, out.width='25%'}
+knitr::include_graphics(here('model_runs','m0_7','compare2_spawnbio_uncertainty.png'))
+knitr::include_graphics(here('model_runs','m0_7','compare11_recdevs.png'))
+knitr::include_graphics(here('model_runs','m0_7','compare13_indices.png'))
+```
+
+
+# Fine-scale adjustments to `m0_5`
+
+This section aims to 1) eliminate `warning` messages, as appropriate, 2) explore removing some of the benchmark settings (namely the tuning steps), and 3) update specifications.
 
 
