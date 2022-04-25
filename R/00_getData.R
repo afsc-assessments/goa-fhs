@@ -667,7 +667,7 @@ goa_caal_obs <- rbind(AL_df_wide_F,AL_df_wide_M) %>% data.frame()
 AL_df_wide <- goa_caal_obs %>%
   mutate(month = 7, fleet = 2,
          sex = c(rep(1, nrow(AL_df_wide_F)), 
-                 rep(2,nrow(AL_df_wide_M))),  part = 0, ageerr = 0,
+                 rep(2,nrow(AL_df_wide_M))),  part = 0, ageerr = 1,
          Lbin_lo = lBIN,  Lbin_hi = lBIN,
          Nsamp = c(rowSums(AL_df_wide_F[3:ncol(AL_df_wide_F)],na.rm = T),
                    rowSums(AL_df_wide_M[3:ncol(AL_df_wide_M)],na.rm = T))) %>%
