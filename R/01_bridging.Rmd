@@ -1,7 +1,10 @@
 ---
 title: "GOA FHS Assessment Bridging (version & data)"
 author: "M Sosa Kapur maia.kapur@noaa.gov"
-output: html_notebook
+output:
+  html_notebook:
+    theme: united
+    toc: yes
 ---
 # Bridging from SS3v3.24U to SSv3.30.17
 C. Monnahan began this effort in summer of 2021. He found that the `ss_trans.exe` software was unable to work on the 2017 model as-was due to the following line in the .dat file:
@@ -23,6 +26,10 @@ outlist <- lapply(paste0(here('model_runs','01_bridging','cole',models)),
  
 group1 <- SSsummarize(list(outlist[[1]],outlist[[2]],outlist[[3]]))
 group2 <- SSsummarize(list(outlist[[1]],outlist[[2]],outlist[[3]],outlist[[4]])) 
+
+## load 2017 model and fully converted model separately
+m0_0 <- SS_output(here('model_runs','m0_0'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+m2017 <- SS_output(here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 ```
 
 
@@ -147,6 +154,38 @@ SSplotComparisons(SSsummarize(list(m01,m02,m05)),  uncertainty=TRUE, subplot = 1
 # New aging error matrix
 The SSC recommended exploration/addition of a new aging error matrix. To that end, we have a few different options, and it is desirable to illustrate how they affect the base model (no new data) before proceeding.
 
+The present GOA aging error matrix actually comes from the BSAI assessment, and basically says that error increases linearly to a maximum at age 16. We do have read-replicate data for GOA FHS. We created several candidate models that either treated the individual readers separately (there are ~10 of them) or pooled the data (meaning the difference between a read by Delsa & Jon is equivalent to the difference between Tom & Mary). The best AIC was obtained by a pooled-data model which assumed constant bias and sigma across readers (bias is the different-integer age read, and sigma is the variation in true age). This is called `aic2p` in the `ageing_error/real_data` folder. The bias is otherwise identical between approaches.
+
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+newerr <- t(read.csv(here("data","ageing_error", "real_data", "aic2p", "ss_format_reader 1.csv"))) %>%
+data.frame()
+names(newerr) <- newerr[1,]
+newerr <- newerr[-1,]
+
+with(m0_0$age_error_sd, plot( type1 ~ age, pch = 19, col =  'grey22', ylim = c(0,3)))
+with(newerr, points( SD ~True_Age, pch = 19, col =  'blue', add = T))
+legend('topleft', 
+       legend = c('old matrix (BSAI)', 'new matrix (AIC)'),
+       col = c('grey22','blue'), pch = 19)
+knitr::include_graphics(here("data", "ageing_error","real_data","aic2p","compplots.png"))
+
+```
+Here I run the converted model with the new aging error matrix from `aic2p`. This involved replacing the chunk in the `.dat` file with the `1 age err definition` and a line for the bias ("expected age" from the package output) and CV. There is not a strong change in derived quantities.
+```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
+models = c('3.24U (2017)','3.30_converted','3.30_newAgeErr')
+m0_4 <- SS_output(here('model_runs','01_bridging','cole','m04_update_ageing_error'))
+# SS_plots(m0_4)
+SSplotComparisons(SSsummarize(list(m2017,m0_0,m0_4)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
+
+
+knitr::include_graphics(here('model_runs','01_bridging','cole','m04_update_ageing_error',
+                             "plots",
+                             "comp_condAALfit_Andre_plotsflt2mkt0_page2.png"))
+knitr::include_graphics(here('model_runs','01_bridging','cole','m04_update_ageing_error',
+                             "plots",
+                             "comp_condAALfit_Andre_plotsflt2mkt0_page3.png"))
+```
+
 # Data Bridging 
 I copied `m02_2017_3.30.17` into the main `model_runs` dir and renamed it to "m0_0".
 Here I start with the transitioned model and sequentially add data. Unless otherwise specified, the entire data series was replaced with the new extraction to accomodate for any changes in our databases. There are no changes made to the parameter specifications (priors, start values, etc).
@@ -164,8 +203,8 @@ The following changes were also made to peripheral SS3 files before beginning; t
 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c('m0_0','m0_0check')
-m0_0 <- SS_output(here('model_runs','m0_0'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
-m0_0check <- SS_output(here('model_runs','m0_0check'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+
+m0_0check <- SS_output(here('model_runs','m0_0check'), covar=F, verbose=FALSE, printstats=FALSE)
 SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
 SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot = 11, legendlabels = models)
 ```
@@ -177,16 +216,18 @@ models = c('2017 Base','+catch', '+survey', '+fish_len','+goa_len','+CAAL')
 m0_1 <- SS_output(here('model_runs','m0_1'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_1,    png = T, dir = here('model_runs','m0_1'))
 # SSplotComparisons(SSsummarize(list(m0_0,m0_1 )),  plot = FALSE, png = T, plotdir = here('model_runs','m0_1'), uncertainty=TRUE,  legendlabels = models)
-# knitr::include_graphics(here('model_runs','m0_1','plots','data_plot2.png'))
+knitr::include_graphics(here('model_runs','m0_1','plots','data_plot2.png'))
 ```
 ## Add design-based survey index `m0_2`
 In addition to the 2019 & 2021 datapoints, this time series has a different value for 2001, about 18mt less than previous. Discussion with RACE and review of both the AFSC database and previous SAFE tables indicated we should go with this value -- it is not clear where the ~170mt value came from previously.
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_2 <- SS_output(here('model_runs','m0_2'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-SS_plots(m0_2, png = T, dir = here('model_runs','m0_2'))
-SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_2'), uncertainty=TRUE,  legendlabels = models)
+# SS_plots(m0_2, png = T, dir = here('model_runs','m0_2'))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_2'), uncertainty=TRUE,  legendlabels = models)
 ```
+
 ## Add fishery length comps `m_03`
+
 As previously, data before 1989 are included but turned off. I noticed that the input data in the previous model is in somewhat strange raw numbers (i.e an observed number of 132.708 within a sample size of 46). When you run `ss_output()` on the original data, it returns `lendbase` scaled to 1, which I used to spot check that the extracted data was accurate in the `00_getData.R` script. So, I replaced the entire data frame in this step, acknowledging that the input scale is different.
 
 The aggregate fit is OK but the residuals in the early period are awful (this was the case before as well).
@@ -194,8 +235,8 @@ The aggregate fit is OK but the residuals in the early period are awful (this wa
 The following years of the fishery length comps are ghosted: `r paste(unique(m0_3$ghostlendbase$Yr), collapse = ", ")` 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_3 <- SS_output(here('model_runs','m0_3'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
-  SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models) 
+# SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
+#   SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels = models) 
 ```
 
 ```{r, echo=FALSE, out.height = '25%'}
@@ -207,8 +248,8 @@ knitr::include_graphics(here('model_runs','m0_3','plots','comp_lenfit_residsflt1
 The nsamp (nhauls) has changed by 1 or so across years between the old version and this. I updated the data-prep method from Carey's code into `tidyverse` and spot checked that the values were consistent among entries (with a rounding tolerance of 1e-4). 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_4 <- SS_output(here('model_runs','m0_4'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-SS_plots(m0_4,   png = T, dir =   here('model_runs','m0_4'))
-SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models)
+# SS_plots(m0_4,   png = T, dir =   here('model_runs','m0_4'))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models)
 ```
 
 
@@ -221,8 +262,8 @@ Also note that this model has not yet dealt with the various `warning` messages,
 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_5 <- SS_output(here('model_runs','m0_5'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-SS_plots(m0_5,   png = T, dir =   here('model_runs','m0_5'))
-SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4,m0_5)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5'), uncertainty=TRUE,  legendlabels = models)
+# SS_plots(m0_5,   png = T, dir =   here('model_runs','m0_5'))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4,m0_5)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5'), uncertainty=TRUE,  legendlabels = models)
 ```
 
 # Sanity Checks and Explorations
