@@ -1,0 +1,12 @@
+---
+title: "Misc Notes"
+format: html
+editor: visual
+---
+
+## Other things to change for next time 
+- Make all surveys & associated comps midyear. They're from the same survey and indeed occur midyear, we just didn't touch it this time to encourage continuity with last year.
+- Change to Francis tuning. Suggested weights (for a pre-GPT model) are in `m0_8-newFrancis` and do a slightly better job fitting the survey data. They also downweight all comp data.
+- In tandem with above, revisit Dirichlet or some alternative for the nhauls on the comps data (this is an ongoing area of research, see Pete Hulson).
+- Revisit treatment of sigmaR. Right now it is quite low, and fixed.
+- Survey data: both in the 2017 model and this year, the SSB time series seems to ignore the down years from the recent DB survey. The VAST survey data shows an uptick, but even when included the survey fits are too high for the last two years. This tells me there's another data source which is driving the model upwards; only introducing Francis weights (heavily downweighting all comps) were we even within the CI of recent survey data). Taking a look at the profiles to see where the conflict & information lies in this model.
