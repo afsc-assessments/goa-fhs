@@ -412,6 +412,8 @@ frontmatter <- data.frame(yr = unique(length_df_long1$YEAR), month = 7, fleet = 
                           sex = 3, part = 0, Nsamp = c(nhauls_for$nhaul, nhauls_dom$nhaul))
 ## turn off years with fewer than 15 hauls
 frontmatter$fleet[frontmatter$yr %in% c(1982:1988,2000,2008)] <- -1
+## turn off 2022 lengths
+frontmatter$fleet[frontmatter$yr == 2022 ] <- -1
 
 fishery_length_comps <- cbind(frontmatter,
                               length_df_long1 %>%
@@ -628,7 +630,7 @@ AL_df<- sqlQuery(AFSC,ALQuery)  %>%
            Cohort = YEAR-AGE,
            GrowthMorph = ifelse(REGULATORY_AREA_NAME == "EASTERN GOA", "EASTERN",'NOT_EASTERN')) %>%
   ## Carey's code looks at complete cases via age and weight , but her notes indicate length - changing this
-  # filter(!is.na(AGE) & !is.na(LENGTH)  ) %>%
+  filter(!is.na(AGE) & !is.na(LENGTH)  ) %>%
   BIN_AGE_DATA(.,age_bins) 
 
 AL_df %>% filter(YEAR == 2001 & LENGTH %in% c(14,15) )
@@ -642,14 +644,18 @@ write.csv(AL_df,file = here('data','comp',paste0(Sys.Date(),'-goa_CAAL_raw.csv')
 ## now count the number of observations in each age bin
 AL_df_long <- AL_df %>% 
   BIN_LEN_DATA(.,len_bins = length_bins)   %>%
-  mutate(lBIN = BIN) %>%select(-BIN) %>%
+  mutate(lBIN = BIN) %>%
+  select(-BIN) %>%
   filter(!is.na(lBIN) & !is.na(aBIN)) %>%
   select(YEAR,  WEIGHT, SEX,AGE, aBIN, LENGTH, lBIN) %>%
+  fill(aBIN) %>%
   # filter(YEAR == 1990 & lBIN <22) %>%
   group_by(YEAR, SEX, lBIN, aBIN) %>%
   ## this sums records across sex
-  summarise(nobs = n()) %>%
+  summarise(nobs = n()) %>% 
+  ungroup() %>%
   # ## fill missing year-length-age combos
+  complete(YEAR, SEX, lBIN, aBIN) %>%
   arrange(., as.numeric(aBIN)) 
 
 AL_df_wide_F <-     AL_df_long %>%
@@ -662,9 +668,10 @@ AL_df_wide_M <-  AL_df_long %>%
   pivot_wider(id_cols = c(YEAR,lBIN), names_from =  aBIN, values_from = nobs) %>%
   arrange(YEAR, lBIN)
 
-goa_caal_obs <- rbind(AL_df_wide_F,AL_df_wide_M) %>% data.frame() 
+goa_caal_obs0 <- rbind(AL_df_wide_F,AL_df_wide_M) %>% data.frame() 
+
 ## fill front matter
-AL_df_wide <- goa_caal_obs %>%
+AL_df_wide <- goa_caal_obs0 %>%
   mutate(month = 7, fleet = 2,
          sex = c(rep(1, nrow(AL_df_wide_F)), 
                  rep(2,nrow(AL_df_wide_M))),  part = 0, ageerr = 1,
@@ -673,33 +680,38 @@ AL_df_wide <- goa_caal_obs %>%
                    rowSums(AL_df_wide_M[3:ncol(AL_df_wide_M)],na.rm = T))) %>%
   select(yr=YEAR,month, fleet, sex, part, ageerr,  Lbin_lo, Lbin_hi, Nsamp, everything(), -lBIN  ) %>%
   ## duplicate columns x sex
-  cbind(., goa_caal_obs[,3:ncol(goa_caal_obs)])
-## overwrite NAs
-AL_df_wide[is.na(AL_df_wide)] <- 0
+  cbind(., goa_caal_obs0[,3:ncol(goa_caal_obs0)])
+## drop totally NA rows
 
+AL_df_wide <- AL_df_wide[rowSums(is.na(AL_df_wide[,10:67]))!=58,]
+## overwrite sporadic NAs
+AL_df_wide[is.na(AL_df_wide)] <- 0
 
 #* spot check survey CAALs ----
 
-## females year 2007 8cm age 1 should have 1 obs and a total nsamp of 3
-mod17$condbase %>% filter(Fleet == 2 & Sex == 1 & Yr == 2007 & Lbin_lo  == 8 & Bin == 1) %>%
-  mutate(obs2 = round(Obs*Nsamp_in,0)) %>%
-  select(Yr, Sex, Nsamp_in, Lbin_lo, Bin, obs2)
-subset(AL_df_wide,yr == 2007 & sex == 1 &  Lbin_lo  == 8)
+## females year 2007 Lbin 8, Age Bin 1 should have 1 obs and a total nsamp of 3
+mod17$condbase %>% 
+  filter(Fleet == 2 & Sex == 1 & Yr == 2007 & Lbin_lo  == 8 & Bin == 1) %>%
+  # mutate(obs2 = round(Obs*Nsamp_adj   ,0)) %>%
+  select(Yr, Sex, Nsamp_in      , Lbin_lo, Bin)
+subset(AL_df_wide,yr == 2007 & sex == 1 &  Lbin_lo  == 8) %>%
+  select(yr, sex, Nsamp, Lbin_lo, X1)
 
 
-## males year 2007 36cm age 15 should have 1 obs and a total nsamp of 8
+## males year 2007 36cm age 9 should have 1 obs and a total nsamp of 8
 mod17$condbase %>% filter(Fleet == 2 & Sex == 1 & Yr == 1990 
                           # & Bin == 9
                           & Lbin_lo  == 36 
 ) %>%
-  mutate(obs2 = round(Obs*Nsamp_in,0)) %>%
-  select(Yr, Sex, Nsamp_in, Lbin_lo, Bin, obs2)
-subset(AL_df_wide,yr == 1990 & sex == 1 &  Lbin_lo  == 36)
+  # mutate(obs2 = round(Obs*Nsamp_adj   ,0)) %>%
+  select(Yr, Sex, Nsamp_in   , Lbin_lo, Bin)
+subset(AL_df_wide,yr == 1990 & sex == 1 &  Lbin_lo  == 36) %>%
+  select(yr, sex, Nsamp, Lbin_lo, X9)
 
 
-mod17$condbase %>% filter(Fleet == 2 & Sex == 2 & Yr == 2015 
-                          & Bin == 5
-                          & Lbin_lo  == 24
+mod17$condbase %>% filter(Fleet == 2 & Sex == 2 & Yr == 2017 
+                          # & Bin == 5
+                          # & Lbin_lo  == 24
 ) %>%
   mutate(obs2 = round(Obs*Nsamp_in,0)) %>%
   select(Yr, Sex, Nsamp_in, Lbin_lo, Bin, obs2)
@@ -773,6 +785,11 @@ FlipComp1.df<-FlipComp1.df[,c("SURVEY_YEAR",nms)]
 goa_marginals <- merge(FlipComp1.df, nhauls, by.x = 'SURVEY_YEAR', by.y = 'YEAR') %>%
   mutate(month = 7, fleet = -2, sex = 3, part = 0, ageerr = 1, Lbin_lo = -1, Lbin_hi = -1 ) %>%
   select(yr = SURVEY_YEAR, month, fleet, sex, part, ageerr, Lbin_lo, Lbin_hi, Nsamp= nhaul, everything())
+
+# ## disable data before 1990;
+# # the 1984 and 1987 GOA surveys used a different sampling scheme
+# ## and data from those years have been taken out of lots of assessments at this point
+# goa_marginals$fleet[goa_marginals$yr < 1990] <- -2
 
 write.csv(goa_marginals,file = here('data','comp',paste0(Sys.Date(),"-goa_marginal_agecomp_forSS.csv")),row.names = FALSE)
 
