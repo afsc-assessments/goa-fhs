@@ -1,0 +1,267 @@
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Analytical approach
+
+## General Model Structure
+
+Beginning in 2018 models were conducted using the SS3 and r4ss
+frameworks (Methot and Wetzel 2013, Taylor et al. 2018, R Core Team
+2020); the SS3 framework is coded in AD Model Builder (Fournier et al.
+2012). SS3 is a flexible, sex- and age-structured integrated modeling
+platform that allows for rapid exploration of alternative model
+structures. Extensive model exploration and new data sources were added
+in the 2018 assessment, and we refer the reader to that SAFE for more
+details (McGilliard et al. 2018). Briefly, foreign reported catches
+(1964-1987) were added and catch prior to 1964 was set to the average of
+the catches from 1964-1977. Based on CIE review feedback about
+uncertainty in initial age structure, an early period of recruitment
+deviations for age-0 recruits was estimated separately for the years
+1963-1972, in addition to the main period of age 0 recruitment
+deviations from 1973 onward, each subject to a sum-to-zero constraint.
+Recruitment in 2017-2020 was fixed to the mean recruitment for the main
+period because too few age 0-4 individuals were observed to estimate
+these recruitment deviations reliably.
+
+The assessment was a split sex, age-structured statistical catch-at-age
+model implemented in Stock Synthesis version 3.24u (SS3) using a maximum
+likelihood approach. SS3 equations can be found in Methot and Wetzel
+(2013) and further technical documentation is outlined in Methot (2009).
+Before 2013 assessments were conducted using an ADMB-based, split-sex,
+age-structured population dynamics model (Stockhausen 2011). A benchmark
+assessment was conducted in 2013 in SS3 (McGilliard et al. 2013).
+Briefly, the current assessment model covers 1955-2015. Age classes
+included in the model run from age 0 to 29. Age at recruitment was set
+at 0 years in the model. The oldest age class in the model, age 29,
+serves as a plus group. Survey catchability was fixed at 1.0.
+
+### Fishery and Survey Selectivity
+
+Fishery and survey selectivity parameters are estimated within the
+assessment model using an age-based time-invariant double normal
+functional form, which facilitates exploration of previous or
+alternative selectivity forms. The double-normal curve for both the
+survey and fishery is constrained by fixing the descending limb
+parameter(s) to mimic a logistic shape as previous assessments found no
+evidence for dome-shaped selectivity in either. Male selectivity curves
+for the fishery and survey are estimated as an offset from the
+respective female curves. The estimated and fixed double-normal
+selectivity parameters by fleet and sex are presented in table XX.
+
+Length-based, sex-specific, logistic fishery and survey selectivity were
+implemented as sensitivity analyses in the 2013 assessment model runs
+(McGilliard et al. 2013). In that assessment, length-based formulations
+for fishery and survey selectivity were discarded because the age-based
+selectivity curves derived from using length-based curves showed that
+the oldest fish were not selected, effectively lowering survey
+catchability and suggesting that the fishery fails to catch the oldest,
+largest fish. Those analyses also found that fits to data were similar
+for length- and age-based asymptotic survey selectivity curves.
+Sensitivity analyses for the present model where the descending limb was
+allowed to be estimated (and could theoretically produce dome-shaped
+fishery and/or survey selectivity curves) failed to improve model fits
+to the data.
+
+### Conditional Age-at-Length (CAAL)
+
+A conditional age-at-length approach was used: expected age composition
+within each length bin was fit to age data conditioned on length
+(conditional age-at-length) in the objective function, rather than
+fitting the expected marginal age-composition to age data (which are
+typically calculated as a function of the conditional age-at-length data
+and the length-composition data). This approach provides the information
+necessary to estimate growth curves and variability about mean growth
+within the assessment model. In addition, the approach allows for all of
+the length and age-composition information to be used in the assessment
+without double-counting each sample. The von-Bertalanffy growth curve
+and variability in the length-at-age relationship were evaluated within
+the model using the conditional age-at-length approach.
+
+### Data Weighting
+
+In the 2013 assessment, the assumptions about data-weighting were
+re-evaluated using a more formal approach for assessing variability in
+mean proportions-at-age and proportions-at-length (Francis, 2011). To
+account for process error (e.g. variance in selectivities among years),
+the relative weights for length or age composition data (lambdas) were
+adjusted according to the method described in Francis (2011), which
+accounts for correlations in length- and age-composition data
+(data-weighting method number T3.4 was used). The 2013 assessment used
+weights calculated using the Francis (2011) method, but the weights for
+the fishery length-composition data were increased slightly to improve
+model stability.
+
+In the 2015 assessment and the 2017 assessment, the method described in
+Francis (2011) was not used because of concerns raised about its use
+when using conditional age-at-length data. The effective sample size for
+length composition data was changed to the number of hauls (Volstad and
+Pennington 1994). The McAllister-Ianelli method for weighting among data
+sources was used in the 2015 and 2017 assessment (McAllister and Ianelli
+1997).
+
+### Ageing Error Matrix
+
+Stock Synthesis accommodates the specification of ageing error bias and
+imprecision.
+
+The 2015 and 2017 stock assessments incorporated ageing error by using
+an existing ageing error matrix for BSAI flathead sole, for which error
+increased lienarly from age 0 to a maximum at age 16. External to this
+assessment, we revisited the ageing error data for GOA flathead sole
+using methods described in Punt et al. (2008) as requested by the recent
+CIE review. Read-replicate data was made available by the Age & Growth
+program. We created several candidate models that varied in their
+treatment of the reader identities, and found that the best model
+(lowest AIC) was obtained by a pooled-data model which assumed constant
+bias and sigma across readers (bias is the different-integer age read,
+and sigma is the variation in true age). A comparison of the previous
+and updated ageing error matrices is shown in FIGURE XX. BSAI and GOA
+flathead sole are aged by the same individuals using the same techniques
+and ageing error is expected to be very similar.
+
+Data, code, and additional figures associated with the updated aging
+error matrix can be found at XX. An examination of this years base model
+(model XX) using the old ageing error matrix XX did not have a
+significant effect on derived quantities.
+
+### Recruitment Deviations
+
+Recruitment deviations for the period
+`r paste0(range(subset(rd_breaks, era == 'Early')[,'yr']),collapse = "-")`
+were estimated as "early-period" recruits separately from "main-period"
+recruits (1984-2012) such that the vector of recruits for each period
+had a sum-to-zero constraint, rather than forcing a sum-to-zero
+constraint across all recruitment deviations. Recruitment deviations
+prior to the start of composition data and in the most recent years in
+the time-series are less informed than in the middle of the time-series,
+which creates a bias in the estimation of recruitment deviations and
+mean recruitment that is corrected by estimating a bias adjustment
+factor following Methot and Taylor (2011).
+
+The breakpoints for the bias adjustment ramp were as follows: a linear
+increase from zero to a plateau of from
+`r m0_8$breakpoints_for_bias_adjustment_ramp[5]` from
+`paste0(range(round(as.numeric(m0_8$breakpoints_for_bias_adjustment_ramp))[1:2]), collapse = '-')`,
+after corresponding to the onset of regular compositional data; constant
+bias adjustment from
+`r paste0(range(round(as.numeric(m0_8$breakpoints_for_bias_adjustment_ramp))[2:3]), collapse = '-')`,
+and a decline from the plateau to zero between years
+`r paste0(range(round(as.numeric(m0_8$breakpoints_for_bias_adjustment_ramp))[3:4]), collapse = '-')`.
+
+## Description of Alternative Models
+
+The model presented herein follows the same model structure and data
+input types as the most recent (2017) accepted model for GOA flathead
+sole. This model has been updated to Stock Synthesis version 3.30.16,
+and the ageing error matrix has been updated along with all other data
+sources to reflect the current information provided by AKFIN. Following
+the recent CIE review, we present a handful of model explorations as
+sensitivities in section XX. We also present the previously accepted
+model in its original form (in Synthesis version 3.24) and bridged to
+the latest Stock Synthesis software, both without any data changes, for
+comparison in FIGURE XX. No new model structures are recommended this
+year.
+
+## Parameters Estimated Outside the Assessment Model
+
+The survey catchability, time- and age-invariant natural mortality for
+females and males, variability of recruitment ($\sigma_R$), the maturity
+ogive, the ageing error matrix, sex-specific length-at-age transition
+matrices, and the weight-length relationship were either estimated
+outside the assessment model and/or fixed within it, following the same
+structure as model 2017.
+
+### Natural Mortality
+
+The natural mortality rates were fixed at 0.2 for both sexes, as was
+done for previous assessments. We explore a sensitivity run where
+natural mortality is estimated [as an offset/for each sex] in section
+XX.
+
+### Weight at Length
+
+The following weight-length relationship used in the previous assessment
+(McGilliard et al. 2013) is used in the current assessment: , where and
+, length (L) was measured in centimeters and weight (w) was measured in
+kilograms.
+
+### Maturity at Age Ogive
+
+The female maturity ogive was specified using an age-based logistic
+curve, with slope parameter
+`r subset(m0_8$parameters, Label == "Mat_slope_Fem_GP_1")[,'Value']` and
+age at 50% maturity `r`r subset(m0_8\$parameters, Label ==
+"Mat50%\_Fem_GP_1")[,'Value']\`. These were obtained by histological
+analysis of 180 samples of GOA flathead sole ovaries collected in the
+central Gulf of Alaska from January 1999 (Stark 2004), and are the same
+as was used in the 2017 assessment.
+
+### Standard Deviation of log Recruitment ( $\sigma_R$)
+
+Variability of the recruitment deviations that were estimated in
+previous flathead sole assessments was approximately $\sigma_R=0.6$,
+which is fixed within the current assessment.
+
+### Survey Catchability
+
+The survey catchability parameter $q$ was fixed at 1.0, as for previous
+flathead sole assessments. We explore a sensitivity run where survey
+catchability is allowed to be calculated analytically in section XX.
+
+## Parameters Estimated Inside the Assessment Model
+
+A total of 86 parameters were estimated inside the assessment model.
+These include: 1) the log of unfished recruitment ($R_0$) 2) Sixty-six
+log-scale recruitment deviations; 3) Sex-specific parameters of the
+von-Bertalanffy growth curve, 4) Nine selectivity parameters in total
+for the fishery fleet and and survey (see Table XX).
+
+The model also estimates a fishing mortality rate for each model year
+using the hybrid method. Details on the estimation method for the
+aforementioned parameters are below.
+
+### Recruitment
+
+The log of unfished recruitment ($R_0$), log-scale recruitment
+deviations for an early period (1963-1972) and a main period (1973-2021)
+were estimated (see Section XX). A 1:1 sex ratio is assumed.
+
+### Growth
+
+Sex-specific growth parameters (asymptotic size in cm $L_{\infty,sex}$,
+length at minimum reference age in cm $L_{age=2,sex}$, growth rate
+$k_{sex}$ in $cm^{-yr}$, CV of length-at-age at ages 2 and 29) were
+estimated inside the assessment model.
+
+### Selectivity and fishing mortality
+
+Survey and fishery selectivity parameters were estimated using
+age-based, sex-specific, asymptotic curves that were time-invariant and
+are listed in the table below. The double-normal curve was used to
+easily allow previous and future explorations of alternative survey
+selectivity forms. Here the double-normal curve is constrained to mimic
+a logistic shape because there was no evidence for dome-shaped survey
+selectivity.
+
+| Parameter Name                              | Fishery            | Survey             |
+|---------------------------------------------|--------------------|--------------------|
+| Peak (age at plateau start)                 | Estimated [1,16]   | Estimated [1,20]   |
+| Width of plateau                            | Fixed (30)         | Fixed (30)         |
+| Ascending width (log)                       | Estimated [-4,12]  | Estimated [-4,12]  |
+| Descending width (log)                      | Fixed (8)          | Fixed (8)          |
+| Initial selectivity at age 0                | Fixed (-10)        | Fixed (-10)        |
+| Final selectivity at age 29                 | Fixed (15)         | Fixed (15)         |
+| Male peak offset                            | Estimated [-15,15] | Estimated [-15,15] |
+| Male Ascending width (log) offset           | Estimated [-15,15] | Estimated [-15,15] |
+| Male Descending width (log) offset          | Fixed (0)          | Fixed (0)          |
+| Male final offset (transformation required) | Fixed (1)          | Fixed (0)          |
+| Male apical selectivity                     | Fixed (1)          | Fixed (1)          |
+
+: Table XX. Treatment of selectivity parameters for survey and fishery
+fleet. Bracketed values indicate parameter bounds, if applicable.
+
+### Objective Function
+Parameter estimates were obtained by minimizing the overall sum of a weighted set of negative log-likelihood components derived from fits to the model data described above and a set of penalty functions used to improve model convergence and impose various constraints (Methot and Wetzel 2013). Fits to observed annual fishery size and age compositions, as well as survey biomass estimates and size and conditional age-at-length compositions were included among the set of likelihood components. A likelihood component based on recruitment deviations from the mean was also included. Penalties were imposed to achieve good fits to annual fishery catches (biomass) and the assumed historical fishery catch. The functions used are described in more detail in Methot and Wetzel (2013) and in Appendix B of McGilliard et al. (2018).

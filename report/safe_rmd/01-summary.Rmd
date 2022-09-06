@@ -1,0 +1,34 @@
+# Executive Summary
+
+## Summary of Changes in Assessment Inputs
+
+1. Added catch data: finalized catch (in mt) for 2017-2021, estimated catch biomass through  `r date`.
+2. Added design-based Gulf of Alaska Trawl Survey biomass data for 2019 and 2021. 
+3. Added Gulf of Alaska Trawl Survey length composition data for 2019 and 2021.
+4. Added Fishery length composition data from 2018-2021.
+5. Updated all historical data to reflect what is currently available in AFSC and AKFIN databases.
+6. Updated aging error matrix using Punt et al. (2008) method for GOA Flathead Sole double reads; previous values were from BSAI FHS.
+
+
+## Summary of Results
+No new models were considered this year.  The previously accepted model XX was updated with new data, as described above, and the modeling software was bridged from Stock Synthesis v3.24u to v3.30.16. The present model is referred to as YY.
+
+The key results of the assessment, based on the author’s preferred model (Model 18.2c), are compared to the key results of the accepted 2019 update assessment (McGilliard et al. 2019) in the table below.
+
+```{r, child= "01a-main_table.Rmd", eval = T}
+```
+ * Projections are based on estimated catches of 8,669 t used in place of maximum permissible ABC for 2020 and 11,519 t used in place of maximum permissible ABC for 2021 and 2022. The final catch for 2020 was estimated by taking the average tons caught between October 26 and December 31 over the previous 5 years (2015-2019) and adding this average amount to the catch-to-date as of October 26, 2020.  The 2021 and 2022 catch was estimated as the average of the total catch in each of the last 5 years (2015-2019). 
+
+Area apportionment for ABC of flathead sole is currently based on the proportion of survey biomass projected for each area in 2021 and 2022 using the survey averaging random effects model developed by the survey averaging working group. The recommended ABC area apportionment percentages are listed below; values are presented using the apportionment model results from 2020 as well as from 2021, which include an additional year of survey data. Slight discrepancies in totals (<10t) may occur due to rounding.
+```{r, child= "01b-apportionment.Rmd", eval = T}
+
+```
+
+
+If so are so kind as to provide tables for the plan team, place them here
+
+```{r, child= "01c-plan_team.Rmd", eval = T}
+
+```
+
+
