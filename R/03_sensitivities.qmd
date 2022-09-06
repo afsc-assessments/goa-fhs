@@ -1,0 +1,48 @@
+---
+title: "GOA FHS Assessment Sensitivity Runs"
+author: M Sosa Kapur maia.kapur@noaa.gov
+date: November 2022
+format: html
+toc: true
+always_allow_html: true
+editor: source
+---
+
+Here I run and discuss model comparisons, sensitivity runs, and extra analyses included in the base report.
+
+# Comparison among models
+
+For document: comparison of 2017 benchmark with the proposed base. Comment on findings.
+
+# Jitter
+
+# Retrospectives
+
+10 year retros.
+
+# Issues from CIE/SSC
+
+For reference I looked at the 2019 CIE Review PPts, as well as the original 2017 SAFE. In the former, the following concerns were highlighted for FHS or in general: 
++ Survey catchability estimation (right now it's fixed at exp(0) = 1) 
++ Early rec-dev estimation - right now these *are* estimated, but perhaps we should ignore them/reduce the number. + 1980s trawl survey data as well as 1990 and 1993 values. Recommend dropping 1980s, and running without 1990, 1993 data as sensitivity (since they occurred later in the year).
+
+The other recommendations from the SSC included: 
++ Revisit FHS aging error using Punt et al approach (done) 
++ Explore relationship between M and q, and the effect of these parameters on selex. 
++ Better account for scientific uncertainty.
+
+# Sensitivities & Analyses for 2022 benchmark
+
+Synthesizing these comments, I elected to conduct the following sensitivities and explorations: 
+
++ Do a likelihood profile for `q` and `M`, as they are in the present assessment. In 2017, we found the likelihood minimized when `q` \> 1.5; the best combo was at M=0.28 and 1.4. I repeat this exercise and share results; if q is still high in this manner, worth discussing with RACE about encounter probabilities etc.
+
+-   Allow `q` to be estimated, with an upper bound of 5
+
+-   Retain the estimation of early rec-devs, but begin the ramp at the onset of catch data (1978) instead of 1955.
+
+-   Turn off survey abundances, CAALs and lengths from 1993 and before.
+
+
+- see if there's a way to better fit survey data (I am concerned it's ignoring that information); perhaps analytical q?
+- see wh if steepness is estimated

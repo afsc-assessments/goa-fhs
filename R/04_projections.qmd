@@ -1,0 +1,450 @@
+---
+title: "2022 GOA FHS Projections"
+author: M Sosa Kapur maia.kapur@noaa.gov
+date: November 2022
+format: html
+toc: true
+always_allow_html: true
+editor: visual
+---
+
+Set up, run, summarise, plot and save projection outputs using RE and Proj components. Based this code on 2_makeCatches.R for partial updates for BSAI (which I updated to auto-write inputs for proj)
+
+# Projection Inputs
+
+```{r setup, echo = FALSE}
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+require(here)
+
+## Jane's package
+# devtools::install_github("afsc-assessments/rema", dependencies = TRUE, build_vignettes = TRUE)
+# require(rema)
+
+date_use = "2022-04-18"
+this_year = lubridate::year(Sys.Date())
+last_yr = this_year-1
+## Summarise and plot catches by discard/retention/geartype
+gearpal = rev(c('grey22',
+            alpha('grey22',0.65), 
+            'goldenrod',
+            alpha('goldenrod',0.65),
+            'seagreen4',
+            alpha('seagreen4',0.65)) )
+theme_set(ggsidekick::theme_sleek())
+theme_update(legend.text = element_text(size = 12), legend.position = 'bottom',
+                     axis.text = element_text(size = 14),axis.title  = element_text(size = 14))
+```
+
+```{r summary plots,  echo = FALSE }
+GOAt <- read.csv(here("data","catch",paste0(date_use,"-catch-raw.csv"))) %>% 
+  group_by(YEAR) %>%
+  summarise(GOA_total = sum(TONS)) %>%
+  select(YEAR, GOA_total)
+
+GOAt <- read.csv(here("data","catch",paste0(date_use,"-catch-raw.csv"))) 
+GOAt %>% 
+  group_by(YEAR, ZONE, TYPE, GEAR) %>%
+  mutate(GEAR = ifelse(GEAR %in% c('JIG','OTH'),'OTHER',GEAR)) %>%
+  filter(GEAR != 'OTHER') %>%
+  summarize(TONS=sum(TONS), .groups='drop') %>%
+  mutate(lab = paste0(GEAR, ifelse(TYPE == 'D',' Discarded', ' Retained'))) %>%
+  ggplot(aes(YEAR, TONS, color=lab, fill = lab)) +
+  scale_color_manual(values = gearpal)+
+  scale_fill_manual(values = gearpal)+
+  geom_bar(stat = 'identity') + 
+  theme(legend.position = 'none')+
+  labs(x = 'Year', y= 'Catch (tons)', col = '')+ 
+  facet_grid(GEAR~ZONE, scales = 'free_y')  
+# ggsave(last_plot(), 
+#        file = here('figs',paste0(Sys.Date(),'-catch_by_gear_zone.png')))
+
+
+## Aggregate catch to just year
+annual_catch <- GOAt %>%
+  group_by(YEAR) %>% 
+  summarize(total=sum(TONS), .groups='drop') %>% 
+  data.frame()
+
+
+## for table - catch by area this year
+tmp0 <- GOAt %>%
+  filter(YEAR > (this_year-6))
+tmp1 <- tmp0 %>% group_by(YEAR,ZONE) %>%
+  summarise(sc=sum(TONS)) %>%
+  tidyr::pivot_wider(., id_cols = YEAR,
+                     names_from = ZONE,
+                     values_from = sc) %>%
+  mutate(total = CG+SE+WG+WY) %>%
+  select(YEAR,total,CG,SE,WG,WY) 
+# write.csv(tmp1, file=here('data',paste0(Sys.Date(),'-catch_by_zone') ), row.names=FALSE)
+tmp1
+
+```
+
+```{r forecast catches this year, echo = FALSE}
+## For projection model need to predict total catches in this
+## year. Use weekly catches from from previous years to get
+## proportion of catch by week to estimate terminal year catch.
+
+files <- list.files(here('data','catch','weekly_catches'), full.names=TRUE)
+test <- lapply(1:length(files), function(i){
+  skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
+  data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
+                        stringsAsFactors=FALSE))
+})
+weekly_catches <- do.call(rbind, test)
+names(weekly_catches) <- c('species', 'date', 'catch')
+weekly_catches <- weekly_catches %>%
+  ## No species for Bering flounder, probably in FHS already
+  filter(grepl("Flathead", x=species)) %>%
+  mutate(date=mdy(date), week=week(date),  year=year(date))
+catch_this_year <- weekly_catches %>% filter(year==this_year) %>%
+  pull(catch) %>% sum
+## Get average catch between now and end of year for previous 5
+## years
+catch_to_add <- weekly_catches %>% filter(year>=this_year-5 & week > week(today())) %>%
+  group_by(year) %>% summarize(catch=sum(catch), .groups='drop') %>%
+  pull(catch) %>% mean
+message("Predicted ", this_year, " catch = ", round(catch_this_year + catch_to_add,0)) ##9272
+
+#* catches for projection years ----
+##  use last 5 years' real data average
+SS_catch <- read.csv(here('data','catch',paste0(date_use,"-catch_forSS.csv")))
+
+projc <- SS_catch %>% 
+  filter(yr  < this_year & yr  > (this_year-6)) %>% 
+  summarise(mean(catch_mt )) %>% as.numeric()
+
+catchvec <- matrix(c((last_yr-1),
+                  last_yr,
+                  this_year:(this_year+2),
+                  SS_catch$catch_mt[SS_catch$yr == last_yr-1],
+                  SS_catch$catch_mt[SS_catch$yr == last_yr],
+       round(catch_this_year + catch_to_add,0),
+       rep(projc, 2)), ncol = 2)
+
+# save(catchvec,file = here('data', 'catch', paste0(Sys.Date(),"-catches_for_proj.rdata")))
+
+```
+
+## copied from SOS exercise; need to double check for GOAFHS
+
+in folder need model_proj setup spp catch tacpar
+
+make sure sppcatch references correct model proj the years in spp catch are ignored dimensions on model proj will cause failure if wrong (when I copied in the model proj from 2021 with the 2009 setup it ran)
+
+```{r}
+## from CCM
+source(here('c:/users/maia.kapur/work/assessments/proj_functions/write_proj.r'))
+source(here('c:/users/maia.kapur/work/assessments/proj_functions/write_proj_spcat.r')) # manually changed line 24 to not invoke data subdir
+source(here('c:/users/maia.kapur/work/assessments/proj_functions/setup.r')) ## changed line 19 to turn off FMSY_35 as was done before
+source(here('c:/users/maia.kapur/work/assessments/proj_functions/get_proj_res.r'))
+## passed to write_proj function
+base_22 <- r4ss::SS_output(here('model_runs','m0_8'), verbose = FALSE)
+spp = "GOA_Flathead"
+## Write .dat file in /projection/data
+write_proj(dir = here('projection'),
+           data = base_22,
+           NSEX = base_22$nsexes, # number of sexes used in assessment model
+           Nfishery = 1, 	# number of fisheries(fleets) 
+           fleets = 1, # fleet index number (associated with commercial fishery)
+           rec_age = 3, 	# assumed age at recruitment
+           max_age = max(base_22$agebins), 		# maximum age in model
+           NAGE = length(3: max(base_22$agebins)), 	# number of ages
+           FY = 1977,  					# first year used to subset SSB
+           rec_FY = base_22$startyr, 	# first year used to subset recruitment
+           rec_LY_decrement =0, 	# value subtracted from assessment final year to subset recruitment
+           spawn_month = 1, # spawning month
+           Fratios = 1 	# Proportion F per fishery
+           # ct_yrs = 3,
+           # nsims = 1000,
+           # nproj = 14,
+           # spp = 'GOA_flathead'
+           )
+
+## Write setup.dat in /projection
+nsims=1000			# number of projection model simulations
+nproj=14			# number of projection years ALSO USED BY get_proj_res
+## passed to get_proj_res
+spp="GOA_flathead"
+setup(dir = here('projection'),
+      data = base_22,
+      nsims = 1000,
+      nproj = 17)
+
+## write spcat
+write_proj_spcat(dir = here('projection'),
+                 data = base_22, 
+                 ct_yrs = 3,
+                 catch_vector_use = catchvec[3:5,])
+```
+
+
+```{r}
+# setwd(here('projection')) 
+# shell('main')
+setwd(here)
+```
+
+# Extract projection & build SAFE table
+
+build some sanity checks here so no order issues as before
+
+```{r}
+# see Cole's report.R 
+#*  projection model results ----
+
+## ## Use R to process output into easy file to create the harvest
+## ## table in report.xlsx.
+
+## note that this uses alternative 2, which should be fraction of FABC
+## but because these are higher than alt 1 i'm inclined to think this is actually
+## the setup where catches=ABC
+
+rec_table1 <-
+  read.table(here('projection','percentdb.out')) %>%
+  as.data.frame(stringsAsFactors=FALSE) %>%
+  transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+            value=as.numeric(V5)) %>%
+  filter(year %in% (this_year+1:2) & scenario==1 &
+           metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
+  arrange(year, metric) %>%
+  pivot_wider(names_from=year, values_from=value)
+rec_table2 <-
+  read.table(here('projection','alt2_proj.out'), header=TRUE) %>%
+  filter(Year %in% (this_year+1:2)) %>%
+  pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+  pivot_wider(names_from=Year, values_from=value)
+rec_table1$scenario <- rec_table2$Stock <- NULL
+rec_table <- bind_rows(rec_table1, rec_table2)
+## change order to match SAFE format & magnitudes
+rec_table <- rec_table[c(11,6,3,4,5,2,1,1,9,8,8),] 
+rec_table[c(6:8),2:3] <- round(rec_table[c(6:8),2:3],2)
+rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
+
+
+previous_rec_table <- read.csv("C:/Users/maia.kapur/Work/assessments/2021/GOA-flathead/projection/Projections/REC_TABLE.CSV")
+names(previous_rec_table) <- c('metric','2022','2023')
+previous_rec_table[,c('X2022','X2023')] <- apply(previous_rec_table[,c('2022','2023')],2,
+                                                FUN = function(x) as.numeric(gsub(",","",x)))
+
+safe0 <- rbind(c(rep(0.2,3)),
+      c(rep('3a',3)),
+      cbind(previous_rec_table[,2:3], 
+         rec_table[,2:3]) )
+
+
+rownames(safe0) <-c('M', 
+                    'Tier',
+                    "Projected total (3+) biomass (t)",
+                    "Projected Female spawning biomass (t)",
+                    "B100%",
+                    "B40%",
+                    "B35%",
+                    "FOFL",
+                    "maxFABC",
+                    "FABC",
+                    "OFL (t)",
+                    "maxABC (t)",
+                    "ABC (t)"
+)
+safe1 = as.matrix(noquote(apply(safe0, 2, function(x) prettyNum(x, big.mark = ",")))) 
+# safe1 <- data.frame(safe1);names(safe1) <- names(safe0)
+
+
+status = matrix(NA, nrow = 3, ncol = 4)
+rownames(status) <- c('Overfishing','Overfished','Approaching Overfished')
+status[1,c(1,4)] <- status[2,c(2,4)] <- status[3,c(2,4)] <- 'no'
+# status = data.frame(status)
+# names(status) <-names(data.frame(safe1)) <- c(this_year,this_year+1, this_year+1, this_year+2)
+
+safe = noquote(rbind(safe1,status) )
+
+# safe[safe > 10e6] <- safe[safe>10e6]/1000
+write.csv(safe, file = here('tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
+
+# write.csv(rec_table, here('projection','rec_table.csv'), row.names=FALSE)
+
+
+## Table 1 total Catch by area ----
+
+
+## update these from 2018-previous year (values beforehand should show what's in base mod)
+t12020 <- read.csv(here("data","2021-10-28-catch.csv")) %>% 
+  group_by(YEAR,ZONE ) %>%
+  summarise(zone_total = sum(TONS)) %>%
+  select(YEAR, ZONE ,zone_total) %>%
+  filter(YEAR > 2017) %>%
+  tidyr::pivot_wider(., id_cols = 'YEAR', names_from = ZONE, values_from = zone_total) %>%
+  mutate(total_catch = sum(CG,SE,WG,WY),
+         EG = WY+SE) %>%
+  select(YEAR, total_catch, WG,CG,EG) 
+
+## get current by-area catches from weekly catches CSV
+
+this_year= 2021
+files <- list.files(here('data','weekly_catches'), full.names=TRUE)
+test <- lapply(1:length(files), function(i){
+  skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
+  data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
+                        stringsAsFactors=FALSE))
+})
+weekly_catches <- do.call(rbind, test)
+names(weekly_catches) <- c('species', 'date', 'catch')
+weekly_catches <- weekly_catches %>%
+  ## The species is split by area still
+  filter(grepl("Flathead", x=species)) %>%
+  mutate(date=lubridate::mdy(date), week=week(date),  year=year(date))
+# catch_this_year <- 
+weekly_catches %>% 
+  filter(year==this_year) %>%
+  mutate(ZONE = gsub(" ","",gsub(" Flathead Sole","",species))) %>%
+  group_by(year, ZONE) %>%
+  summarise(zone_total=sum(catch)) %>%
+  tidyr::pivot_wider(., id_cols = 'year', 
+                     names_from = ZONE, 
+                     values_from = zone_total) %>%
+  mutate(total_catch = sum(CGOA,GOASEOutside,GOAWestYakutat,WGOA),
+         EG = GOAWestYakutat+GOASEOutside ) %>%
+  select(YEAR = year, total_catch, WG=WGOA,CG=CGOA ,EG) %>% 
+  rbind(t12020,.,) %>%
+  write.csv(., file = here('data',paste0(Sys.Date(),"Table1Catch.csv")), row.names = FALSE)
+
+#* Area apportionment ----
+
+##* RE.dat inputs ----
+## Run the RE model for each area-specific survey to get this
+## year's estimates and use that to get proportions. I didn't
+## actually run this in 2020 because there was no survey. For
+## 2021 need to rework this chunk. CCM -10/2020
+# index_by_area <- read.csv('data/index_by_area.csv') %>%
+#   mutate(CV=sqrt(POPVAR)/POP)
+
+iba <- read.csv(here('data','2021-09-30-index_by_area.csv')) %>%
+  group_by(YEAR,AREA) %>%
+  summarise(BIOM_MT = BIOM,
+            CV_total=sqrt(BIOMVAR)/BIOM ) %>%
+  filter(YEAR > 2010)
+
+iba %>% filter(AREA == 'CENTRAL GOA') %>%  View()
+write.csv(., 
+          here('re','Central',paste0(Sys.Date(),'-values_for_redat.csv') ),
+          row.names=FALSE)
+
+iba %>% filter(AREA == 'EASTERN GOA') %>%
+  write.csv(., 
+            here('re','Eastern',paste0(Sys.Date(),'-values_for_redat.csv') ),
+            row.names=FALSE)
+
+iba %>% filter(AREA == 'WESTERN GOA') %>% View()
+write.csv(., 
+          here('re','WESTERN',paste0(Sys.Date(),'-values_for_redat.csv') ),
+          row.names=FALSE)
+
+
+iba %>% 
+  tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV_total))
+
+```
+
+# Wrangle RE outputs
+
+```{r}
+rwout0 <- list.files(here('re'), pattern = paste('rwout'), full.names = T, recursive = T)
+rwout <- rwout0[!grepl('2019',rwout0 )] ## grab new runs (not 2019)
+
+
+read_rwout <- function(x){
+
+  rawl <-  scan(x,
+       skip = 7,
+       what = as.list(rep("",length(1984:this_year)+1)), 
+       flush = TRUE) %>% 
+    data.frame()
+
+  ## label columns and rows and drop
+  rownames(rawl) <- c('Year',as.matrix(rawl[,ncol(rawl)]))[1:8]
+  rawl<-rawl[1:(ncol(rawl)-1)]
+  names(rawl) <- as.matrix(rawl[1, ])
+  rawl <- rawl[-1, ]
+  rawl <- rawl[1:6,]
+  ## biomA = estimated biomass (natural scale)
+  currBio <-  rawl %>% tibble::rownames_to_column() %>%  
+    pivot_longer(-rowname) %>% 
+    pivot_wider(names_from=rowname, values_from=value) %>%
+    filter(name == this_year) %>%
+    select(biomA)
+  currBio <- as.numeric(currBio)
+  
+  names(currBio) = paste(basename(dirname(x)))
+  
+  
+  return(currBio)
+}
+
+## by hand inspection, biomA should actually be
+# CENTRAL = 94280.3
+# EASTERN = 14492.6
+# WESTERN = 82104.9
+
+dt0 <- lapply(rwout, read_rwout) %>% 
+  unlist() %>%
+  data.frame() 
+
+names(dt0) <- 'cb'
+
+## these are the apportionments by 3 areas; still need to dwnslale EGOA
+mgmtf <- dt0 %>% 
+  tibble::rownames_to_column() %>%  
+  pivot_longer(-rowname) %>% 
+  mutate(sv = sum(value)) %>%
+  group_by(rowname) %>%
+  summarise(propBio = value/sv) %>% 
+  pivot_wider(names_from = rowname, values_from = c(propBio)) 
+
+
+
+## EGOA: Eastern goes to SE, Western goes to Yakutat
+egfrac <- read.csv(here('data','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
+
+apportionment <- mgmtf %>% 
+  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+  select(Western, Central, WestYakutat,Southeast)
+
+sum(apportionment)==1
+
+
+abc22 <- as.numeric( rec_table[10,2])*apportionment
+abc23 <- as.numeric( rec_table[10,3])*apportionment
+
+abc22 <- as.numeric( 40175)*apportionment
+abc23 <- as.numeric(40046)*apportionment
+
+apportionment2 <- rbind(apportionment,abc22,abc23)
+write.csv(apportionment2,file = here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+
+
+## table of indices x area ----
+iba <- read.csv(here('data','2021-09-30-index_by_area.csv')) %>%
+  group_by(YEAR,AREA) %>%
+  summarise(BIOM_MT = BIOM,
+            CV=sqrt(BIOMVAR)/BIOM ) 
+
+index <- read.csv(here('data','2021-09-30-index.csv')) %>%
+  group_by(YEAR) %>%
+  summarise(BIOM_MT = BIOM,
+            CV_total=sqrt(BIOMVAR)/BIOM)
+
+iba %>% 
+  tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV)) %>%
+  merge(., index, by = 'YEAR') %>%
+  select(YEAR, BIOM_MT, CV_total, everything()) %>%
+  write.csv(., 
+            here('DATA',paste0(Sys.Date(),'-table2_indices_area.csv') ),
+            row.names=FALSE)
+
+```
