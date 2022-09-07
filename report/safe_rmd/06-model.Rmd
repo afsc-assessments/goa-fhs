@@ -143,13 +143,13 @@ factor following Methot and Taylor (2011).
 
 The breakpoints for the bias adjustment ramp were as follows: a linear
 increase from zero to a plateau of from
-`r m0_8$breakpoints_for_bias_adjustment_ramp[5]` from
-`paste0(range(round(as.numeric(m0_8$breakpoints_for_bias_adjustment_ramp))[1:2]), collapse = '-')`,
+`r base_model$breakpoints_for_bias_adjustment_ramp[5]` from
+`paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[1:2]), collapse = '-')`,
 after corresponding to the onset of regular compositional data; constant
 bias adjustment from
-`r paste0(range(round(as.numeric(m0_8$breakpoints_for_bias_adjustment_ramp))[2:3]), collapse = '-')`,
+`r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[2:3]), collapse = '-')`,
 and a decline from the plateau to zero between years
-`r paste0(range(round(as.numeric(m0_8$breakpoints_for_bias_adjustment_ramp))[3:4]), collapse = '-')`.
+`r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[3:4]), collapse = '-')`.
 
 ## Description of Alternative Models
 
@@ -192,9 +192,8 @@ kilograms.
 
 The female maturity ogive was specified using an age-based logistic
 curve, with slope parameter
-`r subset(m0_8$parameters, Label == "Mat_slope_Fem_GP_1")[,'Value']` and
-age at 50% maturity `r`r subset(m0_8\$parameters, Label ==
-"Mat50%\_Fem_GP_1")[,'Value']\`. These were obtained by histological
+`r subset(base_model$parameters, Label == "Mat_slope_Fem_GP_1")[,'Value']` and
+age at 50% maturity `r subset(base_model$parameters, Label =="Mat50%_Fem_GP_1")[,'Value']`. These were obtained by histological
 analysis of 180 samples of GOA flathead sole ovaries collected in the
 central Gulf of Alaska from January 1999 (Stark 2004), and are the same
 as was used in the 2017 assessment.
