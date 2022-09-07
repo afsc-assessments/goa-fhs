@@ -13,7 +13,10 @@ output:
   bookdown::word_document2:
      reference_docx: "template.docx"
      toc: false
-     number_sections: false
+     number_sections: true
+     global_numbering: true
+     crossref:
+       fig-title: Figure
      css: "styles.css"
      pandoc_args:  
        - '--lua-filter=scholarly-metadata.lua'
@@ -64,15 +67,15 @@ library(dplyr)
 
 # globals
 species = params$species
-m0_8 <- SS_output(here('model_runs','m0_8'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
-year = m0_8$endyr
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+year = base_model$endyr
 date = 'October 22, 2022'
 model = "base"
 end_proj = year + 17
 best_f = 0.0641 # from the best_f function in groundfishr package
 ofl = 8000 # placeholder while i figure things out
 ## load catchvec
-rd_breaks <- m0_8$recruit %>% group_by(era) %>% summarise(yr = range(Yr))
+rd_breaks <- base_model$recruit %>% group_by(era) %>% summarise(yr = range(Yr))
 # todo: read from proj output
 # here('data', 'catch', paste0(Sys.Date(),"-catches_for_proj.rdata"))
 load(here('data','catch','2022-08-25-catches_for_proj.rdata')) # catchvec
