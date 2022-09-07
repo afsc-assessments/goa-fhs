@@ -11,11 +11,11 @@ data.frame(Source = c(rep("U.S. trawl fishery", 2),
                     "Survey biomass",
                     "Survey length composition", 
                     "Survey age composition, conditioned on length" ),
-           Years = c(paste0(range(m0_8$catch$Yr),collapse  = "-"),
-                     with(subset(m0_8$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", ")),
+           Years = c(paste0(range(base_model$catch$Yr),collapse  = "-"),
+                     with(subset(base_model$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", ")),
                     "1984-1999 (triennial), 2001-2021 (biennial)",
                     "1984-1999 (triennial), 2001-2021 (biennial)", 
-                    with(subset(m0_8$condbase, Fleet == 2),paste0(unique(Yr), collapse = ", "))))  %>% 
+                    with(subset(base_model$condbase, Fleet == 2),paste0(unique(Yr), collapse = ", "))))  %>% 
   flextable::flextable() %>% 
     flextable::width(j = ~ Source, width = 1) %>% 
     flextable::width(j = ~ Data, width = 1.5) %>% 
