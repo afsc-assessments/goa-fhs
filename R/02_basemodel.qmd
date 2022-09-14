@@ -189,6 +189,64 @@ SSplotSelex(base_model, fleets = 2, subplot = 2, agefactors = 'Asel',legendloc  
 
 
 ```
+
+## SB vs F plot
+This was Fig 22 in the 2017 model with this caption: Spawning stock biomass relative to B35% and fishing mortality (F) relative to F35% from 1978-2019 (solid black line), the OFL control rule (dotted red line), the maxABC control rule (solid red line), B35% (vertical grey line), and F35% (horizontal grey line). The 2018 and 2019 spawning biomass and fishing mortality rates are as predicted by Alternatives 1 and 2 in the harvest projections.
+
+Need to read 2023/2024 sb, F from alternatives 1 and 2 in proj.
+
+```{r}
+## take all reference values from Proj, noting that refs to "ofl" correspond to "b35" therein
+rec_table1 <-
+  read.table(here('projection','percentdb.out')) %>%
+  as.data.frame(stringsAsFactors=FALSE) %>%
+  transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+            value=as.numeric(V5)) %>%
+  filter(year %in% (this_year+1:2) & scenario==1 &
+           metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
+  arrange(year, metric) %>%
+  tidyr::pivot_wider(names_from=year, values_from=value)
+rec_table2 <-
+  read.table(here('projection','alt2_proj.out'), header=TRUE) %>%
+  filter(Year %in% (this_year+1:2)) %>%
+   tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+   tidyr::pivot_wider(names_from=Year, values_from=value)
+
+## use these as denominators
+b35 <- as.numeric(subset(rec_table1, metric == 'SSBFofl')[,'2023']) ## in mt
+f35 <- as.numeric(subset(rec_table1, metric == 'Fofl')[,'2023'] )
+b100 <- as.numeric(subset(rec_table1, metric == 'SSBF100')[,'2023']) ## in mt
+
+fig22 <- mod17$timeseries %>% dplyr::select(Yr, SpawnBio, Fy = `F:_1`) %>%
+  filter(Yr > 1977  ) %>%
+  mutate(SB_B35 = SpawnBio/(1000*b35), F_F35 = Fy/f35, type = 'aa') %>%
+  arrange(., Yr)
+# fig22$type[fig22$Yr > 1978] <- 'BB'
+# fig22$type[fig22$Yr == 1978] <- NA
+
+## showing the OFL and ABC control rules. These are actually relative to B100
+  
+ggplot(data = fig22, aes(x = SB_B35, y = F_F35)) +
+  geom_path(color = baseCol, lwd = 0.75, aes(group = type)) +
+  # geom_point(color = Yr) +
+  scale_x_continuous(limits = c(0,3.5)) +
+  scale_y_continuous(limits = c(0,1.5)) +
+  geom_hline(yintercept = 1, col = 'grey88') +  geom_vline(xintercept = 1, col = 'grey88') +
+  geom_segment(data = NULL, aes(x =0.4/0.35,  y = 1,xend =3.5, yend = 1), color = 'red') + ## OFL plateau
+  geom_segment(data = NULL, aes(x =0.05,  y = 0,xend =0.4/0.35, yend = 1), color = 'red') + ## OFL ramp
+  geom_segment(data = NULL, aes(x = 0.4/0.35,  y = 0.8,xend =3.5, yend = 0.8), color = 'red', linetype = 'dotted') + ## ABC  plateau
+  geom_segment(data = NULL, aes(x = 0.05,  y = 0,xend =0.4/0.35, yend = 0.8), color = 'red', linetype = 'dotted') + ## ABC  ramp
+  labs(x = expression('Spawning Biomass/B'[35]*"%"),y = expression('F/F'[35]*"%"))
+
+ggsave(last_plot(),
+       file = here('figs','22_BFTrajectory.png'),
+       width = 5, height = 5, dpi = 400)
+
+
+
+```
+
+
 # Tuning
 In `01_bridging.qmd` we landed on `m0_8-newMI-biasAdj` as the base model. This has all the new data, corrects the historical survey datapoint, and updates the aging error matrix. The parameter hitting bounds is InitialF and we decided to leave that as-is.
 
