@@ -170,12 +170,16 @@ newerr <- t(read.csv(here("data","ageing_error", "real_data", "aic2p", "ss_forma
 data.frame()
 names(newerr) <- newerr[1,]
 newerr <- newerr[-1,]
-
-with(m0_0$age_error_sd, plot( type1 ~ age, pch = 19, col =  'grey22', ylim = c(0,3)))
-with(newerr, points( SD ~True_Age, pch = 19, col =  'blue', add = T))
+png(here('figs','ageerr_compare.png'), width = 5,  height = 3, res = 520, unit = 'in')
+with(m0_0$age_error_sd, 
+     plot( type1 ~ age, type = 'l', col =  'grey22', 
+                              ylim = c(0,3),     ylab = 'Type 1 Error', xlab = 'Age'))
+with(newerr, lines( SD ~True_Age, pch = 19, col =  'blue', add = T))
 legend('topleft', 
        legend = c('old matrix (BSAI)', 'new matrix (AIC)'),
+       
        col = c('grey22','blue'), pch = 19)
+dev.off()
 # knitr::include_graphics(here("data", "ageing_error","real_data","aic2p","compplots.png"))
 
 ```
