@@ -7,6 +7,13 @@ toc: true
 always_allow_html: true
 editor: source
 ---
+```{r setup, echo = FALSE}
+require(r4ss)
+require(here)
+require(tidyverse)
+
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+```
 
 Here I run and discuss model comparisons, sensitivity runs, and extra analyses included in the base report.
 
@@ -16,9 +23,35 @@ For document: comparison of 2017 benchmark with the proposed base. Comment on fi
 
 # Jitter
 
+Did this as a back-pocket
+
+```{r}
+# jitter()
+```
+
+
 # Retrospectives
 
-10 year retros.
+Conduct retrospectives, make and save general comparison plots.
+2017 asessment showes SSB, age-0 Recruits and survey fits.
+
+```{r retrospectives}
+
+SS_doRetro(masterdir =  here('model_runs','m0_8-newMI-biasAdj'),
+           oldsubdir = "",
+           # newsubdir = here('model_runs','m0_8-newMI-biasAdj','retrospectives'),
+           years = 0:-10)
+retroModels <- SSgetoutput(dirvec = file.path( here('model_runs','m0_8-newMI-biasAdj'), "retrospectives", paste("retro", 0:-10, sep = "")))
+retroSummary <- SSsummarize(retroModels)
+endyrvec <- retroSummary[["endyrs"]] + 0:-10
+SSplotComparisons(retroSummary,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj','retrospectives'),
+                  print  = T,
+                  legendloc = 'bottomright',
+                  endyrvec = endyrvec,
+                  legendlabels = paste("Data", 0:-10, "years"))
+```
+
 
 # Issues from CIE/SSC
 
@@ -31,18 +64,75 @@ The other recommendations from the SSC included:
 + Explore relationship between M and q, and the effect of these parameters on selex. 
 + Better account for scientific uncertainty.
 
+Note that we also did a proto-sensitvity during the data weighting in `01` where we ran the model with no weights and Francis weights (that figure isn't currently saved but generated at bottom of that doc).
+
 # Sensitivities & Analyses for 2022 benchmark
 
 Synthesizing these comments, I elected to conduct the following sensitivities and explorations: 
 
-+ Do a likelihood profile for `q` and `M`, as they are in the present assessment. In 2017, we found the likelihood minimized when `q` \> 1.5; the best combo was at M=0.28 and 1.4. I repeat this exercise and share results; if q is still high in this manner, worth discussing with RACE about encounter probabilities etc.
++ Do a likelihood profile for `q` and `M`, as they are in the present assessment. In 2017, we found the likelihood minimized when `q` > 1.5; the best combo was at M=0.28 and 1.4. I repeat this exercise and share results; if q is still high in this manner, worth discussing with RACE about encounter probabilities etc. I will also do a profile on $R_0$ for completeness.
 
--   Allow `q` to be estimated, with an upper bound of 5
+- Allow `q` to be estimated, with an upper bound of 5
+- Relatedly, see if there's a way to better fit survey data (I am concerned it's ignoring that information); perhaps analytical q?
 
--   Retain the estimation of early rec-devs, but begin the ramp at the onset of catch data (1978) instead of 1955.
+- Retain the estimation of early rec-devs, but begin the ramp at the onset of catch data (1978) instead of 1955.
 
--   Turn off survey abundances, CAALs and lengths from 1993 and before.
+- Turn off survey abundances, CAALs and lengths from 1993 and before.
+
+- See what happens if steepness is estimated
 
 
-- see if there's a way to better fit survey data (I am concerned it's ignoring that information); perhaps analytical q?
-- see wh if steepness is estimated
+
+
+## Likelihood Profiles
+Establish vectors and run the profiles.
+```{r likelihood profiles}
+## note that in 2017 they did these vectors and combinations thereof for 2d plots
+q.vec <- log(seq(0.6, 1.5, 0.1)) ## from 2017
+m.vec <- seq(0.1,0.3,0.02) ## from 2017; these apply to both males and females at the same time
+baser0 <- base_model$parameters[base_model$parameters$Label=='SR_LN(R0)','Value']
+r0.vec <- seq(baser0-1,baser0+1,0.2)
+
+## made a copy of this in case it busted. starter changed to control_modified.ss, and prior like to 1
+SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0'),
+          string = "SR_LN(R0)",
+          profilevec = r0.vec)
+
+# SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'),
+#           string = "NatM",
+#           profilevec = m.vec)
+
+SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q'),
+          string = "LnQ_base_Survey",
+          profilevec = q.vec)
+
+SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq'),
+          string = c("LnQ_base_Survey","NatM"),
+          profilevec = data.frame('LnQ_base_Survey' = q.vec, 'NatM' = m.vec))
+```
+
+Extract, summarize and plot the profiles. These are saved under the base model in sub-folders within `profiles/`
+```{r}
+profiles_m <- SSgetoutput(dirvec = here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'), keyvec = 1:length(m.vec))
+profile_m_summary <- SSsummarize(profiles_m)
+
+save(profile_m_summary,
+     file =here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m','profile_m_summary.rdata') )
+
+png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m','m_profile_piner.png'),
+    width = 10, height = 7, unit = 'in', res = 520)
+par(mfrow = c(1,2),mar = c(4,4,4,1))
+SSplotProfile(profile_m_summary, # summary object
+              add_cutoff = T, ymax = 50, legendloc = NA,
+  profile.string = "NatM_uniform_Fem_GP_1", # substring of profile parameter
+  profile.label = "Female Natural Mortality (M)"
+)
+par(mar = c(4,1,4,1))
+SSplotProfile(profile_m_summary, # summary object
+                   add_cutoff = T, ymax = 50,
+              cex.main = 2, ylab = "",  
+  profile.string = "NatM_uniform_Mal_GP_1", # substring of profile parameter
+  profile.label = "Male Natural Mortality (M)"
+)
+dev.off()
+```
