@@ -182,7 +182,6 @@ write_proj_spcat(dir = here('projection'),
                  catch_vector_use = catchvec[3:5,])
 ```
 
-
 ```{r}
 # setwd(here('projection')) 
 # shell('main')
