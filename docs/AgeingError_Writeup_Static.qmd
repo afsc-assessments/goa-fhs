@@ -67,6 +67,7 @@ dat <- read.csv("C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/data/age
 dat <- filter(dat, !is.na(test_age) & !is.na(read_age))
 dat <- filter(dat, fish_id!=551023)
 
+head(dat)
 ```
 
 ::: panel-tabset
