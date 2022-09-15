@@ -51,18 +51,18 @@ SSplotComparisons(modcomp,   legendlabels = modlabs, col = c(m2017Col,baseCol),
                   png = T, plotdir = here('model_runs','m0_8-newMI-biasAdj'))
 ```
 
-## base vs later ramp
+## base vs recdevstart 1983
 
 ```{r}
-base_earlydevs <- SS_output( here('model_runs','m0_8-newMI-biasAdj-lateRamp'))
+base_earlydevs <- SS_output( here('model_runs','m0_8-newMI-biasAdj-devs1983'))
 modcomp <- SSsummarize(list(base_earlydevs,base_model))
 SSplotComparisons(modcomp,
-                  plotdir = here('model_runs','m0_8-newMI-biasAdj-lateRamp'),
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-devs1983'),
                   print  = T,
                   col = c(sensPal[1],baseCol),
                   legendloc = 'bottomright',
                   # endyrvec = endyrvec,
-                  legendlabels = c('Dev Ramp start 1978',modlabs[2]))
+                  legendlabels = c('Dev Ramp start 1983',modlabs[2]))
 
 
 ```
@@ -80,6 +80,8 @@ SSplotComparisons(modcomp,
                   # endyrvec = endyrvec,
                   legendlabels = c('No Survey Data < 1993',modlabs[2]))
 
+
+SSplotData(base_srv1993)
 ```
 
 ## base and q estimated/analytical

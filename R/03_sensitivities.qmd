@@ -57,7 +57,8 @@ SSplotComparisons(retroSummary,
 
 For reference I looked at the 2019 CIE Review PPts, as well as the original 2017 SAFE. In the former, the following concerns were highlighted for FHS or in general: 
 + Survey catchability estimation (right now it's fixed at exp(0) = 1) 
-+ Early rec-dev estimation - right now these *are* estimated, but perhaps we should ignore them/reduce the number. + 1980s trawl survey data as well as 1990 and 1993 values. Recommend dropping 1980s, and running without 1990, 1993 data as sensitivity (since they occurred later in the year).
++ Early rec-dev estimation - right now these *are* estimated, but perhaps we should ignore them/reduce the number. 
++ 1980s trawl survey data as well as 1990 and 1993 values. Recommend dropping 1980s, and running without 1990, 1993 data as sensitivity (since they occurred later in the year).
 
 The other recommendations from the SSC included: 
 + Revisit FHS aging error using Punt et al approach (done) 
@@ -84,9 +85,6 @@ I repeat this exercise and share results; if q is still high in this manner, wor
 - Turn off survey abundances, CAALs and lengths from 1993 and before.
 
 - See what happens if steepness is estimated
-
-
-
 
 ## Likelihood Profiles
 Establish vectors and run the profiles.
@@ -136,7 +134,7 @@ dev.off()
 ```
 
 ```{r profile r0}
-SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0'),
+r4ss::profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0'),
           string = "SR_LN(R0)",
           profilevec = r0.vec)
 
@@ -150,7 +148,7 @@ png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','r0_profile_p
     width = 10, height = 7, unit = 'in', res = 520)
 
 SSplotProfile(profile_R0_summary, # summary object
-              add_cutoff = T, ymax = 50, legendloc = 'right',
+              add_cutoff = T, ymax = 500, legendloc = 'right',
   profile.string = "SR_LN", # substring of profile parameter
   profile.label = "ln(R0)"
 )
@@ -159,9 +157,9 @@ dev.off()
 ```
 
 ```{r profile q}
-# SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q'),
-#           string = "LnQ_base_Survey",
-#           profilevec = q.vec)
+SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q'),
+          string = "LnQ_base_Survey",
+          profilevec = q.vec)
 profiles_q <- SSgetoutput(dirvec = here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q'), keyvec = 1:length(q.vec))
 profile_q_summary <- SSsummarize(profiles_q)
 
@@ -187,3 +185,21 @@ SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq'
           string = c("LnQ_base_Survey","NatM"),
           profilevec = data.frame('LnQ_base_Survey' = q.vec, 'NatM' = m.vec))
 ```
+
+
+## Push up recdevstart to 1983
+
+The survey data, while questionable, starts in 1983. Later fishery length comps start in 1985.
+
+Changed line 126 ("recdev early start") in control to 1983. This makes the early devs start at the same time as the survey biomass and length comps, instead of way back in 1955. (Made plots in 02_basemodel for aesthetic consistency).
+
+## Survey data 1993
+Turned off survey data, CAALs and length comp before 1993 from the survey. (Made plots in 02_basemodel for aesthetic consistency).
+
+## Estimate Q
+Right now it's set up to estimated between -1 and 1, but the profiling exercise indicated that it wants q to be really high (i.e. 5). Going to do this two ways; one with a free estimation (just make the phase positive), allowing the bounds to vary from -15 to 15 (as in sablefish); and a separate time using analytical q. For the latter, change line 177 to `2 1 0 0 0 1`, leave the phase negative but expand the bounds. (Made plots in 02_basemodel for aesthetic consistency).
+
+ 
+## Use old aging error matrix in new model
+Pasted in the section from the translated 2017 model into the 2022 base. 
+
