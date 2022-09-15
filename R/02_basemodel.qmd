@@ -37,6 +37,7 @@ modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
 
 ```
 
+## base vs 2017
 ```{r compare base and 2017, echo = FALSE}
 
 m2017 <- SS_output(here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
@@ -50,7 +51,7 @@ SSplotComparisons(modcomp,   legendlabels = modlabs, col = c(m2017Col,baseCol),
                   png = T, plotdir = here('model_runs','m0_8-newMI-biasAdj'))
 ```
 
-Compare base and later ramp
+## base vs later ramp
 
 ```{r}
 base_earlydevs <- SS_output( here('model_runs','m0_8-newMI-biasAdj-lateRamp'))
@@ -63,8 +64,11 @@ SSplotComparisons(modcomp,
                   # endyrvec = endyrvec,
                   legendlabels = c('Dev Ramp start 1978',modlabs[2]))
 
+
 ```
- Compare base and survey data truncated before 1993
+ 
+## base vs survey data truncated before 1993
+ 
 ```{r}
 base_srv1993 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1993'))
 modcomp <- SSsummarize(list(base_srv1993,base_model))
@@ -78,7 +82,7 @@ SSplotComparisons(modcomp,
 
 ```
 
-Compare base and q estimated/analytical
+## base and q estimated/analytical
 
 ```{r}
 base_analQ <- SS_output( here('model_runs','m0_8-newMI-biasAdj-analQ'))
@@ -114,6 +118,46 @@ SSplotComparisons(modcomp,
 ```
 
 
+## base vs old ageerror
+
+```{r}
+## manually check it used the right values
+
+base_olderr <-  SS_output( here('model_runs','m0_8-newMI-biasAdj-oldAgeErr'))
+base_olderr$age_error_mean; base_olderr$age_error_sd
+base_model$age_error_mean; base_model$age_error_sd
+
+modcomp <- SSsummarize(list(base_olderr,base_model))
+
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-oldAgeErr'),
+                  print  = T,
+                  col = c(sensPal[1],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Base w/ old ageing error matrix',modlabs[2]))
+
+```
+
+## base with h estimated
+
+```{r}
+## manually check it used the right values
+
+base_esth <-  SS_output( here('model_runs','m0_8-newMI-biasAdj-esth'))
+ 
+
+modcomp <- SSsummarize(list(base_esth,base_model))
+
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-esth'),
+                  print  = T,
+                  col = c(sensPal[2],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Base w/ h estimated',modlabs[2]))
+
+```
 ## All sensitivities on one plot
 
 ```{r}
