@@ -33,23 +33,95 @@ baseCol <- "#3A7D6C"
 sensPal <- met.brewer(name = 'Demuth',n = 10)[6:10]
 fleetPal <- c(baseCol,'dodgerblue2')
 
-
-modlabs = c('2017 Model','2022 Model')
+modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
 
 ```
 
-```{r load model objects, echo = FALSE}
+```{r compare base and 2017, echo = FALSE}
 
 m2017 <- SS_output(here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
-m2017_dat <- SS_readdat(file = here('model_runs','2017-mod','goa_flathead_17_dat.dat'))
+# m2017_dat <- SS_readdat(file = here('model_runs','2017-mod','goa_flathead_17_dat.dat'))
 base_dat <-  SS_readdat(file = here('model_runs','m0_8-newMI-biasAdj','data.ss'))
 base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 # base_thru17 <- SS_output(here('model_runs','m0_8-thru17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 modcomp <- SSsummarize(list(m2017,base_model))
 
-# SSplotComparisons(modcomp,   legendlabels = modlabs, col = c(m2017Col,baseCol),
-#                   png = T, plotdir = here('model_runs','m0_8-newMI-biasAdj'))
+SSplotComparisons(modcomp,   legendlabels = modlabs, col = c(m2017Col,baseCol),
+                  png = T, plotdir = here('model_runs','m0_8-newMI-biasAdj'))
 ```
+
+Compare base and later ramp
+
+```{r}
+base_earlydevs <- SS_output( here('model_runs','m0_8-newMI-biasAdj-lateRamp'))
+modcomp <- SSsummarize(list(base_earlydevs,base_model))
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-lateRamp'),
+                  print  = T,
+                  col = c(sensPal[1],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Dev Ramp start 1978',modlabs[2]))
+
+```
+ Compare base and survey data truncated before 1993
+```{r}
+base_srv1993 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1993'))
+modcomp <- SSsummarize(list(base_srv1993,base_model))
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-srv1993'),
+                  print  = T,
+                  col = c(sensPal[2],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('No Survey Data < 1993',modlabs[2]))
+
+```
+
+Compare base and q estimated/analytical
+
+```{r}
+base_analQ <- SS_output( here('model_runs','m0_8-newMI-biasAdj-analQ'))
+base_estQ <- SS_output( here('model_runs','m0_8-newMI-biasAdj-estQ'))
+
+modcomp <- SSsummarize(list(base_analQ,base_estQ,base_model))
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-estQ'),
+                  print  = T,
+                  col = c(sensPal[3:4],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Analytical q','Estimate ln(q) [-15,15]',modlabs[2]))
+
+
+modcomp$pars[modcomp$pars$Label=="LnQ_base_Survey(2)" ,] ## both est and analytical landed at 1.65
+
+
+base_NoWeight  <- SS_output( here('model_runs','m0_8c'))
+modcomp <- SSsummarize(list(base_NoWeight,base_estQ,base_model))
+
+## the q estimator looks a lot like the unweighted model. 
+## by
+
+SSplotComparisons(modcomp,
+                  # plotdir = here('model_runs','m0_8-newMI-biasAdj-estQ'),
+                  print  = F,
+                  col = c(sensPal[5], sensPal[4],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Base q/ Francis Weights','Estimate ln(q) [-15,15]',modlabs[2]))
+
+```
+
+
+## All sensitivities on one plot
+
+```{r}
+
+```
+
+
+
 
 
 
