@@ -1,6 +1,5 @@
 ```{r}
 # using built in example data 
-safe <- read.csv(here('tables','2022-08-30-safe_table.csv')) 
 
 flextable::flextable(safe) %>% 
     flextable::add_header_row(values =c("","2022","2023","2023","2024"), top=FALSE) %>%
