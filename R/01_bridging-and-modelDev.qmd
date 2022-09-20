@@ -453,18 +453,24 @@ I'm going to stick with the new M-I values for now. However, I think future mode
 m0_8newMI <- SS_output(here('model_runs','m0_8-newMI'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m0_8newFrancis <- SS_output(here('model_runs','m0_8-newFrancis'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
-SSplotComparisons(SSsummarize(list(m2017, m0_8,m0_8c,m0_8newMI,m0_8newFrancis)),
-                  subplots = c(2,4,11,13),
+SSplotComparisons(SSsummarize(list(m2017, 
+                                   base_model,
+                                   # m0_8,m0_8c,
+                                   # m0_8newMI,
+                                   m0_8newFrancis)),
+                  print = T,
+                  plotdir =here('model_runs','m0_8-newFrancis'),
+                  # subplots = c(2,4,11,13),
                   legendlabels = c('m2017',
-                                   'm0_8',
-                                   'm0_8c [no weights]',
-                                   'm0_8 new MI',
+                                   'base model (new MI)',
+                                   # 'm0_8c [no weights]',
+                                   # 'm0_8 new MI',
                                    'm0_8 new Francis'))
 
 cbind(m0_8newMI$likelihoods_used,m0_8newFrancis$likelihoods_used)
 ```
 
-## Revisit adjustment 
+## Revisit bias adjustment 
 Now that we have the new data weights, to deal with the warning "Main recdev biasadj is >2 times ratio of rmse to sigmaR", I will go with what comes out of `SS_fitbiasramp`. This suggests new breakpoints and maximum value for the ramp. This recommends *retaining the endyr for the ramp around 2015*, likely in response to the availability of the comp data. 
 
 
