@@ -10,7 +10,7 @@ code-overflow: wrap
 execute: 
   warning: false 
 theme: yeti
-editor: visual
+editor: source
 ---
 
 ------------------------------------------------------------------------
@@ -137,19 +137,18 @@ Below is a qualitative description of the models examined here:
 
 ```
 
-| Model Name | Qualitative Description                                                                                                                         |
-|------------------------------------------------|------------------------|
-| aic1       | Curvilinear $\sigma$ estimated individually for all readers; curvilinear bias estimated individually for all readers                            |
-| aic2       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias estimated individually for all readers                                          |
-| aic3       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias estimated individually for all readers                                          |
-| aic4       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias mirrored for all readers (e.g., single bias and sigma for the entire data set)  |
-| aic5       | As above, but using a spline for $\sigma$ and estimating the setting the overall bias to zero                                                   |
-| aic6       | Curvilinear $\sigma$ mirrored for all readers; estimating the setting the overall bias to zero                                                  |
-| aic1p      | All data pooled: curvilinear \sigma and bias                                                                                                    |
-| aic2p      | All data pooled: curvilinear \sigma and bias set to zero                                                                                        |
-| aic3p      | All data pooled: constant \sigma as CV and bias set to zero                                                                                     |
-| aic4p      | All data pooled: \sigma estimated with spline and bias set to zero                                                                              |
- 
+| Model Name | Qualitative Description                                                                                                                        |
+|-------------|-----------------------------------------------------------|
+| aic1       | Curvilinear $\sigma$ estimated individually for all readers; curvilinear bias estimated individually for all readers                           |
+| aic2       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias estimated individually for all readers                                         |
+| aic3       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias estimated individually for all readers                                         |
+| aic4       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias mirrored for all readers (e.g., single bias and sigma for the entire data set) |
+| aic5       | As above, but using a spline for $\sigma$ and estimating the setting the overall bias to zero                                                  |
+| aic6       | Curvilinear $\sigma$ mirrored for all readers; estimating the setting the overall bias to zero                                                 |
+| aic1p      | All data pooled: curvilinear \sigma and bias                                                                                                   |
+| aic2p      | All data pooled: curvilinear \sigma and bias set to zero                                                                                       |
+| aic3p      | All data pooled: constant \sigma as CV and bias set to zero                                                                                    |
+| aic4p      | All data pooled: \sigma estimated with spline and bias set to zero                                                                             |
 
 The best AIC was obtained by a pooled-data model which assumed constant bias and sigma across readers (bias is the different-integer age read, and sigma is the variation in true age) (`aic2p` in the table above). The bias is otherwise identical between approaches.
 
