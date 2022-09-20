@@ -1,9 +1,13 @@
 {
     "sortOrder": [
         {
+            "columnIndex": 4,
+            "ascending": false
+        },
+        {
             "columnIndex": 2,
             "ascending": true
         }
     ],
-    "path": "~/assessments/2022/goa-fhs-2022/data/ageing_error/real_data/aic2p"
+    "path": "~"
 }
