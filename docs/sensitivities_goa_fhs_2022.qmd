@@ -1,0 +1,177 @@
+---
+title: "GOA Flathead sole sensitivity runs 2022"
+author:  Maia Sosa Kapur maia.kapur@noaa.gov
+format:
+  html:
+    self-contained: true
+toc: true
+code-fold: true
+code-overflow: wrap
+execute: 
+  warning: false 
+theme: yeti
+editor: source
+---
+
+
+```{r setup, echo = FALSE}
+require(here)
+require(r4ss)
+require(dplyr)
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+esth <- SS_output(here('model_runs','m0_8-newMI-biasadj-estH'))
+```
+
+This document contains the sensitivity runs mentioned in the "responses to SSC..." and "data gaps and future research" sections of the 2022 SAFE. Because they are not presented as alternative models, we elected to provide these as online, supplementary material. Qualitative descriptions of these explorations are retained in the SAFE text.
+
+## Sensitivity Runs indicated by SSC/CIE comments
+
+### Truncate survey data before 1993
+
+::: panel-tabset
+## Biomass
+
+```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare2_spawnbio_uncertainty.png'))
+```
+
+## Rec Deviations
+```{r echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data, but the deviations take longer to be informed in the truncated model."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare11_recdevs.png'))
+```
+## Survey Fits
+
+```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare13_indices.png'))
+```
+:::
+
+### Begin recruitment deviations in 1983
+
+
+
+::: panel-tabset
+## Biomass
+
+```{r echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare2_spawnbio_uncertainty.png'))
+```
+
+## Rec Deviations
+```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data, but the deviations take longer to be informed in the truncated model."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare11_recdevs.png'))
+```
+## Survey Fits
+
+```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare13_indices.png'))
+```
+:::
+
+
+### Analytical or estimated survey catchability (q)
+Both models where q was allowed to estimate/calculate ended up with values around 1.65.
+
+::: panel-tabset
+## Biomass
+
+```{r, echo=FALSE, fig.cap="The SSB time series is much smaller when q is allowed to be estimated or calculated analytically. Either approach resulted in very similar time series."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estq','compare2_spawnbio_uncertainty.png'))
+```
+
+## Rec Deviations
+```{r, echo=FALSE, fig.cap="Overall the dev trends are similar between models, but the q estimate models are more conservative (smaller devs) in recent years."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estq','compare11_recdevs.png'))
+```
+## Survey Fits
+
+```{r, echo=FALSE, fig.cap="These models do a slightly better job fitting the survey data, specifically the decline in the last two years (they cross the CI, at the expense of underfitting the previous ~3 years). My suspicion is that there are some changes in catchability and/or selectivity which aren't represented in out model, because the fitted trend is quite flat. Alternatively, it's possible that the population truly is quite stable and our representation of observation error is simply too narrow."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estq','compare13_indices.png'))
+```
+
+:::
+
+## Additional Sensitivity runs
+
+### Francis weights instead of McCallister-Ianelli
+The francis weights are much lower overall than those suggested by M-I.
+
+::: panel-tabset
+
+## Francis vs MI weights
+```{r, echo=FALSE}
+SS_tune_comps(base_model, 
+              option = 'Francis',
+              niters_tuning = 0,
+              allow_up_tuning = TRUE,
+              write = T,
+              dir = here('model_runs','m0_8-newMI-biasAdj')) %>%
+  select(Name, Type, New_MI, New_Francis)
+```
+
+## Biomass
+
+```{r, echo=FALSE, fig.cap="The choice of weighting method does not greatly change the SSB time series, though the Francis data suggest a flatter trend."}
+knitr::include_graphics(here('model_runs','m0_8-newfrancis','compare2_spawnbio_uncertainty.png'))
+```
+
+## Rec Deviations
+```{r, echo=FALSE, fig.cap="Overall the dev trends are similar between models, but the Francis weighted estimate models are more conservative (smaller devs) in recent years."}
+knitr::include_graphics(here('model_runs','m0_8-newfrancis','compare11_recdevs.png'))
+```
+## Survey Fits
+
+```{r, echo=FALSE, fig.cap="The model with the Francis weights do a slightly better job fitting the survey data. "}
+knitr::include_graphics(here('model_runs','m0_8-newfrancis','compare13_indices.png'))
+```
+
+## Length Comp Fits
+
+```{r, echo=FALSE, fig.cap="The length comp fits are not strikingly different between weighting approaches.", out.width="50%"}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit__aggregated_across_time.png'))
+knitr::include_graphics(here('model_runs','m0_8-newfrancis','plots','comp_lenfit__aggregated_across_time.png'))
+```
+:::
+
+### Previous ageing error matrix
+
+Outputs from this approach can be found at the bottom of [this page](https://mkapur-noaa.github.io/goa-fhs-2022/AgeingError_Writeup_Static.html).
+
+### Estimate steepness
+H was allowed to be estimated and landed right at 0.99, so the resultant outputs are indistinguishable from the original model (with it fixed). It's hard to say at this point whether we have or do not have evidence for density dependence, particularly because this species is so lightly exploited. For now I am OK with leaving the steepness as-is.
+
+::: panel-tabset
+
+## Par Est
+
+```{r, echo=FALSE, fig.cap="Steepness was estimated at 0.99, with basically no change in the estimate of R0."}
+
+# esth$parameters[esth$parameters$Label == 'SR_BH_steep',]
+# esth$parameters[esth$parameters$Label == 'SR_LN(R0)',]
+# base_model$parameters[base_model$parameters$Label == 'SR_BH_steep',]
+# base_model$parameters[base_model$parameters$Label == 'SR_LN(R0)',]
+SSplotPars(esth,strings = c("steep", "R0"))
+# SSplotPars(base_model,strings = c("steep", "R0"))
+
+
+```
+
+## Biomass
+
+```{r, echo=FALSE, fig.cap="No change in SSB timeseries with h estimated."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estH','compare2_spawnbio_uncertainty.png'))
+```
+
+## Rec Deviations
+
+```{r, echo=FALSE, fig.cap="No change in dev trends with h estimated."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasadj-estH','compare11_recdevs.png'))
+```
+
+## Survey Fits
+
+```{r, echo=FALSE, fig.cap="No change in survey fits with h estimated."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasadj-estH','compare13_indices.png'))
+```
+:::
+
