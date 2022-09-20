@@ -41,7 +41,7 @@ modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
 ```{r compare base and 2017, echo = FALSE}
 
 m2017 <- SS_output(here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
-# m2017_dat <- SS_readdat(file = here('model_runs','2017-mod','goa_flathead_17_dat.dat'))
+m2017_dat <- SS_readdat_3.24(file = here('model_runs','2017-mod','GOA_Flathead_17_dat.dat'))
 base_dat <-  SS_readdat(file = here('model_runs','m0_8-newMI-biasAdj','data.ss'))
 base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 # base_thru17 <- SS_output(here('model_runs','m0_8-thru17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
@@ -67,7 +67,7 @@ SSplotComparisons(modcomp,
 
 ```
  
-## base vs survey data truncated before 1993
+## base vs survey data truncated before 1994
  
 ```{r}
 base_srv1993 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1993'))
@@ -78,7 +78,7 @@ SSplotComparisons(modcomp,
                   col = c(sensPal[2],baseCol),
                   legendloc = 'bottomright',
                   # endyrvec = endyrvec,
-                  legendlabels = c('No Survey Data < 1993',modlabs[2]))
+                  legendlabels = c('No Survey Data < 1994',modlabs[2]))
 
 
 SSplotData(base_srv1993)
@@ -365,7 +365,7 @@ ggsave(last_plot(),
 ```
 
 
-# Tuning
+# Comparing nhauls
 In `01_bridging.qmd` we landed on `m0_8-newMI-biasAdj` as the base model. This has all the new data, corrects the historical survey datapoint, and updates the aging error matrix. The parameter hitting bounds is InitialF and we decided to leave that as-is.
 
 The 2017 assessment used the M-I weighting method for weighting individual data sources, and reverted to the number of hauls for the length comps. This was before updates to the Francis weighting method were revisited by Punt for CAAL data.
