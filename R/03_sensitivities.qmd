@@ -108,7 +108,28 @@ r0.vec <- seq(baser0-3,baser0+3,0.2)
 ```
 
 Extract, summarize and plot the profiles. These are saved under the base model in sub-folders within `profiles/`
-```{r profile M}
+
+```{r profile M sex separately}
+## this was not done last year; given growth regimes vary, explore 2d profile of various M values for males and females
+mm.df <- expand.grid("NatM_uniform_Mal_GP_1" = m.vec,
+            "NatM_uniform_Fem_GP_1" = m.vec)
+
+r4ss::SS_profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm",   
+                 string = c("NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+                 profilevec = mm.df)
+
+mm.df$variable <- paste0('replist',1:100)
+
+profiles_mm <- SSgetoutput(dirvec = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm", keyvec = 1:nrow(mm.df))
+profile_mm_summary <- SSsummarize(profiles_mm)
+
+save(profile_mm_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm/profile_mm.rdata" )
+
+```
+
+
+
+```{r profile M both sexes}
 
 ## because w use the general string it changes both sexes at once
 SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'),
