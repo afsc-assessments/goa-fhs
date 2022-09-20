@@ -1,79 +1,113 @@
+---
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
 ## Harvest recommendations
 
-(Items in this section pertain to the authors’ recommended model or approach. 
-If the structure of the recommended model or approach differs substantively from the model or approach most recently accepted by the SSC after reviewing either last year’s final SAFE report or the current year’s preliminary SAFE report, a set of parallel results for the previously accepted model or approach should be included in an attachment.)
+The reference fishing mortality rate for flathead sole is determined by the amount of reliable population information available (Amendment 56 of the Fishery Management Plan for the groundfish fishery of the Bering Sea/Aleutian Islands).
+Estimates of $F_{40%}$, $F_{35%}$, and $SPR_{40%}$ were obtained from a spawner-per recruit analysis.
+Assuming that the average recruitment from the 1983-2012 year classes estimated in this assessment represents a reliable estimate of equilibrium recruitment, then an estimate of $B_{40%}$ is calculated as the product of SPR40% times the equilibrium number of recruits.
+Since reliable estimates of the `r year+1` spawning biomass (B), $B_{40%}$, $F_{40%}$, and $F_{35%}$ exist and B\>$B_{40%}$, the flathead sole reference fishing mortality is defined in Tier 3a.
+For this tier, $F_{ABC}$ is constrained to be ≤ $F_{40%}$, and FOFL is defined to be $F_{35%}$.
+
+Because the flathead sole stock has not been overfished in recent years and the stock biomass is relatively high, it is not recommended to adjust FABC downward from its upper bound.
+
 
 
 ### Amendment 56 Reference Points
 
-Amendment 56 to the GOA Groundfish Fishery Management Plan defines the “overfishing level”
-(OFL), the fishing mortality rate used to set OFL ($F_{OFL}$), the maximum permissible ABC, and the fishing mortality rate used to set the maximum permissible ABC. 
-The fishing mortality rate used to set ABC ($F_{ABC}$) may be less than this maximum permissible level, but not greater. 
-Because reliable estimates of reference points related to maximum sustainable yield (MSY) are currently not available but reliable estimates of reference points related to spawning per recruit are available, Northern rockfish in the GOA are managed under Tier 3 of Amendment 56. 
+Amendment 56 to the GOA Groundfish Fishery Management Plan defines the "overfishing level" (OFL), the fishing mortality rate used to set OFL ($F_{OFL}$), the maximum permissible ABC, and the fishing mortality rate used to set the maximum permissible ABC.
+The fishing mortality rate used to set ABC ($F_{ABC}$) may be less than this maximum permissible level, but not greater.
+Because reliable estimates of reference points related to maximum sustainable yield (MSY) are currently not available but reliable estimates of reference points related to spawning per recruit are available, Northern rockfish in the GOA are managed under Tier 3 of Amendment 56.
 Tier 3 uses the following reference points: $B_{40\%}$, equal to 40% of the equilibrium spawning biomass that would be obtained in the absence of fishing; $F_{35\%}$,,equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 35% of the level that would be obtained in the absence of fishing; and $F_{40\%}$, equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 40% of the level that would be obtained in the absence of fishing.
-Estimation of the $B_{40\%}$ reference point requires an assumption regarding the equilibrium level of recruitment. 
-In this assessment, it is assumed that the equilibrium level of recruitment is equal to the average of age-2 recruitments between 1979 and `r year - 2`. 
-Because of uncertainty in very recent recruitment estimates, we lag 2 years behind model estimates in our projection. 
-Other useful biomass reference points which can be calculated using this assumption are $B_{100\%}$ and $B_{35\%}$, defined analogously to $B_{40\%}$. 
+Estimation of the $B_{40\%}$ reference point requires an assumption regarding the equilibrium level of recruitment.
+In this assessment, it is assumed that the equilibrium level of recruitment is equal to the average of age-2 recruitments between 1979 and `r year - 2`.
+Because of uncertainty in very recent recruitment estimates, we lag 2 years behind model estimates in our projection.
+Other useful biomass reference points which can be calculated using this assumption are $B_{100\%}$ and $B_{35\%}$, defined analogously to $B_{40\%}$.
 The `r year` estimates of these reference points are:
 
-**TABLE HERE**
+
+The values of these quantities are:
+
+| Quantity                      | Value |
+|-------------------------------|-------|
+| Stock Spawning Biomass (2023) |    `r 2+2`   |
+|                               |       |
+|                               |       |
+|                               |       |
+|                               |       |
+|                               |       |
+|                               |       |
+
+: Unnumbered Table. Harvest recommendations from Model 17.1a. Values are from the projection model.
 
 
 ### Specification of OFL and Maximum Permissible ABC
 
-Female spawning biomass for `r year` is estimated at 40,462 t. 
-This is above the $B_{40\%}$ value of 33,933 t. 
-Under Amendment 56, Tier 3, the maximum permissible fishing mortality for ABC is $F_{40\%}$ and fishing mortality for OFL is $F_{35\%}$. 
+Female spawning biomass for `r year` is estimated at 40,462 t.
+This is above the $B_{40\%}$ value of 33,933 t.
+Under Amendment 56, Tier 3, the maximum permissible fishing mortality for ABC is $F_{40\%}$ and fishing mortality for OFL is $F_{35\%}$.
 Applying these fishing mortality rates for `r year`, yields the following ABC and OFL:
 
 **TABLE HERE**
 
 
+### Harvest Projections
 A standard set of projections is required for each stock managed under Tiers 1, 2, or 3 of Amendment 56.
 This set of projections encompasses seven harvest scenarios designed to satisfy the requirements of Amendment 56, the National Environmental Policy Act, and the Magnuson-Stevens Fishery Conservation and Management Act (MSFCMA).
 
-For each scenario, the projections begin with the vector of `r year` numbers at age as estimated in the assessment. 
-This vector is then projected forward to the beginning of `r year + 1` using the schedules of natural mortality and selectivity described in the assessment and the best available estimate of total (year-end) catch for `r year`. 
-In each subsequent year, the fishing mortality rate is prescribed on the basis of the spawning biomass in that year and the respective harvest scenario. 
-In each year, recruitment is drawnfrom an inverse Gaussian distribution whose parameters consist of maximum likelihood estimates determined from recruitments estimated in the assessment. 
-Spawning biomass is computed in each year based on the time of peak spawning and the maturity and weight schedules described in the assessment. 
-Total catch after `r year` is assumed to equal the catch associated with the respective harvest scenario in all years. 
+For each scenario, the projections begin with the vector of `r year` numbers at age as estimated in the assessment.
+This vector is then projected forward to the beginning of `r year + 1` using the schedules of natural mortality and selectivity described in the assessment and the best available estimate of total (year-end) catch for `r year`.
+In each subsequent year, the fishing mortality rate is prescribed on the basis of the spawning biomass in that year and the respective harvest scenario.
+In each year, recruitment is drawnfrom an inverse Gaussian distribution whose parameters consist of maximum likelihood estimates determined from recruitments estimated in the assessment.
+Spawning biomass is computed in each year based on the time of peak spawning and the maturity and weight schedules described in the assessment.
+Total catch after `r year` is assumed to equal the catch associated with the respective harvest scenario in all years.
 This projection scheme is run 1,000 times to obtain distributions of possible future stock sizes, fishing mortality rates, and catches.
 
-Five of the seven standard scenarios will be used in an Environmental Assessment prepared in conjunction with the final SAFE. 
-These five scenarios, which are designed to provide a range of harvest alternatives that are likely to bracket the final TAC for 2019, are as follow (“$max F_{ABC}$” refers to the maximum permissible value of $F_{ABC}$ under Amendment 56):
+Five of the seven standard scenarios will be used in an Environmental Assessment prepared in conjunction with the final SAFE.
+These five scenarios, which are designed to provide a range of harvest alternatives that are likely to bracket the final TAC for 2019, are as follow ("$max F_{ABC}$" refers to the maximum permissible value of $F_{ABC}$ under Amendment 56):
 
- - Scenario 1: In all future years, *F* is set equal to $max F_{ABC}$. (Rationale: Historically, TAC has been constrained by ABC, so this scenario provides a likely upper limit on future TACs.)
- 
- - Scenario 2: In `r year` and `r year + 1`, *F* is set equal to a constant fraction of $max F_{ABC}$, where this fraction is equal to the ratio of the realized catches in `r year-3`-`r year-1` to the ABC recommended in the assessment for each of those years. 
-For the remainder of the future years, maximum permissible ABC is used. (Rationale: In many fisheries the ABC is routinely not fully utilized, so assuming an average ratio catch to ABC will yield more realistic projections.)
+-   Scenario 1: In all future years, *F* is set equal to $max F_{ABC}$.
+    (Rationale: Historically, TAC has been constrained by ABC, so this scenario provides a likely upper limit on future TACs.)
 
- - Scenario 3: In all future years, *F* is set equal to 50% of $max F_{ABC}$. (Rationale: This scenario provides a likely lower bound on FABC that still allows future harvest rates to be adjusted downward when stocks fall below reference levels.)
+-   Scenario 2: In `r year` and `r year + 1`, *F* is set equal to a constant fraction of $max F_{ABC}$, where this fraction is equal to the ratio of the realized catches in `r year-3`-`r year-1` to the ABC recommended in the assessment for each of those years.
+    For the remainder of the future years, maximum permissible ABC is used.
+    (Rationale: In many fisheries the ABC is routinely not fully utilized, so assuming an average ratio catch to ABC will yield more realistic projections.)
 
- - Scenario 4: In all future years, *F* is set equal to the 2013-2017 average *F*. (Rationale: For some stocks, TAC can be well below ABC, and recent average *F* may provide a better indicator of $F_{TAC}$ than $F_{ABC}$.)
+-   Scenario 3: In all future years, *F* is set equal to 50% of $max F_{ABC}$.
+    (Rationale: This scenario provides a likely lower bound on FABC that still allows future harvest rates to be adjusted downward when stocks fall below reference levels.)
 
- - Scenario 5: In all future years, *F* is set equal to zero. (Rationale: In extreme cases, TAC may be set at a level close to zero.)
+-   Scenario 4: In all future years, *F* is set equal to the 2013-2017 average *F*.
+    (Rationale: For some stocks, TAC can be well below ABC, and recent average *F* may provide a better indicator of $F_{TAC}$ than $F_{ABC}$.)
 
-Two other scenarios are needed to satisfy the MSFCMA’s requirement to determine whether a stock is currently in an overfished condition or is approaching an overfished condition. 
+-   Scenario 5: In all future years, *F* is set equal to zero.
+    (Rationale: In extreme cases, TAC may be set at a level close to zero.)
+
+Two other scenarios are needed to satisfy the MSFCMA's requirement to determine whether a stock is currently in an overfished condition or is approaching an overfished condition.
 These two scenarios are as follows (for Tier 3 stocks, the MSY level is defined as $B_{35\%}$):
 
- - Scenario 6: In all future years, *F* is set equal to $F_{OFL}$. (Rationale: This scenario determines whether a stock is overfished. If the stock is expected to be 1) above its MSY level in 2018 or 2) above ½ of its MSY level in 2018 and above its MSY level in 2028 under this scenario, then the stock is not overfished.)
+-   Scenario 6: In all future years, *F* is set equal to $F_{OFL}$.
+    (Rationale: This scenario determines whether a stock is overfished. If the stock is expected to be 1) above its MSY level in 2018 or 2) above ½ of its MSY level in 2018 and above its MSY level in 2028 under this scenario, then the stock is not overfished.)
 
- - Scenario 7: In `r year` and `r year + 1`, *F* is set equal to max $F_{ABC}$, and in all subsequent years F is set equal to FOFL. (Rationale: This scenario determines whether a stock is approaching an overfished condition. If the stock is 1) above its MSY level in 2020 or 2) above 1/2 of its MSY level in 2020 and expected to be above its MSY level in 2030 under this scenario, then the stock is not approaching an overfished condition.)
- 
-Spawning biomass, fishing mortality, and yield are tabulated for the seven standard projection scenarios (Table 10.16). The difference for this assessment for projections is in Scenario 2 (Author’s *F*); we use pre-specified catches to increase accuracy of short-term projections in fisheries where the catch is usually less than the ABC. This was suggested to help management with setting preliminary ABCs and OFLs for two-year ahead specifications.
+-   Scenario 7: In `r year` and `r year + 1`, *F* is set equal to max $F_{ABC}$, and in all subsequent years F is set equal to FOFL.
+    (Rationale: This scenario determines whether a stock is approaching an overfished condition. If the stock is 1) above its MSY level in 2020 or 2) above 1/2 of its MSY level in 2020 and expected to be above its MSY level in 2030 under this scenario, then the stock is not approaching an overfished condition.)
 
-In addition to the seven standard harvest scenarios, Amendments 48/48 to the BSAI and GOA Groundfish Fishery Management Plans require projections of the likely OFL two years into the future. 
-While Scenario 6 gives the best estimate of OFL for `r year`, it does not provide the best estimate of OFL for `r year + 1`, because the mean `r year` catch under Scenario 6 is predicated on the `r year` catch being equal to the `r year` OFL, whereas the actual `r year` catch will likely be less than the `r year` OFL. 
+Spawning biomass, fishing mortality, and yield are tabulated for the seven standard projection scenarios (Table 10.16).
+The difference for this assessment for projections is in Scenario 2 (Author's *F*); we use pre-specified catches to increase accuracy of short-term projections in fisheries where the catch is usually less than the ABC.
+This was suggested to help management with setting preliminary ABCs and OFLs for two-year ahead specifications.
+
+In addition to the seven standard harvest scenarios, Amendments 48/48 to the BSAI and GOA Groundfish Fishery Management Plans require projections of the likely OFL two years into the future.
+While Scenario 6 gives the best estimate of OFL for `r year`, it does not provide the best estimate of OFL for `r year + 1`, because the mean `r year` catch under Scenario 6 is predicated on the `r year` catch being equal to the `r year` OFL, whereas the actual `r year` catch will likely be less than the `r year` OFL.
 The executive summary contains the appropriate one- and two-year ahead projections for both ABC and OFL.
 
+## Area Allocation of Harvests
 
+## Risk Table and ABC recommendation
 
-## Risk Table amnd ABC recommendation
-
-
-The SSC in its December 2018 minutes recommended that all assessment authors use the risk table when determining whether to recommend an ABC lower than the maximum permissible. The following template is used to complete the risk table:
+The SSC in its December 2018 minutes recommended that all assessment authors use the risk table when determining whether to recommend an ABC lower than the maximum permissible.
+The following template is used to complete the risk table:
 
 ```{r}
 library(flextable)
@@ -114,27 +148,26 @@ data.frame(level = c("Level 1: Normal",
   fontsize(size = 10) %>% 
   theme_vanilla() %>% 
   italic(part = "header") 
-```  
-The table is applied by evaluating the severity of four types of considerations that could be used to support a scientific recommendation to reduce the ABC from the maximum permissible. 
-These considerations are stock assessment considerations, population dynamics considerations, environmental/ecosystem considerations, and fishery performance. Examples of the types of concerns that might be relevant include the following: 
+```
 
-  1. “Assessment considerations—data-inputs: biased ages, skipped surveys, lack of fishery-independent trend data; model fits: poor fits to fits to fishery or survey data, inability to simultaneously fit multiple data inputs; model performance: poor model convergence, multiple minima in the likelihood surface, parameters hitting bounds; estimation uncertainty: poorly-estimated but influential year classes; retrospective bias in biomass estimates.
-  2. “Population dynamics considerations—decreasing biomass trend, poor recent recruitment, inability of the stock to rebuild, abrupt increase or decrease in stock abundance.
-  3. “Environmental/ecosystem considerations—adverse trends in environmental/ecosystem indicators, ecosystem model results, decreases in ecosystem productivity, decreases in prey abundance or availability, increases or increases in predator abundance or productivity.
-  4. “Fishery performance—fishery CPUE is showing a contrasting pattern from the stock biomass trend, unusual spatial pattern of fishing, changes in the percent of TAC taken, changes in the duration of fishery openings.”
+The table is applied by evaluating the severity of four types of considerations that could be used to support a scientific recommendation to reduce the ABC from the maximum permissible.
+These considerations are stock assessment considerations, population dynamics considerations, environmental/ecosystem considerations, and fishery performance.
+Examples of the types of concerns that might be relevant include the following:
 
-
+1.  "Assessment considerations---data-inputs: biased ages, skipped surveys, lack of fishery-independent trend data; model fits: poor fits to fits to fishery or survey data, inability to simultaneously fit multiple data inputs; model performance: poor model convergence, multiple minima in the likelihood surface, parameters hitting bounds; estimation uncertainty: poorly-estimated but influential year classes; retrospective bias in biomass estimates.
+2.  "Population dynamics considerations---decreasing biomass trend, poor recent recruitment, inability of the stock to rebuild, abrupt increase or decrease in stock abundance.
+3.  "Environmental/ecosystem considerations---adverse trends in environmental/ecosystem indicators, ecosystem model results, decreases in ecosystem productivity, decreases in prey abundance or availability, increases or increases in predator abundance or productivity.
+4.  "Fishery performance---fishery CPUE is showing a contrasting pattern from the stock biomass trend, unusual spatial pattern of fishing, changes in the percent of TAC taken, changes in the duration of fishery openings."
 
 #### Assessment considerations
 
 #### Population dynamics considerations
 
-#### Environmental/Ecosystem considerations
+#### Ecosystem considerations
 
 #### Fishery performance
 
 #### Summary and ABC recommendation
-
 
 ```{r}
 l1 = "Level 1: No increased concerns"
@@ -162,37 +195,7 @@ data.frame(assess = l1,
   italic(part = "header") 
 ```
 
-### Area Allocation of Harvests
+## Area Allocation of Harvests
 
-### Status Determination
+TAC’s for flathead sole in the Gulf of Alaska are divided among four smaller management areas (Western, Central, West Yakutat and Southeast Outside). The area-specific ABC’s for flathead sole in the GOA are divided up over the four management areas by applying the fraction of the survey biomass estimated for each area (relative to the total over all areas) in 2018 and 2019 from the survey averaging random effects model to the  2018 and 2019 ABC’s. The area-specific allocations for 2018 and 2019 are:
 
-Under the MSFCMA, the Secretary of Commerce is required to report on the status of each U.S. fishery with respect to overfishing. 
-This report involves the answers to three questions: 1) Is the stock being subjected to overfishing? 2) Is the stock currently overfished? 3) Is the stock approaching an overfished condition?
-
-*Is the stock being subjected to overfishing?* The official catch estimate for the most recent complete year (`r year-1`) is *correct this later* r catch %>% filter(Year==year-1) %>% pull(Catch) %>% format(., big.mark = ",")` t. 
-This is less than the `r year-1` OFL of 5,402 t. 
-Therefore, the stock is not being subjected to overfishing.
-
-Harvest Scenarios #6 and #7 are intended to permit determination of the status of a stock with respect to its minimum stock size threshold (MSST). 
-Any stock that is below its MSST is defined to be overfished. 
-Any stock that is expected to fall below its MSST in the next two years is defined to be approaching an overfished condition. 
-Harvest Scenarios #6 and #7 are used in these determinations as follows:
-
-*Is the stock currently overfished?* This depends on the stock’s estimated spawning biomass in `r year`:
-
- - a. If spawning biomass for `r year` is estimated to be below ½ $B_{35\%}$, the stock is below its MSST.
- - b. If spawning biomass for `r year` is estimated to be above $B_{35\%}$ the stock is above its MSST.
- - c. If spawning biomass for `r year` is estimated to be above ½ $B_{35\%}$ but below $B_{35\%}$, the stock’s status relative to MSST is determined by referring to harvest Scenario #6 (Table 10.16). 
-If the mean spawning biomass for 2028 is below $B_{35\%}$, the stock is below its MSST. 
-Otherwise, the stock is above its MSST.
-
-*Is the stock approaching an overfished condition?* This is determined by referring to harvest Scenario #7:
-
- - a. If the mean spawning biomass for `r year+2` is below 1/2 $B_{35\%}$, the stock is approaching an overfished condition.
- - b. If the mean spawning biomass for `r year+2` is above $B_{35\%}$, the stock is not approaching an overfished condition.
- - c. If the mean spawning biomass for `r year+2` is above 1/2 $B_{35\%}$ but below $B_{35\%}$, the determination depends on the mean spawning biomass for `r year+12` 
-If the mean spawning biomass for `r year+12` is below $B_{35\%}$, the stock is approaching an overfished condition. 
-Otherwise, the stock is not approaching an overfished condition.
-Based on the above criteria and Table 10.16, the stock is not overfished and is not approaching an overfished condition.
-
-The fishing mortality that would have produced a catch for last year equal to last year’s OFL is `r best_f`.
