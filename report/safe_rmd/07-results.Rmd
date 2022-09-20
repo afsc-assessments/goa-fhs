@@ -4,14 +4,14 @@
 
 ### Comparison of model update(s) from 2017
 
-Figures XX-XX show that models Figures 9.8-9.12 shows that Models 18.2c and 18.2c (2020) have very similar spawning biomass, survey biomass, recruitment, fishing mortality, and stock status. Estimated growth curves were also very similar (Table 9.13; Figure 9.13, 9.14). The results are similar in expectation and uncertainty, corroborating the stable nature of the model to data and configurations found previously (McGilliard et al. 2018).
+`r old_model_name` and `r base_model_name`  have very similar spawning biomass (\@ref(fig:ssbcompare)), survey biomass (\@ref(fig:idxcompare)), recruitment (\@ref(fig:idxcompare)), fishing mortality (\@ref(fig:Fcompare)), and stock status. Estimated growth curves were also very similar (Table 9.13; Figure 9.13, 9.14). The results are similar in expectation and uncertainty, corroborating the stable nature of the model to data and configurations found previously [@Turnock2017].
 
 ### Results for the recommended model: Model 2017 (2022)
 
-Individual parameter estimates for Models 18.2c and 18.2c (2020) are shown in Table 9.13-Table 9.17.
+Individual parameter estimates for `r old_model_name` and `r base_model_name`  are shown in Table 9.13-Table 9.17.
 The estimated fishery and survey selectivity curves for the 2017 base case model are shown in Figure 6. Although selectivity curves for males and females are similar, it is puzzling that males would be selected at slightly younger ages than females, given that they grow more slowly than females (Figure 9). Future work will explore potential causes for this result. One constraint in the current assessment is that natural mortality is fixed at the same value for both males and females. Furthermore, natural mortality and catchability are both fixed in the assessment.
 
-Fits to fishery and survey length composition data, aggregated over years are shown in Figure 10. These aggregated fits show that the model predicted slightly more females length 40-45cm in the fishery than were observed. In addition, the model predicted that more 25-30cm females in the survey than were observed and fewer females in the 32-40cm range than were observed in the survey. Similarly, the model predicted slightly fewer 30-32cm males and in the survey and slightly more 34-40cm males in the survey than were observed. Overall, however, model fits to the length composition data, aggregated over years were fairly reasonable. Figure 11- Figure 13 show fits to yearly fishery and survey length composition data. Fits to fishery length composition data were particularly poor in 1990; fishery selectivity appears to have been quite different in that year. Fits to survey length composition data were poor in 1984, 1987, and 1990. Survey methods in 1984 and 1987 differed from the current protocol and we would expect differences in fits in these years (McGilliard 2013).
+Fits to fishery and survey length composition data, aggregated over years are shown in Figure 10. These aggregated fits show that the model predicted slightly more females length 40-45cm in the fishery than were observed. In addition, the model predicted that more 25-30cm females in the survey than were observed and fewer females in the 32-40cm range than were observed in the survey. Similarly, the model predicted slightly fewer 30-32cm males and in the survey and slightly more 34-40cm males in the survey than were observed. Overall, however, model fits to the length composition data, aggregated over years were fairly reasonable. Figure 11- Figure 13 show fits to yearly fishery and survey length composition data. Fits to fishery length composition data were particularly poor in 1990; fishery selectivity appears to have been quite different in that year. Fits to survey length composition data were poor in 1984, 1987, and 1990. Survey methods in 1984 and 1987 differed from the current protocol and we would expect differences in fits in these years (@Turnock2017).
 
 Figure 14- Figure 17 show model fits to the mean age at each length and corresponding estimated and observed standard deviations about mean age-at-length and show that the model fits growth data reasonably well. Observed standard deviations are expected to differ from estimated standard deviations about the age-at-length for older ages and larger size bins due to low sample size. Figure 18-Figure 20 show pearson residuals in age-at-length model fits. One very large residual occurs in 1999, but otherwise, the pearson residuals are relatively small.
 
@@ -19,6 +19,11 @@ DISCUSS WEIGHTING
 DISCUSS BIAS ADJ if applicable
 
 ## Time Series Results
+
+
+Time series of biomass and recruitments are shown in Table 13-Table 14 and Figure 4, Figure 5 and Figure 21. A time series of numbers-at-age is available at http://www.afsc.noaa.gov/REFM/Docs/2017/GOA_Flathead_TimeSeries_of_NumbersAtAge17.xlsx. 
+
+Age 3 recruitment, age 0 recruitment, and standard deviations of age 0 recruitment are presented in Table 12 and Table 14 for the current and previous assessments. Total biomass for ages 3+, spawning stock biomass, and standard deviations of spawning stock biomass estimates for the previous and current assessments are presented in Table 13. Figure 21 shows spawning stock biomass estimates and corresponding asymptotic 95% confidence intervals. Figure 22 shows that biomass has been above B35% and F has been low relative to F35% for each year in the time series.
 
 (This section should be omitted for Tiers 4-6. 
 For Tiers 1-3, items in this section pertain to the authors’ recommended model.)
@@ -39,36 +44,17 @@ Table of estimated numbers at age.
 Graph of estimated biomass time series, with confidence bounds if possible
 
 Graph of estimated fishing mortality versus estimated spawning stock biomass (phase-plane plot), including applicable OFL and maximum FABC definitions for the stock. 
-Biomass should be scaled relative to $B_{MSY}$ for Tier 1 stocks and %B_{35\%}$ for Tier 3 stocks. 
+Biomass should be scaled relative to $B_{MSY}$ for Tier 1 stocks and $B_{35\%}$ for Tier 3 stocks. 
 Fishing mortality should be scaled relative to the arithmetic mean of $F_{MSY}$ for Tier 1 stocks and $F_{35\%}$ for Tier 3 stocks. 
 Include 2 years of projected *F* and *B* in the phase-plane plot.
 
 ## Retrospective Analysis
 
 Retrospective analyses were conducted by running this year’s assessment model iteratively, each time removing one additional year of data, starting with the most recent year of data. Previous assessments had moderate retrospective patterns, but they were largely eliminated in the 2018 assessment (McGilliard et al. 2018).
-The retrospective model estimates for Model 18.2c (2020), including spawning biomass, recruitment, and apical fishing mortality are shown in Figure 9.39. Estimates of spawning biomass and fishing mortality for the retrospective runs were very similar to one another, while recruitment in recent years differed among models, but a consistent retrospective pattern was not clear. A lack of information about young and small flathead sole in the assessment may have contributed to variation in estimates of recruitment in the most recent years of the model. In addition, the model is configured to fix recruitment for the most recent four years to mean recruitment, complicating the interpretation of the retrospective pattern for recruitment. The Mohn’s  for Model 18.2c (2020) were:
-Spawning Biomass	Recruitment	Fishing Mortality
--0.046	-0.283	0.068
+The retrospective model estimates for `r base_model_name` , including spawning biomass, recruitment, apical fishing mortality and fits to the survey are shown in Figures \ref(fig:retroSB) - \ref(fig:retroIdx) Estimates of spawning biomass and fishing mortality for the retrospective runs were very similar to one another, while recruitment in recent years differed among models, but a consistent retrospective pattern was not clear. A lack of information about young and small flathead sole in the assessment may have contributed to variation in estimates of recruitment in the most recent years of the model. In addition, the model is configured to fix recruitment for the most recent four years to mean recruitment, complicating the interpretation of the retrospective pattern for recruitment. The Mohn’s $\rho$ values by component for `r base_model_name` were: `r mr["AFSC_Hurtado_SSB"]` (SSB), `r  mr["AFSC_Hurtado_Rec"]` (Recruitment), and `r mr["AFSC_Hurtado_F"]` (Fishing Mortality).
 
-Hurtado-Ferro et al. (2015) developed some rules of thumb for ranges of Mohn’s  values that may arise without the influence of model mis-specification. They found that values between -0.15 and 0.20 for longer-lived species and values between -0.22 and 0.30 for shorter-lived species could arise without the influence of model mis-specification based on a simulation-estimation study. The values for Mohn’s  for this year’s BSAI flathead assessment are within these bounds for spawning biomass and fishing mortality, but outside them for recruitment. However, the Mohn’s  value for recruitment was not very meaningful, as estimates from the current assessment were being compared to recruitment estimates fixed at the mean value for recruitment in many of the retrospective runs.
-
-
-
-(This section should be omitted for Tiers 4-6)  
-Conduct within-model retrospective analysis by rerunning each model successively, dropping data one year at a time.
-Specifically:
-
-1. Include retrospective analysis extending back 10 years, plot spawning biomass estimates and error bars, plot relative differences, and report Mohn's “rho” statistic (see **Retrospective Working Group report** for formula, *not* Mohn’s 1999 paper).
-2. Communicate the uncertainty implied by retrospective variability in biomass estimates.
-3. For the time being, *do not* disqualify a model on the grounds of poor retrospective performance alone.
-4. *Do* consider retrospective performance as one factor in model selection.
-
-Description of other criteria used to evaluate the model or to choose between alternative models, including the role (if any) of uncertainty.  
-Evaluation of the model, if only one model is presented; or evaluation of alternative models and selection of final model, if more than one model is presented.  
-List of final parameter estimates, **with confidence bounds** or other statistical measures of uncertainty if possible (if the set of parameters includes quantities listed in the “Time Series Results” section below, the values of these quantities should be presented in the “Time Series Results” section rather than here).
-
-Schedules, if any, defined by final parameter estimates
+Hurtado-Ferro et al. (2014) developed some rules of thumb for ranges of Mohn’s $\rho$ values that may arise without the influence of model mis-specification. They found that values between -0.15 and 0.20 for longer-lived species and values between -0.22 and 0.30 for shorter-lived species could arise without the influence of model mis-specification based on a simulation-estimation study. The values for Mohn’s $rho$ for `r base_model_name` are within these bounds for spawning biomass and fishing mortality, but outside them for recruitment. However, the Mohn’s $\rho$ value for recruitment was not very meaningful, as estimates from the current assessment were being compared to recruitment estimates fixed at the mean value for recruitment in many of the retrospective runs.
 
 ## Likelihood Profile Analyses
 
- 
+(ref:ssfilesource)
