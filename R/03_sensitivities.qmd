@@ -50,6 +50,10 @@ SSplotComparisons(retroSummary,
                   legendloc = 'bottomright',
                   endyrvec = endyrvec,
                   legendlabels = paste("Data", 0:-10, "years"))
+
+mr <- SSmohnsrho(retroSummary, endyrvec)
+
+save(mr, file = here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata"))
 ```
 
 
@@ -90,8 +94,8 @@ I repeat this exercise and share results; if q is still high in this manner, wor
 Establish vectors and run the profiles.
 ```{r likelihood profiles}
 ## note that in 2017 they did these vectors and combinations thereof for 2d plots
-q.vec <- log(seq(0.6, 5, 0.1)) ## from 2017
-m.vec <- seq(0.1,0.3,0.02) ## from 2017; these apply to both males and females at the same time
+q.vec <- log(seq(0.6, 10, length.out = 10)) ## from 2017
+m.vec <- seq(0.1,0.3, length.out = 10) ## from 2017; these apply to both males and females at the same time
 baser0 <- base_model$parameters[base_model$parameters$Label=='SR_LN(R0)','Value']
 r0.vec <- seq(baser0-3,baser0+3,0.2)
 
@@ -105,9 +109,11 @@ r0.vec <- seq(baser0-3,baser0+3,0.2)
 
 Extract, summarize and plot the profiles. These are saved under the base model in sub-folders within `profiles/`
 ```{r profile M}
-# SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'),
-#           string = "NatM",
-#           profilevec = m.vec)
+
+## because w use the general string it changes both sexes at once
+SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'),
+          string = "NatM",
+          profilevec = m.vec)
 
 profiles_m <- SSgetoutput(dirvec = here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'), keyvec = 1:length(m.vec))
 profile_m_summary <- SSsummarize(profiles_m)
@@ -117,20 +123,38 @@ save(profile_m_summary,
 
 png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m','m_profile_piner.png'),
     width = 10, height = 7, unit = 'in', res = 520)
-par(mfrow = c(1,2),mar = c(4,4,4,1))
+# par(mfrow = c(1,2),mar = c(4,4,4,1))
 SSplotProfile(profile_m_summary, # summary object
-              add_cutoff = T, ymax = 50, legendloc = NA,
+              add_cutoff = T, ymax = 25, legendloc = 'topleft',
   profile.string = "NatM_uniform_Fem_GP_1", # substring of profile parameter
-  profile.label = "Female Natural Mortality (M)"
+  profile.label = "Natural Mortality (M), both sexes"
 )
-par(mar = c(4,1,4,1))
-SSplotProfile(profile_m_summary, # summary object
-                   add_cutoff = T, ymax = 50,
-              cex.main = 2, ylab = "",  
-  profile.string = "NatM_uniform_Mal_GP_1", # substring of profile parameter
-  profile.label = "Male Natural Mortality (M)"
-)
+# par(mar = c(4,1,4,1))
+# SSplotProfile(profile_m_summary, # summary object
+#                    add_cutoff = T, ymax = 50,
+#               cex.main = 2, ylab = "",  
+#   profile.string = "NatM_uniform_Mal_GP_1", # substring of profile parameter
+#   profile.label = "Male Natural Mortality (M)"
+# )
 dev.off()
+
+## values for report
+
+profile_m_summary$likelihoods %>%
+  reshape2::melt(id = 'Label') %>%
+  
+  group_by(Label) %>%
+    filter(value == min(value))
+ 
+apply(profile_m_summary,1,which.min( likelihoods))
+
+which.min(profile_m_summary$likelihoods)
+
+mvecuse <- profile_m_summary$pars[profile_m_summary$pars$Label == 'NatM_uniform_Fem_GP_1',]
+mvecuse[3] ## mle for length
+mvecuse[7] ## index
+mvecuse[9] ## rec, total
+mvecuse[10] # age
 ```
 
 ```{r profile r0}
@@ -170,7 +194,9 @@ png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q','q_profile_pin
     width = 10, height = 7, unit = 'in', res = 520)
 
 SSplotProfile(profile_q_summary, # summary object
-              add_cutoff = T, ymax = 50, legendloc = 'right',
+              add_cutoff = T, 
+              ymax = 5, 
+              legendloc = 'topleft',
   profile.string = "LnQ_base_Survey", # substring of profile parameter
   profile.label = "ln(q)"
 )
@@ -179,11 +205,49 @@ dev.off()
 ```
 
 
-```{r profile q and m}
+```{r profile q and m concurrently}
+## need to hard specify male and female Ms
+## make grid of all combinations of q and M. M is always the same between male and females.
+qm.df <- expand.grid("LnQ_base_Survey" = q.vec,
+            "NatM_uniform_Fem_GP_1" = m.vec) %>%
+  mutate(NatM_uniform_Mal_GP_1 = NatM_uniform_Fem_GP_1)
+qm.df$variable <- paste0('replist',1:100)
 
-SS_profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq'),
-          string = c("LnQ_base_Survey","NatM"),
-          profilevec = data.frame('LnQ_base_Survey' = q.vec, 'NatM' = m.vec))
+r4ss::SS_profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq",   
+                 string = c("LnQ_base_Survey","NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+                 profilevec = qm.df)
+
+
+profiles_mq <- SSgetoutput(dirvec = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq", keyvec = 1:nrow(qm.df))
+profile_mq_summary <- SSsummarize(profiles_mq)
+
+save(profile_mq_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq/profile_mq.rdata" )
+
+reshape2::melt(profile_qm_summary$likelihoods, id = 'Label')
+
+
+profile_mq_summary$pars %>%
+  filter(Label %in% c('LnQ_base_Survey')) %>% head()
+
+
+## object for 2d plotting
+qm.df.plotme <- reshape2::melt(profile_mq_summary$likelihoods, id = 'Label') %>%
+  merge(., qm.df, by = 'variable') %>%
+  filter( Label == 'TOTAL' & value < 100)
+
+# with(subset(qm.df.plotme, NatM_uniform_Fem_GP_1 == 0.2 & Label == 'Total'), plot(LnQ_base_Survey~ value), xlim = c(0,1))
+
+
+ggplot(data = qm.df.plotme, aes(x = LnQ_base_Survey, 
+                                y = NatM_uniform_Fem_GP_1, fill = value)) +
+  geom_tile() 
+  
+
+require(plotly)
+  plot_ly(data =qm.df.plotme, x= ~LnQ_base_Survey, y = ~NatM_uniform_Fem_GP_1, z = ~value, type = "surface")
+  require(surf3D)
+  surf3D::surf3D(data =qm.df.plotme, x = LnQ_base_Survey, y = NatM_uniform_Fem_GP_1, z = value, colkey=TRUE, bty="b2",
+       phi = 40, theta = 30, main="Half of a Torus")
 ```
 
 
@@ -194,7 +258,7 @@ The survey data, while questionable, starts in 1983. Later fishery length comps 
 Changed line 126 ("recdev early start") in control to 1983. This makes the early devs start at the same time as the survey biomass and length comps, instead of way back in 1955. (Made plots in 02_basemodel for aesthetic consistency).
 
 ## Survey data 1993
-Turned off survey data, CAALs and length comp before 1993 from the survey. (Made plots in 02_basemodel for aesthetic consistency).
+Turned off survey data, CAALs and length comp before and including 1993 from the survey. (Made plots in 02_basemodel for aesthetic consistency).
 
 ## Estimate Q
 Right now it's set up to estimated between -1 and 1, but the profiling exercise indicated that it wants q to be really high (i.e. 5). Going to do this two ways; one with a free estimation (just make the phase positive), allowing the bounds to vary from -15 to 15 (as in sablefish); and a separate time using analytical q. For the latter, change line 177 to `2 1 0 0 0 1`, leave the phase negative but expand the bounds. (Made plots in 02_basemodel for aesthetic consistency).
