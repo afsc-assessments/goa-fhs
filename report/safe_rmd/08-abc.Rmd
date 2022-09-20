@@ -12,11 +12,14 @@ Assuming that the average recruitment from the `r paste0(range(subset(rd_breaks,
 Since reliable estimates of the `r year+1` spawning biomass (B), $B_{40%}$, $F_{40%}$, and $F_{35%}$ exist and B>$B_{40%}$, the `r species` reference fishing mortality is defined in Tier 3a.
 For this tier, $F_{ABC}$ is constrained to be ≤ $F_{40%}$, and FOFL is defined to be $F_{35%}$.
 
-Because the `r species` stock has not been overfished in recent years and the stock biomass is relatively high, it is not recommended to adjust FABC downward from its upper bound.
-
+Because the `r species` stock has not been overfished in recent years and the stock biomass is relatively high, it is not recommended to adjust $F_{ABC}$ downward from its upper bound.
 
 
 ### Amendment 56 Reference Points
+
+### Specification of OFL and Maximum Permissible ABC
+
+
 
 Amendment 56 to the GOA Groundfish Fishery Management Plan defines the "overfishing level" (OFL), the fishing mortality rate used to set OFL ($F_{OFL}$), the maximum permissible ABC, and the fishing mortality rate used to set the maximum permissible ABC.
 The fishing mortality rate used to set ABC ($F_{ABC}$) may be less than this maximum permissible level, but not greater.
@@ -28,30 +31,30 @@ Because of uncertainty in very recent recruitment estimates, we lag 2 years behi
 Other useful biomass reference points which can be calculated using this assumption are $B_{100\%}$ and $B_{35\%}$, defined analogously to $B_{40\%}$.
 The `r year` estimates of these reference points are:
 
-
 The values of these quantities are:
 
 | Quantity                      | Value |
 |-------------------------------|-------|
-| Stock Spawning Biomass (2023) |    `r 2+2`   |
-|                               |       |
-|                               |       |
-|                               |       |
-|                               |       |
-|                               |       |
-|                               |       |
+| Stock Spawning Biomass (2023) |    `r safe[4,4]`   |
+|                 $B_{40%,2023}$              |     `r safe[6,4]`    |
+|                     $F_{40%,2023}$           |  `r safe[10,4]`       |
+|                        $maxF_{ABC,2023}$        |  `r safe[9,4]`       |
+|                               $B_{35%,2023}$ |     `r safe[7,4]`    |
+|               $F_{35%,2023}$                 |    `r safe[8,4]`     |
+|                  $F_{OFL,2023}$              |      `r safe[8,4]`   |
+|               $ABC_{2023}$                 |    `r safe[12,4]`     |
+|                  $OFL_{2023}$              |      `r safe[11,4]`   |
 
 : Unnumbered Table. Harvest recommendations from Model 17.1a. Values are from the projection model.
 
-
-### Specification of OFL and Maximum Permissible ABC
-
-Female spawning biomass for `r year` is estimated at 40,462 t.
-This is above the $B_{40\%}$ value of 33,933 t.
+Female spawning biomass for `r year+1` is estimated at  `r safe[4,4]`  t.
+This is above the $B_{40\%}$ value of `r safe[6,4]`  t.
 Under Amendment 56, Tier 3, the maximum permissible fishing mortality for ABC is $F_{40\%}$ and fishing mortality for OFL is $F_{35\%}$.
-Applying these fishing mortality rates for `r year`, yields the following ABC and OFL:
+Applying these fishing mortality rates for `r year`, yields an ABC of `r safe[12,4]` t and an OFL of `r safe[11,4]` t.
 
 **TABLE HERE**
+### Area Allocation of Harvests
+TAC’s for flathead sole in the Gulf of Alaska are divided among four smaller management areas (Western, Central, West Yakutat and Southeast Outside). The area-specific ABC’s for flathead sole in the GOA are divided up over the four management areas by applying the fraction of the survey biomass estimated for each area (relative to the total over all areas) in 2018 and 2019 from the survey averaging random effects model to the  2018 and 2019 ABC’s. The area-specific allocations for 2018 and 2019 are:
 
 
 ### Harvest Projections
@@ -102,7 +105,6 @@ In addition to the seven standard harvest scenarios, Amendments 48/48 to the BSA
 While Scenario 6 gives the best estimate of OFL for `r year`, it does not provide the best estimate of OFL for `r year + 1`, because the mean `r year` catch under Scenario 6 is predicated on the `r year` catch being equal to the `r year` OFL, whereas the actual `r year` catch will likely be less than the `r year` OFL.
 The executive summary contains the appropriate one- and two-year ahead projections for both ABC and OFL.
 
-## Area Allocation of Harvests
 
 ## Risk Table and ABC recommendation
 
@@ -195,7 +197,6 @@ data.frame(assess = l1,
   italic(part = "header") 
 ```
 
-## Area Allocation of Harvests
 
-TAC’s for flathead sole in the Gulf of Alaska are divided among four smaller management areas (Western, Central, West Yakutat and Southeast Outside). The area-specific ABC’s for flathead sole in the GOA are divided up over the four management areas by applying the fraction of the survey biomass estimated for each area (relative to the total over all areas) in 2018 and 2019 from the survey averaging random effects model to the  2018 and 2019 ABC’s. The area-specific allocations for 2018 and 2019 are:
+
 
