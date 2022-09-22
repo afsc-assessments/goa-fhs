@@ -4,30 +4,27 @@
 
 ### Comparison of model update(s) from 2017
 
-`r old_model_name` and `r base_model_name`  have very similar spawning biomass (\@ref(fig:ssbcompare)), survey biomass (\@ref(fig:idxcompare)), recruitment (\@ref(fig:idxcompare)), fishing mortality (\@ref(fig:Fcompare)), and stock status. Estimated growth curves were also very similar (Table 9.13; Figure 9.13, 9.14). The results are similar in expectation and uncertainty, corroborating the stable nature of the model to data and configurations found previously [@Turnock2017].
+`r old_model_name` and `r base_model_name`  have very similar spawning biomass (Figure \@ref(fig:ssbcompare)), survey biomass (Figure \@ref(fig:idxcompare)), recruitment (Figure \@ref(fig:reccompare)), fishing mortality (Figure \@ref(fig:Fcompare)), and stock status. Estimated growth curves were also very similar (Table 9.13; Figure 9.13, 9.14). The results are similar in expectation and uncertainty, corroborating the stable nature of the model to data and configurations found previously [@Turnock2017].
 
 ### Results for the recommended model: Model 2017 (2022)
 
 Individual parameter estimates for `r old_model_name` and `r base_model_name`  are shown in Table 9.13-Table 9.17.
 The estimated fishery and survey selectivity curves for `r base_model_name` are shown in \@ref(fig:selexcompare). Although selectivity curves for males and females are similar, it is puzzling that males would be selected at slightly younger ages than females, given that they grow more slowly than females (Figure \@ref(fig:growth)). Future work will explore potential causes for this result. One constraint in the current assessment is that both catchability and natural mortality are fixed; the latter is set to the same value for both males and females.
 
-Fits to fishery and survey length composition data, aggregated over years are shown in Figure 10. These aggregated fits show that the model predicted slightly more females length 40-45cm in the fishery than were observed. In addition, the model predicted that more 25-30cm females in the survey than were observed and fewer females in the 32-40cm range than were observed in the survey. Similarly, the model predicted slightly fewer 30-32cm males and in the survey and slightly more 34-40cm males in the survey than were observed. Overall, however, model fits to the length composition data, aggregated over years were fairly reasonable. Figure 11- Figure 13 show fits to yearly fishery and survey length composition data. Fits to fishery length composition data were particularly poor in 1990; fishery selectivity appears to have been quite different in that year. Fits to survey length composition data were poor in 1984, 1987, and 1990. Survey methods in 1984 and 1987 differed from the current protocol and we would expect differences in fits in these years (@Turnock2017).
+Fits to fishery and survey length composition data, aggregated over years are shown in Figure \@ref(fig:lencompfit). These aggregated fits show that the model predicted slightly more females length 40-45cm in the fishery than were observed. In addition, the model predicted that more 25-30cm females in the survey than were observed and fewer females in the 32-40cm range than were observed in the survey. Similarly, the model predicted slightly fewer 30-32cm males and in the survey and slightly more 34-40cm males in the survey than were observed. Overall, however, model fits to the length composition data, aggregated over years were fairly reasonable. Figures \@ref(fig:lencompfitFish1) to \@ref(fig:lencompfitsurv) show fits to yearly fishery and survey length composition data. Fits to fishery length composition data were particularly poor in 1990; fishery selectivity appears to have been quite different in that year. Fits to survey length composition data were poor in 1984, 1987, and 1990. Survey methods in 1984 and 1987 differed from the current protocol and we would expect differences in fits in these years (@Turnock2017).
 
-Figure 14- Figure 17 show model fits to the mean age at each length and corresponding estimated and observed standard deviations about mean age-at-length and show that the model fits growth data reasonably well. Observed standard deviations are expected to differ from estimated standard deviations about the age-at-length for older ages and larger size bins due to low sample size. Figure 18-Figure 20 show pearson residuals in age-at-length model fits. One very large residual occurs in 1999, but otherwise, the pearson residuals are relatively small.
+Figure XX- Figure XX show model fits to the mean age at each length and corresponding estimated and observed standard deviations about mean age-at-length and show that the model fits growth data reasonably well. Observed standard deviations are expected to differ from estimated standard deviations about the age-at-length for older ages and larger size bins due to low sample size. Figure XX-Figure XX show pearson residuals in age-at-length model fits. One very large residual occurs in 1999, but otherwise, the pearson residuals are relatively small.
 
 DISCUSS WEIGHTING
 DISCUSS BIAS ADJ if applicable
 
 ## Time Series Results
 
+Time series of biomass and recruitments are shown in Table 13-Table 14 and Figures \@ref(fig:SSBts) and \@ref(fig:rects). A time series of numbers-at-age and numbers-at-length, including mean age and length through time, is shown in Figures \@ref(fig:NAA) and \@ref(fig:NAL)
 
-Time series of biomass and recruitments are shown in Table 13-Table 14 and Figure 4, Figure 5 and Figure 21. A time series of numbers-at-age is available at http://www.afsc.noaa.gov/REFM/Docs/2017/GOA_Flathead_TimeSeries_of_NumbersAtAge17.xlsx. 
+Age 0 recruitment and standard deviations of age 0 recruitment are presented in Table 12 and Table 14 for the current and previous assessments. Total biomass for ages 3+, spawning stock biomass, and standard deviations of spawning stock biomass estimates for the previous and current assessments are presented in Table 13. Figure 21 shows spawning stock biomass estimates and corresponding asymptotic 95% confidence intervals. Figure 22 shows that biomass has been above $B_{35\%}$ and F has been low relative to $F_{35\%}$ for each year in the time series.
 
-Age 3 recruitment, age 0 recruitment, and standard deviations of age 0 recruitment are presented in Table 12 and Table 14 for the current and previous assessments. Total biomass for ages 3+, spawning stock biomass, and standard deviations of spawning stock biomass estimates for the previous and current assessments are presented in Table 13. Figure 21 shows spawning stock biomass estimates and corresponding asymptotic 95% confidence intervals. Figure 22 shows that biomass has been above B35% and F has been low relative to F35% for each year in the time series.
-
-(This section should be omitted for Tiers 4-6. 
-For Tiers 1-3, items in this section pertain to the authors’ recommended model.)
-
+**
 Include a table that has a set of parallel key results) for the previously accepted assessment, compared with new results. At a minimum this table should include spawning biomass and recruitment. 
 
 Definition of biomass measures used (e.g., age range used in the “age+” biomass)
@@ -47,7 +44,7 @@ Graph of estimated fishing mortality versus estimated spawning stock biomass (ph
 Biomass should be scaled relative to $B_{MSY}$ for Tier 1 stocks and $B_{35\%}$ for Tier 3 stocks. 
 Fishing mortality should be scaled relative to the arithmetic mean of $F_{MSY}$ for Tier 1 stocks and $F_{35\%}$ for Tier 3 stocks. 
 Include 2 years of projected *F* and *B* in the phase-plane plot.
-
+**
 ## Retrospective Analysis
 
 Retrospective analyses were conducted by running this year’s assessment model iteratively, each time removing one additional year of data, starting with the most recent year of data. Previous assessments had moderate retrospective patterns [@Turnock2017].
