@@ -9,6 +9,11 @@ knitr::include_graphics(here("model_runs","m0_8-newMI-biasAdj","plots","catch1 l
 ```
 
 
+```{r catchvsTAC, fig.cap="Catch biomass in tons 1190-2022 (as of October 1, 2022) and harvest specifications from the Federal Register for GOA Flathead Sole.", eval = T}
+knitr::include_graphics(here("figs","harvest_spex_vs_catch.png"))
+```
+
+
 \newpage
 
 
@@ -64,7 +69,7 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_len
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt1mkt0_page2.png'))
 ```
 
-```{r lencompfit4, fig.cap="(ref:lencompcap). Data shown for the Survey.", eval = T}
+```{r lencompfitsurv, fig.cap="(ref:lencompcap). Data shown for the Survey.", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt2mkt0.png'))
 ```
 
@@ -96,13 +101,29 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_con
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_residsflt2mkt0_page2.png'))
 ```
  
-(ref:SSBcap) Time series of estimated spawning stock biomass (Mt) over time (solid blue line and circles) and asymptotic 95% confidence intervals (blue dashed lines) for the 2022 base case model. Point at 1977 is virgin biomass.
+(ref:SSBcap)  time series of estimated over time (solid blue line and circles) and asymptotic 95% confidence intervals (blue dashed lines and/or bars) for `r base_model_name`.
 
-```{r SSBts, fig.cap="(ref:SSBcap)",  eval = T}
+```{r SSBts, fig.cap="Spawning stock biomass (Mt)(ref:SSBcap) Point at 1977 is virgin biomass.",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts7_Spawning_biomass_(mt)_with_95_asymptotic_intervals_intervals.png'))
 ```
 
+```{r rects, fig.cap="Age-zero recruitment (ref:SSBcap) Point at 1977 is virgin recruitment",  eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age-0_recruits_(1000s)_with_95_asymptotic_intervals.png'))
+```
 
+
+
+```{r NAA, fig.cap="Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time.",   out.width = "50%",  eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex2_beg.png'))
+
+```
+
+```{r NAL, fig.cap="Numbers at length (grey bubbles) by year for females (left) and males (right). Red line indicates mean length through time.",  out.width = "50%", eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers6_len_sex1.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers6_len_sex2.png'))
+
+```
 
 ```{r biasramp, fig.cap="Estimated recruitment deviations (top panel) and bias adjustment ramp (bottom panel). The ramp corresponds to the ratio of the standard error in the estimated recruitment deviations to the overall variance in recruitment; during periods of data-richness, this ratio is reduced (as more data are available to inform the deviations) and therefore the ramp assigns the heaviest weight to those model years within the likelihood function. Very recent years are less certain as we have not yet seen these recruitment events in the compositional data, which is anticipated to happen at a roughly 3-year lag for GOA Flathead sole.",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','bias_adj_panel.png'))
