@@ -8,6 +8,8 @@ editor: visual
 
 The mean length and age is declining for the last few years, along with the survey biomass. All three of these aren't well captured in the fits from the base model. Possible that survey timing could fix this.
 
+Pearson residuals are wrong. Cole pointed us to a package that can correct these; need to check it out especially for length comps, which aren't looking credit.
+
 ## Future Cycle Changes/Things to Consider
 
 -   Make all surveys & associated comps midyear. They're from the same survey and indeed occur midyear, we just didn't touch it this time to encourage continuity with last year.
