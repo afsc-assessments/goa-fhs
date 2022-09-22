@@ -35,7 +35,7 @@ data.frame(Source = c(rep("U.S. trawl fishery", 2),
 
 ### Catch
 
-The assessment included catch data from 1978 to `r date` (Figure 1, Table 1). Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, Table 1).
+The assessment included catch data from 1978 to `r date` (Figure 1, Table 1). Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, Table 1). Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years \@ref(fig:catchvsTac). 
 
 ### Age and Size Composition
 
