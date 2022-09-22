@@ -103,12 +103,10 @@ Pennington 1994). In those assessments, scientists implemented the McAllister-Ia
 ### Ageing Error Matrix
 
 Stock Synthesis accommodates the specification of ageing error bias and
-imprecision.
-
-The 2015 and 2017 stock assessments incorporated ageing error by using
+imprecision. The 2015 and 2017 stock assessments incorporated ageing error by using
 an existing ageing error matrix for BSAI  `r species` , for which error
-increased lienarly from age 0 to a maximum at age 16. External to this
-assessment, we revisited the ageing error data for GOA  `r species` 
+increased linearly from age 0 to a maximum at age 16. 
+External to this assessment, we revisited the ageing error data for GOA  `r species` 
 using methods described in Punt et al. (2008) as requested by the recent
 CIE review. Read-replicate data was made available by the Age & Growth
 program. We created several candidate models that varied in their
@@ -120,8 +118,9 @@ and updated ageing error matrices is shown in Figure  \@ref(fig:ageerr). BSAI an
  `r species`  are aged by the same individuals using the same techniques
 and ageing error is expected to be very similar.
 
-Data, code, and additional figures associated with the updated aging
-error matrix can be found at XX. An examination of `r base_model_name` using the old ageing error matrix did not have a
+(ref:ageErrDesc)
+
+An examination of `r base_model_name` using the old ageing error matrix did not have a
 significant effect on derived quantities.
 
 ### Recruitment Deviations
@@ -138,7 +137,7 @@ which creates a bias in the estimation of recruitment deviations and
 mean recruitment that is corrected by estimating a bias adjustment
 factor following Methot and Taylor (2011).
 
-The breakpoints for the bias adjustment ramp are shown in Figure \@(ref:fig-biasramp), and are characterized by a linear
+The breakpoints for the bias adjustment ramp are shown in Figure \@ref(fig:biasramp), and are characterized by a linear
 increase from zero to a plateau of from
 `r base_model$breakpoints_for_bias_adjustment_ramp[5]` from
 `r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[1:2]), collapse = '-')`,
@@ -159,13 +158,13 @@ sole. This model has been updated to Stock Synthesis version 3.30.16,
 and the ageing error matrix has been updated along with all other data
 sources to reflect the current information provided by AKFIN. 
 
-Following
-the recent CIE review, we present a handful of model explorations as
-illustrative sensitivities in section XX. We also present the previously accepted
+(ref:senslink) 
+
+
+We also present the previously accepted
 model in its original form (in Synthesis version 3.24) and bridged to
 the latest Stock Synthesis software, both without any data changes, for
-comparison in FIGURE XX. No new model structures are recommended this
-year.
+comparison in Figures \@ref(fig:ssbcompare). to \@ref(fig:selexcompare). No new model structures are recommended this year.
 
 ## Parameters Estimated Outside the Assessment Model
 
@@ -205,8 +204,8 @@ which is fixed within the current assessment.
 ### Survey Catchability
 
 The survey catchability parameter $q$ was fixed at 1.0, as for previous
- `r species` assessments. We explore a sensitivity run where survey
-catchability is allowed to be calculated analytically or estimated in section XX.
+`r species` assessments. We explored a sensitivity run where survey
+catchability was allowed to be calculated analytically or estimated, as well as a likelihood profile on $ln(q)$ (Figure \@ref(fig:profileLNq).
 
 ## Parameters Estimated Inside the Assessment Model
 
