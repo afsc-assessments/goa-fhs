@@ -125,6 +125,9 @@ profile_mm_summary <- SSsummarize(profiles_mm)
 
 save(profile_mm_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm/profile_mm.rdata" )
 
+
+
+
 ```
 
 
@@ -254,8 +257,14 @@ profile_mq_summary$pars %>%
 ## object for 2d plotting
 qm.df.plotme <- reshape2::melt(profile_mq_summary$likelihoods, id = 'Label') %>%
   merge(., qm.df, by = 'variable') %>%
-  filter( Label == 'TOTAL' & value < 100)
+  filter( Label == 'TOTAL') %>%
+  select(value,LnQ_base_Survey,
+         NatM_uniform_Fem_GP_1 ) %>%
+  tidyr::pivot_wider(names_from = NatM_uniform_Fem_GP_1 , values_from = value) %>%
+  select(-LnQ_base_Survey) %>%
+  as.matrix()
 
+with(qm.df.plotme,persp::persp(x = LnQ_base_Survey , y =NatM_uniform_Fem_GP_1  , z = value))
 # with(subset(qm.df.plotme, NatM_uniform_Fem_GP_1 == 0.2 & Label == 'Total'), plot(LnQ_base_Survey~ value), xlim = c(0,1))
 
 
@@ -265,7 +274,11 @@ ggplot(data = qm.df.plotme, aes(x = LnQ_base_Survey,
   
 
 require(plotly)
-  plot_ly(data =qm.df.plotme, x= ~LnQ_base_Survey, y = ~NatM_uniform_Fem_GP_1, z = ~value, type = "surface")
+
+  plot_ly(  z = ~qm.df.plotme, type = "surface") %>%
+    add_surface()
+  
+  
   require(surf3D)
   surf3D::surf3D(data =qm.df.plotme, x = LnQ_base_Survey, y = NatM_uniform_Fem_GP_1, z = value, colkey=TRUE, bty="b2",
        phi = 40, theta = 30, main="Half of a Torus")
