@@ -14,7 +14,7 @@ editor: source
 ---
 
 
-```{r setup, echo = FALSE}
+```{r setup, echo = FALSE, include = FALSE}
 require(here)
 require(r4ss)
 require(dplyr)
@@ -53,17 +53,17 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare1
 ::: panel-tabset
 ## Biomass
 
-```{r echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+```{r echo=FALSE, fig.cap="The SSB time series are much higher when the deviations don't start until later, and end at a slightly lower value."}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare2_spawnbio_uncertainty.png'))
 ```
 
-## Rec Deviations
-```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data, but the deviations take longer to be informed in the truncated model."}
-knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare11_recdevs.png'))
+## Age-0 Recruits
+```{r, echo=FALSE, fig.cap="The recruitment series is not very distinct, though the later-start model estimates recruits as systematically lower for the last ~15 years."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare10_recruits_uncertainty.png'))
 ```
 ## Survey Fits
 
-```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+```{r, echo=FALSE, fig.cap="The later-start model fits the first and third survey year better, and reflects a less positive trend (more neutral to flat) than the base model."}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-devs1983','compare13_indices.png'))
 ```
 :::
@@ -77,6 +77,12 @@ Both models where q was allowed to estimate/calculate ended up with values aroun
 
 ```{r, echo=FALSE, fig.cap="The SSB time series is much smaller when q is allowed to be estimated or calculated analytically. Either approach resulted in very similar time series."}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estq','compare2_spawnbio_uncertainty.png'))
+```
+
+
+## BRatio
+```{r, echo=FALSE, fig.cap="Though the time series are distinct, the status of both models is roughly similar. Note there is some confusion about the horizontal lines here; the SSB series is not actually above B0, rather the Bratios are auto-calculated with respect to B35 (grey dashed line)."}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estq','compare4_Bratio_uncertainty.png'))
 ```
 
 ## Rec Deviations
