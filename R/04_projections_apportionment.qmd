@@ -1,14 +1,16 @@
 ---
-title: "2022 GOA FHS Projections"
+title: "2022 GOA FHS Projections & Apportionment"
 author: M Sosa Kapur maia.kapur@noaa.gov
 date: November 2022
 format: html
 toc: true
 always_allow_html: true
-editor: visual
+editor: source
 ---
 
-Set up, run, summarise, plot and save projection outputs using RE and Proj components. Based this code on 2_makeCatches.R for partial updates for BSAI (which I updated to auto-write inputs for proj)
+Set up, run, summarise, plot and save projection outputs using RE and Proj components. Based this code on 2_makeCatches.R for partial updates for BSAI (which I updated to auto-write inputs for proj).
+
+Also do a test run with the REMA package.
 
 # Projection Inputs
 
@@ -19,9 +21,6 @@ library(tidyr)
 library(ggplot2)
 require(here)
 
-## Jane's package
-# devtools::install_github("afsc-assessments/rema", dependencies = TRUE, build_vignettes = TRUE)
-# require(rema)
 
 date_use = "2022-04-18"
 this_year = lubridate::year(Sys.Date())
@@ -311,9 +310,11 @@ weekly_catches %>%
   select(YEAR = year, total_catch, WG=WGOA,CG=CGOA ,EG) %>% 
   rbind(t12020,.,) %>%
   write.csv(., file = here('data',paste0(Sys.Date(),"Table1Catch.csv")), row.names = FALSE)
-
-#* Area apportionment ----
-
+```
+# Area apportionment 
+## ADMB style
+No warranties here because Jane has indicated there are many versions of the tpl floating around. For now I'm working with one I inhereted from CCM (in the 2019) folder. At the 2022 Sept Plan Team Jane indicated we should switch to REMA and never look back. I'm running this this year just for comparison.
+```{R}
 ##* RE.dat inputs ----
 ## Run the RE model for each area-specific survey to get this
 ## year's estimates and use that to get proportions. I didn't
@@ -321,14 +322,14 @@ weekly_catches %>%
 ## 2021 need to rework this chunk. CCM -10/2020
 # index_by_area <- read.csv('data/index_by_area.csv') %>%
 #   mutate(CV=sqrt(POPVAR)/POP)
-
-iba <- read.csv(here('data','2021-09-30-index_by_area.csv')) %>%
+pull_date <- '2022-04-18'
+iba <- read.csv(here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
   group_by(YEAR,AREA) %>%
   summarise(BIOM_MT = BIOM,
             CV_total=sqrt(BIOMVAR)/BIOM ) %>%
   filter(YEAR > 2010)
 
-iba %>% filter(AREA == 'CENTRAL GOA') %>%  View()
+iba %>% filter(AREA == 'CENTRAL GOA') %>%  
 write.csv(., 
           here('re','Central',paste0(Sys.Date(),'-values_for_redat.csv') ),
           row.names=FALSE)
@@ -338,7 +339,7 @@ iba %>% filter(AREA == 'EASTERN GOA') %>%
             here('re','Eastern',paste0(Sys.Date(),'-values_for_redat.csv') ),
             row.names=FALSE)
 
-iba %>% filter(AREA == 'WESTERN GOA') %>% View()
+iba %>% filter(AREA == 'WESTERN GOA') %>% 
 write.csv(., 
           here('re','WESTERN',paste0(Sys.Date(),'-values_for_redat.csv') ),
           row.names=FALSE)
@@ -347,9 +348,17 @@ write.csv(.,
 iba %>% 
   tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV_total))
 
+for(i in c('Eastern','Western','Central'))
+  tempdir <- here('re','central')
+lastfiles <- list.files(here('re','2021_areaapportionment','central'), full.names = TRUE)
+file.copy(from = lastfiles, to  = tempdir)
+## paste in values_for_redat in correct order based on endyr
+## change to tempdir and run rwout
+## now ready to wrangle or read into rema
+
 ```
 
-# Wrangle RE outputs
+## Wrangle ADMB-RE outputs
 
 ```{r}
 rwout0 <- list.files(here('re'), pattern = paste('rwout'), full.names = T, recursive = T)
@@ -447,3 +456,26 @@ iba %>%
             row.names=FALSE)
 
 ```
+
+
+# Redux: Rema
+Following the workflow in the rema basics vignette. Recall this has to be done separately for each region.
+```{r}
+## Jane's package
+# devtools::install_github("afsc-assessments/rema", dependencies = TRUE, build_vignettes = TRUE)
+library(rema)
+```
+
+## 1 load data: could use `rwout.rep` from the ADMB version of this model.
+
+```{r}
+admb_re <- read_admb_re(filename = 'aisr_rwout.rep',
+                        # optional label for the single biomass survey stratum
+                        biomass_strata_names = 'Aleutians Islands',
+                        model_name = 'ADMB: AI shortraker')
+names(admb_re)
+#> [1] "biomass_dat"           "cpue_dat"              "model_yrs"            
+#> [4] "init_log_biomass_pred" "admb_re_results"
+kable(admb_re$biomass_dat)
+```
+
