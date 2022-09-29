@@ -1,6 +1,38 @@
 # Tables
 
-```{r tab1}
+
+| Parameter Name                              | Fishery            | Survey             |
+|---------------------------------------------|--------------------|--------------------|
+| Peak (age at plateau start)                 | Estimated [1,16]   | Estimated [1,20]   |
+| Width of plateau                            | Fixed (30)         | Fixed (30)         |
+| Ascending width (log)                       | Estimated [-4,12]  | Estimated [-4,12]  |
+| Descending width (log)                      | Fixed (8)          | Fixed (8)          |
+| Initial selectivity at age 0                | Fixed (-10)        | Fixed (-10)        |
+| Final selectivity at age 29                 | Fixed (15)         | Fixed (15)         |
+| Male peak offset                            | Estimated [-15,15] | Estimated [-15,15] |
+| Male Ascending width (log) offset           | Estimated [-15,15] | Estimated [-15,15] |
+| Male Descending width (log) offset          | Fixed (0)          | Fixed (0)          |
+| Male final offset (transformation required) | Fixed (1)          | Fixed (0)          |
+| Male apical selectivity                     | Fixed (1)          | Fixed (1)          |
+
+: Table 10.1. Treatment of selectivity parameters for survey and fishery
+fleet. Bracketed values indicate parameter bounds, if applicable.
+
+
+```{r catchbyarea, echo = FALSE, warning = FALSE, message = FALSE}
+catch <- read.csv(here('data','catch',paste0(pull_date,'-catch-byArea.csv')))
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$Year <- as.character(catch$Year) 
+
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%  
+      flextable::set_caption("Commercial catch (t) and management action for northern rockfish in the Gulf of Alaska, 1961-present. The *Description of the catch time series* Section describes procedures use to estimate catch during 1961-1993. Ctach estimates for 1993-2019 are from NMFS Observer Program and Alaska Regional Office updated through October XX, 2020.") %>%
+  flextable::colformat_num(big.mark = ",")
+```
+
+
+```{r catchvsharvest}
 knitr::kable(data.frame(year = 1999:2000,
                  catch = 1:2), 
              caption = "Summary of key management measures and the time series of catch, ABC, and TAC for northern rockfish in the Gulf of Alaska",
