@@ -7,4 +7,7 @@ Each folder contains a csv which was saved using this code; values therein were 
 The re.exe was run for each area, wrangled using code in section "wrangle RE Outputs" and saved to the Excel file
 "-AreaApportionment.csv."
 
-Note that "EGOA" is comprised of SE and W Yakutat. 
+Note that "EGOA" is comprised of "Southeast" and W Yakutat. 
+
+The biomass fractions come from Oracle under RACE Survey > GOA - FRactional Biomass in Eastern GOA,
+which may or may not be updated (as of Sep 2022 I'm using the 2021 fractions).
