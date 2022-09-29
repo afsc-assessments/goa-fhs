@@ -326,45 +326,64 @@ pull_date <- '2022-04-18'
 iba <- read.csv(here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
   group_by(YEAR,AREA) %>%
   summarise(BIOM_MT = BIOM,
-            CV_total=sqrt(BIOMVAR)/BIOM ) %>%
-  filter(YEAR > 2010)
+            CV_total=sqrt(BIOMVAR)/BIOM ) #%>%
+  # filter(YEAR > 2010)
 
-iba %>% filter(AREA == 'CENTRAL GOA') %>%  
-write.csv(., 
-          here('re','Central',paste0(Sys.Date(),'-values_for_redat.csv') ),
-          row.names=FALSE)
+# iba %>% filter(AREA == 'CENTRAL GOA') %>%  
+# write.csv(., 
+#           here('re','Central',paste0(Sys.Date(),'-values_for_redat.csv') ),
+#           row.names=FALSE)
+# 
+# iba %>% filter(AREA == 'EASTERN GOA') %>%
+#   write.csv(., 
+#             here('re','Eastern',paste0(Sys.Date(),'-values_for_redat.csv') ),
+#             row.names=FALSE)
+# 
+# iba %>% filter(AREA == 'WESTERN GOA') %>% 
+# write.csv(., 
+#           here('re','WESTERN',paste0(Sys.Date(),'-values_for_redat.csv') ),
+#           row.names=FALSE)
+# 
+# 
+# iba %>% 
+#   tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV_total))
 
-iba %>% filter(AREA == 'EASTERN GOA') %>%
-  write.csv(., 
-            here('re','Eastern',paste0(Sys.Date(),'-values_for_redat.csv') ),
-            row.names=FALSE)
 
-iba %>% filter(AREA == 'WESTERN GOA') %>% 
-write.csv(., 
-          here('re','WESTERN',paste0(Sys.Date(),'-values_for_redat.csv') ),
-          row.names=FALSE)
+for(i in c('Eastern','Western','Central')){
+  tempdir <- here('re',i)
+  tempdat <- iba %>% filter(AREA == paste0(toupper(i)," GOA")) 
+  lastfiles <- list.files("C:/Users/maia.kapur/Work/assessments/re_functions", full.names = TRUE)
+  file.copy(from = lastfiles, to  = tempdir)
+  
+  yos <- paste(tempdat$YEAR, collapse = "\n") 
+  survest <- paste(tempdat$BIOM_MT , collapse = "\n")
+  survcv <- paste(tempdat$CV_total , collapse = "\n")
+  T1<-noquote(c("# sty endy",
+                paste0(min(tempdat$YEAR),"\t",max(tempdat$YEAR)),
+                "## number of surveys",
+                nrow(tempdat),
+                "# years of surveys",
+                yos,
+                "# survey estimates",
+                survest,
+                "# survey stdev (or cvs) ",
+                survcv
+  ))
+  write_file <- paste0(tempdir,"/re.dat")
+  write(T1,paste(write_file),ncolumns = 1,append=T) 
+  setwd(tempdir)
+  shell('re.exe')
+  
+  ## now ready to wrangle
+ 
+} 
 
-
-iba %>% 
-  tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV_total))
-
-for(i in c('Eastern','Western','Central'))
-  tempdir <- here('re','central')
-lastfiles <- list.files(here('re','2021_areaapportionment','central'), full.names = TRUE)
-file.copy(from = lastfiles, to  = tempdir)
-## paste in values_for_redat in correct order based on endyr
-## change to tempdir and run rwout
-## now ready to wrangle or read into rema
 
 ```
 
 ## Wrangle ADMB-RE outputs
-
 ```{r}
-rwout0 <- list.files(here('re'), pattern = paste('rwout'), full.names = T, recursive = T)
-rwout <- rwout0[!grepl('2019',rwout0 )] ## grab new runs (not 2019)
-
-
+## function to wrangle data from ADMB-RE
 read_rwout <- function(x){
 
   rawl <-  scan(x,
@@ -391,19 +410,22 @@ read_rwout <- function(x){
   
   
   return(currBio)
-}
+} ## end read_rwout
 
-## by hand inspection, biomA should actually be
-# CENTRAL = 94280.3
-# EASTERN = 14492.6
-# WESTERN = 82104.9
-
-dt0 <- lapply(rwout, read_rwout) %>% 
-  unlist() %>%
-  data.frame() 
-
-names(dt0) <- 'cb'
-
+ rwout0 <- list.files(here('re'), pattern = paste('rwout'), full.names = T, recursive = T, include.dirs = FALSE)
+  rwout <- rwout0[!grepl('2019',rwout0 )] ## grab new runs (not 2019)
+  
+  ## by hand inspection, biomA should actually be
+  # CENTRAL = 94280.3
+  # EASTERN = 14492.6
+  # WESTERN = 82104.9
+  
+  dt0 <- lapply(rwout, read_rwout) %>% 
+    unlist() %>%
+    data.frame() 
+  
+  names(dt0) <- 'cb'
+  
 ## these are the apportionments by 3 areas; still need to dwnslale EGOA
 mgmtf <- dt0 %>% 
   tibble::rownames_to_column() %>%  
@@ -454,6 +476,7 @@ iba %>%
   write.csv(., 
             here('DATA',paste0(Sys.Date(),'-table2_indices_area.csv') ),
             row.names=FALSE)
+
 
 ```
 
