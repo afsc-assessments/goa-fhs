@@ -2,19 +2,17 @@
 
 Gulf of Alaska flathead sole stock assessment, 2022. Maia Sosa Kapur [maia.kapur\@noaa.gov](mailto:maia.kapur@noaa.gov){.email}
 
-Code here builds upon work by @careymgc and @colemonnahan.
+Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency on [safe](https://github.com/BenWilliams-NOAA/safe) and apportionments via [rema](https://github.com/afsc-assessments/rema) both v0.1.0.
 
-## Unresolved Issues
+##  Things to Consider for Future Cycles
 
-The mean length and age is declining for the last few years, along with the survey biomass. All three of these aren't well captured in the fits from the base model. Possible that survey timing could fix this.
+-   The mean length and age is declining for the last few years, along with the survey biomass. All three of these aren't well captured in the fits from the base model. Possible that survey timing could fix this.
 
-Pearson residuals are wrong. Cole pointed us to a package that can correct these; need to check it out especially for length comps, which aren't looking credit.
+-   Pearson residuals are wrong. Cole pointed us to a package that can correct these; need to check it out especially for length comps, which aren't looking credit.
 
-In the data-prep scripts I inherited, catches are summed across all gears even though the document mentions Trawl only. Either change text to state that they were summed, or remove the HKL/POT gears from the data (it's a very small fraction).
+-   In the data-prep scripts I inherited, catches are summed across all gears even though the document mentions Trawl only. Either change text to state that they were summed, or remove the HKL/POT gears from the data (it's a very small fraction).
 
-Not exactly clear why the VAST index is so much higher than the DB.
-
-## Things to Consider for Future Cycles
+-   Not exactly clear why the VAST index is so much higher than the DB.
 
 -   Late in the game I read that "as for previous assessments, the availability of the survey biomass in 2001 was assumed to be 0.9 to account for the biomass in the eastern region of the Gulf" -- which might explain why the 2001 value was inflated? Too late for me to go back, and bridging indicated this wasn't a huge deal. Instead going to use what's on AKFIN. Sure enough 153594/0.9 = 170660.
 
