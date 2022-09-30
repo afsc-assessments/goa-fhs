@@ -58,6 +58,8 @@ catch0 <- GET_CATCH(fsh_sp_area=fsh_sp_area,
 catch0 <- arrange(catch0, YEAR, ZONE, GEAR1)
 write.csv(catch0, file=here('data','catch',paste0(Sys.Date(),'-catch-raw.csv') ), row.names=FALSE)
 
+## note that even tho a nontrivial % is discarded, the previous model treated them all as landings
+## (didn't model discards separately, and included in total summator)
 catchA <- catch0 %>%
   select(YEAR, ZONE, TONS) %>%
   group_by(YEAR, ZONE) %>%
