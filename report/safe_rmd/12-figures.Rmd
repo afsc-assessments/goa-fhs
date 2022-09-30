@@ -111,8 +111,6 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts7_Spaw
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age-0_recruits_(1000s)_with_95_asymptotic_intervals.png'))
 ```
 
-
-
 ```{r NAA, fig.cap="Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time.",   out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex2_beg.png'))
