@@ -19,7 +19,9 @@ library(dplyr)
 library(lubridate)
 library(tidyr)
 library(ggplot2)
-require(here)
+library(here)
+library(TMB)
+library(Rmisc)
 
 
 date_use = "2022-04-18"
@@ -323,9 +325,9 @@ No warranties here because Jane has indicated there are many versions of the tpl
 # index_by_area <- read.csv('data/index_by_area.csv') %>%
 #   mutate(CV=sqrt(POPVAR)/POP)
 pull_date <- '2022-04-18'
-iba <- read.csv(here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
+iba <- read.csv(here::here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
   group_by(YEAR,AREA) %>%
-  summarise(BIOM_MT = BIOM,
+  dplyr::summarise(BIOM_MT = BIOM,
             CV_total=sqrt(BIOMVAR)/BIOM ) #%>%
   # filter(YEAR > 2010)
 
@@ -350,7 +352,7 @@ iba <- read.csv(here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>
 
 
 for(i in c('Eastern','Western','Central')){
-  tempdir <- here('re',i)
+  tempdir <- here::here('re',i)
   tempdat <- iba %>% filter(AREA == paste0(toupper(i)," GOA")) 
   lastfiles <- list.files("C:/Users/maia.kapur/Work/assessments/re_functions", full.names = TRUE)
   file.copy(from = lastfiles, to  = tempdir)
@@ -384,11 +386,12 @@ for(i in c('Eastern','Western','Central')){
 ## Wrangle ADMB-RE outputs
 ```{r}
 ## function to wrangle data from ADMB-RE
+this_year <- max(iba$YEAR)
 read_rwout <- function(x){
 
   rawl <-  scan(x,
        skip = 7,
-       what = as.list(rep("",length(1984:this_year)+1)), 
+       what = as.list(rep("",length(1984:(this_year+1)))), ## normally it's this year +1
        flush = TRUE) %>% 
     data.frame()
 
@@ -399,11 +402,12 @@ read_rwout <- function(x){
   rawl <- rawl[-1, ]
   rawl <- rawl[1:6,]
   ## biomA = estimated biomass (natural scale)
-  currBio <-  rawl %>% tibble::rownames_to_column() %>%  
-    pivot_longer(-rowname) %>% 
-    pivot_wider(names_from=rowname, values_from=value) %>%
-    filter(name == this_year) %>%
-    select(biomA)
+  currBio <-  rawl %>% 
+    tibble::rownames_to_column() %>%  
+    tidyr::pivot_longer(-rowname) %>% 
+    tidyr::pivot_wider(names_from=rowname, values_from=value) %>%
+    dplyr::filter(name == this_year) %>%
+    dplyr::select(biomA)
   currBio <- as.numeric(currBio)
   
   names(currBio) = paste(basename(dirname(x)))
@@ -412,8 +416,8 @@ read_rwout <- function(x){
   return(currBio)
 } ## end read_rwout
 
- rwout0 <- list.files(here('re'), pattern = paste('rwout'), full.names = T, recursive = T, include.dirs = FALSE)
-  rwout <- rwout0[!grepl('2019',rwout0 )] ## grab new runs (not 2019)
+ rwout0 <- list.files(here::here('re'), pattern = paste('rwout'), full.names = T, recursive = T, include.dirs = FALSE)
+ rwout <- rwout0[!grepl('2019|2021',rwout0 )] ## grab new runs (not 2019 nor 2021)
   
   ## by hand inspection, biomA should actually be
   # CENTRAL = 94280.3
@@ -438,7 +442,8 @@ mgmtf <- dt0 %>%
 
 
 ## EGOA: Eastern goes to SE, Western goes to Yakutat
-egfrac <- read.csv(here('data','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
+## this has not yet updated for 2022
+egfrac <- read.csv(here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
 
 apportionment <- mgmtf %>% 
   mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
@@ -448,34 +453,34 @@ apportionment <- mgmtf %>%
 sum(apportionment)==1
 
 
-abc22 <- as.numeric( rec_table[10,2])*apportionment
-abc23 <- as.numeric( rec_table[10,3])*apportionment
+abc23 <- as.numeric( rec_table[10,2])*apportionment
+abc24 <- as.numeric( rec_table[10,3])*apportionment
 
-abc22 <- as.numeric( 40175)*apportionment
-abc23 <- as.numeric(40046)*apportionment
+abc23 <- as.numeric( 40175)*apportionment
+abc24 <- as.numeric(40046)*apportionment
 
 apportionment2 <- rbind(apportionment,abc22,abc23)
 write.csv(apportionment2,file = here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
 
 
 ## table of indices x area ----
-iba <- read.csv(here('data','2021-09-30-index_by_area.csv')) %>%
-  group_by(YEAR,AREA) %>%
-  summarise(BIOM_MT = BIOM,
-            CV=sqrt(BIOMVAR)/BIOM ) 
-
-index <- read.csv(here('data','2021-09-30-index.csv')) %>%
-  group_by(YEAR) %>%
-  summarise(BIOM_MT = BIOM,
-            CV_total=sqrt(BIOMVAR)/BIOM)
-
-iba %>% 
-  tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV)) %>%
-  merge(., index, by = 'YEAR') %>%
-  select(YEAR, BIOM_MT, CV_total, everything()) %>%
-  write.csv(., 
-            here('DATA',paste0(Sys.Date(),'-table2_indices_area.csv') ),
-            row.names=FALSE)
+# iba <- read.csv(here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
+#   group_by(YEAR,AREA) %>%
+#   summarise(BIOM_MT = BIOM,
+#             CV=sqrt(BIOMVAR)/BIOM ) 
+# 
+# index <- read.csv(here('data','survey',paste0(pull_date,'-index.csv'))) %>%
+#   group_by(YEAR) %>%
+#   summarise(BIOM_MT = BIOM,
+#             CV_total=sqrt(BIOMVAR)/BIOM)
+# 
+# iba %>% 
+#   tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV)) %>%
+#   merge(., index, by = 'YEAR') %>%
+#   select(YEAR, BIOM_MT, CV_total, everything()) %>%
+#   write.csv(., 
+#             here('DATA',paste0(Sys.Date(),'-table2_indices_area.csv') ),
+#             row.names=FALSE)
 
 
 ```
@@ -489,16 +494,80 @@ Following the workflow in the rema basics vignette. Recall this has to be done s
 library(rema)
 ```
 
-## 1 load data: could use `rwout.rep` from the ADMB version of this model.
 
 ```{r}
-admb_re <- read_admb_re(filename = 'aisr_rwout.rep',
-                        # optional label for the single biomass survey stratum
-                        biomass_strata_names = 'Aleutians Islands',
-                        model_name = 'ADMB: AI shortraker')
-names(admb_re)
-#> [1] "biomass_dat"           "cpue_dat"              "model_yrs"            
-#> [4] "init_log_biomass_pred" "admb_re_results"
-kable(admb_re$biomass_dat)
-```
+idx = 1; biomass_dat <- p <- list()
+## admb/tmb bridge: fit each model individually 
+for(i in c('Eastern','Western','Central')){
+  ## 1 load data: could use `rwout.rep` from the ADMB version of this model.
+  
+  tempdir <- here::here('re',i)
+  admb_re <- read_admb_re(filename = paste0(tempdir,'/rwout.rep'),
+                          # optional label for the single biomass survey stratum
+                          biomass_strata_names = i,
+                          model_name = paste0("ADMB: BSAI FHS ",i))
+  ## save the formatted biomass_dat for each region
+  biomass_dat[[idx]] <- admb_re$biomass_dat 
+  # 
+  input <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS ",i), 
+                              admb_re  = admb_re)
+  ## fit REMA
+  m <- fit_rema(input) ##save each M separately
+  compare <- compare_rema_models(rema_models = list(m),
+                                 admb_re = admb_re,
+                                 biomass_ylab = 'Biomass (t)')
+  p[[idx]] <- compare$plots$biomass_by_strata+ggsidekick::theme_sleek()+theme(legend.position = 'bottom') +
+    scale_y_continuous(limits = c(0,250000))
+  idx = idx+1
+}
+p## shows that bridges are identical
+require(patchwork)
+ggsave(p[[2]] |p[[3]]  |  p[[1]]  , file = here::here('re','admb_re_bridge.png'), width = 12, height = 10, unit = 'in', dpi = 520)
+## now fit them all at once (defaults to univariate structure, no info leakage among them)
+input2 <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS MULTIVAR"),
+                            biomass_dat  = bind_rows(biomass_dat))
+m2 <- fit_rema(input2) ##save each M separately
+output <- tidy_rema(rema_model = m2)
+kableExtra::kable(output$parameter_estimates) 
+plots <- plot_rema(tidy_rema = output, biomass_ylab = 'Biomass (t)') # optional y-axis label
+plots$biomass_by_strata
+ggsave(plots$biomass_by_strata, file = here::here('re','rema_outs.png'), width = 12, height = 10, unit = 'in', dpi = 520)
 
+# compare <- compare_rema_models(rema_models = list(m),
+#                                admb_re = admb_re,
+#                                biomass_ylab = 'Biomass (t)')
+# compare$plots$biomass_by_strata
+## final apportionment qtties; still need to include Eastern downscaling and ABCs
+# kableExtra::kable(tail(output$proportion_biomass_by_strata, 3)) 
+
+egfrac <- read.csv(here::here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
+props <- output$proportion_biomass_by_strata %>% filter(year == this_year) %>%   mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+  select(Western, Central, WestYakutat,Southeast)
+
+sum(props)==1
+
+ 
+# abc23 <- as.numeric( rec_table[10,2])*apportionment
+# abc24 <- as.numeric( rec_table[10,3])*apportionment
+
+abc23 <- as.numeric(40175)*props
+abc24 <- as.numeric(40046)*props
+
+
+
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(40175,40046) )) %>%
+  rbind( round(props*100,2) ,.) %>%
+  data.frame() %>%
+  mutate(Total = c("",40175,40046),
+         Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+         Quantity = c("Area Apportionment %", 
+                      "ABC (t)",
+                      "ABC (t)")) %>% select(Quantity, Year, everything())
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+
+
+```
+ 
+```{r}
+```
