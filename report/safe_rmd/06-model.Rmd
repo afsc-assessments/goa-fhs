@@ -49,7 +49,7 @@ parameter(s) to mimic a logistic shape as previous assessments found no
 evidence for dome-shaped selectivity in either. Male selectivity curves
 for the fishery and survey are estimated as an offset from the
 respective female curves. The estimated and fixed double-normal
-selectivity parameters by fleet and sex are presented in table XX.
+selectivity parameters by fleet and sex are presented in Table \@ref(tbl-selex).
 
 Length-based, sex-specific, logistic fishery and survey selectivity were
 implemented as sensitivity analyses in the 2013 assessment model runs
@@ -242,22 +242,7 @@ selectivity forms. Here the double-normal curve is constrained to mimic
 a logistic shape because there was no evidence for dome-shaped survey
 selectivity.
 
-| Parameter Name                              | Fishery            | Survey             |
-|---------------------------------------------|--------------------|--------------------|
-| Peak (age at plateau start)                 | Estimated [1,16]   | Estimated [1,20]   |
-| Width of plateau                            | Fixed (30)         | Fixed (30)         |
-| Ascending width (log)                       | Estimated [-4,12]  | Estimated [-4,12]  |
-| Descending width (log)                      | Fixed (8)          | Fixed (8)          |
-| Initial selectivity at age 0                | Fixed (-10)        | Fixed (-10)        |
-| Final selectivity at age 29                 | Fixed (15)         | Fixed (15)         |
-| Male peak offset                            | Estimated [-15,15] | Estimated [-15,15] |
-| Male Ascending width (log) offset           | Estimated [-15,15] | Estimated [-15,15] |
-| Male Descending width (log) offset          | Fixed (0)          | Fixed (0)          |
-| Male final offset (transformation required) | Fixed (1)          | Fixed (0)          |
-| Male apical selectivity                     | Fixed (1)          | Fixed (1)          |
 
-: Table XX. Treatment of selectivity parameters for survey and fishery
-fleet. Bracketed values indicate parameter bounds, if applicable.
 
 ### Objective Function
 Parameter estimates were obtained by minimizing the overall sum of a weighted set of negative log-likelihood components derived from fits to the model data described above and a set of penalty functions used to improve model convergence and impose various constraints (Methot and Wetzel 2013). Fits to observed annual fishery size and age compositions, as well as survey biomass estimates and size and conditional age-at-length compositions were included among the set of likelihood components. A likelihood component based on recruitment deviations from the mean was also included. Penalties were imposed to achieve good fits to annual fishery catches (biomass) and the assumed historical fishery catch. The functions used are described in more detail in Methot and Wetzel (2013) and in Appendix B of McGilliard et al. (2018).
