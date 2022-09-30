@@ -11,3 +11,9 @@ Note that "EGOA" is comprised of "Southeast" and W Yakutat.
 
 The biomass fractions come from Oracle under RACE Survey > GOA - FRactional Biomass in Eastern GOA,
 which may or may not be updated (as of Sep 2022 I'm using the 2021 fractions).
+
+In 2022 I did a bridge from ADMB to Jane's package. First I ran a for-loop that pulled the information from the rwout.rep files and fit each model individually. Running compare_rema illustrated that whatever ADMB-RE version is within the .exe I used last year returns the same values as the individual, univariate TMB version. 
+
+Then I ran REMA with all three strata at once (reading in the data from rwout.rep). These are not different from the separate runs but execute more quickly.
+
+In future years, we can simply pass REMA a long-format data frame (as `biomass_dat`) with a column for YR, STRATA, BIOMASS, CV.
