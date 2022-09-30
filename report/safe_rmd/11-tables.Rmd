@@ -1,8 +1,10 @@
 # Tables
 
 
-| Parameter Name                              | Fishery            | Survey             |
-|---------------------------------------------|--------------------|--------------------|
+```{r}
+
+| **Parameter Name**                          | **Fishery**        | **Survey**         |
+|-------------------------------------|------------------|------------------|
 | Peak (age at plateau start)                 | Estimated [1,16]   | Estimated [1,20]   |
 | Width of plateau                            | Fixed (30)         | Fixed (30)         |
 | Ascending width (log)                       | Estimated [-4,12]  | Estimated [-4,12]  |
@@ -15,28 +17,45 @@
 | Male final offset (transformation required) | Fixed (1)          | Fixed (0)          |
 | Male apical selectivity                     | Fixed (1)          | Fixed (1)          |
 
-: Table 10.1. Treatment of selectivity parameters for survey and fishery
-fleet. Bracketed values indicate parameter bounds, if applicable.
+: Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.  
 
-
-```{r catchbyarea, echo = FALSE, warning = FALSE, message = FALSE}
-catch <- read.csv(here('data','catch',paste0(pull_date,'-catch-byArea.csv')))
-catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
-catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
-catch$Year <- as.character(catch$Year) 
-
-names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
-flextable::regulartable(catch) %>%  
-      flextable::set_caption("Commercial catch (t) and management action for northern rockfish in the Gulf of Alaska, 1961-present. The *Description of the catch time series* Section describes procedures use to estimate catch during 1961-1993. Ctach estimates for 1993-2019 are from NMFS Observer Program and Alaska Regional Office updated through October XX, 2020.") %>%
-  flextable::colformat_num(big.mark = ",")
 ```
 
 
+```{r catchbyarea, echo = FALSE, warning = FALSE, message = FALSE}
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv')))
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$YEAR <- as.character(catch$YEAR) 
+
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%  
+      flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+  flextable::colformat_num(big.mark = ",")
+```
+
 ```{r catchvsharvest}
-knitr::kable(data.frame(year = 1999:2000,
-                 catch = 1:2), 
-             caption = "Summary of key management measures and the time series of catch, ABC, and TAC for northern rockfish in the Gulf of Alaska",
-             booktabs = TRUE)
+
+spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))) %>%
+  tidyr::pivot_wider(., id_cols = 'Yr',names_from = variable, values_from = value) %>%
+  filter(Yr > 1994)
+
+## manually reshape the raw catches for discard/retained percentage
+catch_discard <- read.csv(here::here('data','catch',paste0('2022-04-18-catch-raw.csv'))) %>%
+  # merge(., spex, by.x = 'YEAR', by.y ='Yr') %>%
+  filter(TYPE == 'D') %>%
+  group_by(YEAR) %>%
+  dplyr::summarise(discT = sum(TONS) )
+
+spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
+  mutate( "Total Catch" = round(Catch,0),
+          catchRet = 100*round(1-discT/Catch,2) )%>%
+  select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)  
+spex2$Year <- as.character(spex2$Year)        
+  
+flextable::regulartable(spex2) %>%  
+      flextable::set_caption(paste0("Historical OFLs, ABCs, TACs, total catch and percent retention through ", date,".")) %>%
+  flextable::colformat_num(big.mark = ",")
 ```
 
 \pagebreak
