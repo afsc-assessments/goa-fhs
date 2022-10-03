@@ -122,6 +122,10 @@ catch0 %>% group_by(GEAR, YEAR) %>% summarise(mt = mean(TONS)) %>%
 
 # Survey Biomass ----
 #* dwnld srv ----
+#* 
+
+
+
 test <- paste0("SELECT GOA.BIOMASS_TOTAL.YEAR as YEAR,\n ",
                "GOA.BIOMASS_TOTAL.TOTAL_BIOMASS as BIOM,\n ",
                "GOA.BIOMASS_TOTAL.TOTAL_POP as POP,\n ",
@@ -137,6 +141,7 @@ if(!is.data.frame(index)) stop("Failed to query GOA survey data")
 write.csv(index0, here('data','survey',paste0(Sys.Date(),'-index_raw.csv') ),row.names=FALSE)
 
 ## Survey data by area (for viz) 
+
 message("Querying survey biomass data...")
 test <- paste0("SELECT GOA.BIOMASS_AREA.YEAR as YEAR,\n ",
                "GOA.BIOMASS_AREA.REGULATORY_AREA_NAME as AREA,\n",
@@ -150,6 +155,26 @@ test <- paste0("SELECT GOA.BIOMASS_AREA.YEAR as YEAR,\n ",
                "WHERE GOA.BIOMASS_AREA.SPECIES_CODE in (",species,")\n ",
                "ORDER BY GOA.BIOMASS_AREA.YEAR")
 index_by_area <- sqlQuery(AFSC, test)
+if(!is.data.frame(index_by_area))
+  stop("Failed to query GOA survey data by area")
+write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
+
+## survey data by area and depth (for table)
+dd <- sqlColumns(AFSC, "GOA.BIOMASS_INPFC_DEPTH")
+message("Querying survey biomass data by area x depth...")
+test <- paste0("SELECT GOA.BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
+               # "GOA.BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
+               "GOA.BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
+               "FROM GOA.BIOMASS_INPFC_DEPTH\n ",
+               "WHERE GOA.BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
+               "ORDER BY GOA.BIOMASS_INPFC_DEPTH.YEAR")
+index_by_depth_area <- sqlQuery(AFSC, test)
 if(!is.data.frame(index_by_area))
   stop("Failed to query GOA survey data by area")
 write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
