@@ -94,10 +94,7 @@ weights calculated using the Francis (2011) method, but the weights for
 the fishery length-composition data were increased slightly to improve
 model stability.
 
-In `r old_model_name`, and the 2015 assessment that preceded it, the method described in
-Francis (2011) was not used because of concerns raised about its use
-when using conditional age-at-length data. The effective sample size for
-length composition data was changed to the number of hauls (Volstad and
+In `r old_model_name`, and the 2015 assessment that preceded it, the method described in Francis (2011) was not used because of concerns raised about its use when using conditional age-at-length data. The effective sample size for length composition data was changed to the number of hauls (Volstad and
 Pennington 1994). In those assessments, scientists implemented the McAllister-Ianelli [@McAllister1997] method for weighting among data sources.
 
 ### Ageing Error Matrix
