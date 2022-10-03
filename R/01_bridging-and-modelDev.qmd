@@ -426,20 +426,26 @@ First I do a run with the data weights reverted to 1 for the composition & surve
 ```{r echo = F, warning = FALSE, message = FALSE }
 m0_8c <- SS_output(here('model_runs','m0_8c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
-SSplotComparisons(SSsummarize(list(m0_8,m0_8c)), subplots = c(2,13),
-                  legendlabels = c('m0_8','m0_8c [no weights]'))
+SSplotComparisons(SSsummarize(list(base_model,
+                                   m0_8c)),
+                  plotdir = here('model_runs','m0_8c'),
+                  print =T,
+                  col = c(baseCol,sensPal[4]),
+                  # subplots = c(2,13),
+                  legendlabels = c('Model 17.1a (2022)',
+                                   'Base Model with no weights'))
 
 ```
 
 
-Doing a cursory check to see ifFrancis weights are very different than MI at this point. The suggested MI values (when starting from nothing) are roughly in line with what's in `m0_8`; the francis values, however, all are down-weighted instead (?).
+Doing a cursory check to see if Francis weights are very different than MI at this point. The suggested MI values (when starting from nothing) are roughly in line with what's in `m0_8`; the francis values, however, all are down-weighted instead (?).
 ```{r echo = F, warning = FALSE, message = FALSE }
 ## just check out the values
-SS_tune_comps(m0_8c, 
+tune_comps(m0_8c, 
               option = 'Francis',
               niters_tuning = 0,
               allow_up_tuning = TRUE,
-              write = T,
+              write = F,
               dir = here('model_runs','m0_8c')) %>%
   select(Name, Type, New_MI, New_Francis)
 ```
@@ -453,19 +459,19 @@ I'm going to stick with the new M-I values for now. However, I think future mode
 m0_8newMI <- SS_output(here('model_runs','m0_8-newMI'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m0_8newFrancis <- SS_output(here('model_runs','m0_8-newFrancis'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
-SSplotComparisons(SSsummarize(list(m2017, 
-                                   base_model,
-                                   # m0_8,m0_8c,
-                                   # m0_8newMI,
-                                   m0_8newFrancis)),
-                  print = T,
-                  plotdir =here('model_runs','m0_8-newFrancis'),
-                  # subplots = c(2,4,11,13),
-                  legendlabels = c('m2017',
-                                   'base model (new MI)',
-                                   # 'm0_8c [no weights]',
-                                   # 'm0_8 new MI',
-                                   'm0_8 new Francis'))
+# SSplotComparisons(SSsummarize(list(m2017, 
+#                                    # base_model,
+#                                    # m0_8,m0_8c,
+#                                    m0_8newMI,
+#                                    m0_8newFrancis)),
+#                   print = F,
+#                   plotdir =here('model_runs','m0_8-newFrancis'),
+#                   # subplots = c(2,4,11,13),
+#                   legendlabels = c('m2017',
+#                                    'base model (new MI)',
+#                                    # 'm0_8c [no weights]',
+#                                    # 'm0_8 new MI',
+#                                    'm0_8 new Francis'))
 
 cbind(m0_8newMI$likelihoods_used,m0_8newFrancis$likelihoods_used)
 ```
