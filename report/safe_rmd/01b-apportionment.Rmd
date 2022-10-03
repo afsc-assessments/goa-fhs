@@ -8,7 +8,7 @@ The following table shows the recommended ABC apportionment for `r year` and `r 
 ```{r}
 # apportionment table example
 # appo <- safe::apportion
-appo <- read.csv(here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+appo <- read.csv(here::here('re',paste0("2022-09-30-AreaAppportionment.csv")))
 appo$Year <- as.character(appo$Year)
 # appo[2:3,4:8] <- data.frame(as.numeric(appo[2:3,4:8] ))
 flextable::flextable(appo[,-1]) %>%
