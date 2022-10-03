@@ -73,6 +73,27 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_len
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt2mkt0.png'))
 ```
 
+
+(ref:meanLcap) Mean length for Survey with 95% confidence intervals based on input sample sizes. Thinner intervals (with capped ends) show result of further adjusting sample sizes based on suggested multiplier (with 95% interval); see section on data weighting for further details.
+
+
+
+```{r meanLfish, fig.cap="(ref:meanLcap). Data shown for the Fishery", eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_data_weighting_TA1.8_Fishery.png'))
+```
+
+
+
+```{r meanLsurv, fig.cap="(ref:meanLcap). Data shown for the Survey.", eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_data_weighting_TA1.8_Survey.png'))
+```
+
+
+```{r pearsonL, fig.cap="Pearson residuals for length-composition data for the fishery (top) and survey (bottom). Females are red, males are blue. Closed bubbles are positive residuals (observed > expected) and open bubbles are negative residuals (observed < expected).", eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit__multi-fleet_comparison.png'))
+```
+
+
 (ref:caalcap) Observed and expected mean age-at-length for both females and males with 90% intervals about observed age-at-length (left panels) and observed and expected standard deviation in age-at-length (right panels) for the Model 17.1a for years
 
 ```{r caalfit1, fig.cap="(ref:caalcap) 1990-1999 (1 of 4).", out.height="75%", eval = T}
@@ -101,6 +122,10 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_con
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_residsflt2mkt0_page2.png'))
 ```
  
+```{r caalpearson, fig.cap="(ref:caalresidcap) 2009-2021 (2 of 2).", out.height="75%", eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_residsflt2mkt0_page2.png'))
+``` 
+ 
 (ref:SSBcap)  time series of estimated over time (solid blue line and circles) and asymptotic 95% confidence intervals (blue dashed lines and/or bars) for `r base_model_name`.
 
 ```{r SSBts, fig.cap="Spawning stock biomass (Mt)(ref:SSBcap) Point at 1977 is virgin biomass.",  eval = T}
@@ -111,14 +136,17 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts7_Spaw
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age-0_recruits_(1000s)_with_95_asymptotic_intervals.png'))
 ```
 
-```{r NAA, fig.cap="Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time.",   out.width = "50%",  eval = T}
+
+```{r NAA, fig.cap="Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time.", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex2_beg.png'))
 
 ```
 
+
 ```{r NAL, fig.cap="Numbers at length (grey bubbles) by year for females (left) and males (right). Red line indicates mean length through time.",  out.width = "50%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers6_len_sex1.png'))
+
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers6_len_sex2.png'))
 
 ```
