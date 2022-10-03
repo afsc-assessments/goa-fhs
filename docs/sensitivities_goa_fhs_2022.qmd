@@ -99,18 +99,48 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-estq','compare13_i
 
 ## Additional Sensitivity runs
 
+### Unweighted Model
+
+This model has no data weights on any source, so the input sample sizes for the compositional data are taken as-is.
+
+::: panel-tabset
+
+## Biomass
+```{r, echo=FALSE, fig.cap="Without any data weighting, the SSB trend is orders of magnitude lower than the base model. This suggests that up-weighting the length composition data is the main driver of"}
+knitr::include_graphics(here('model_runs','m0_8c','compare2_spawnbio_uncertainty.png'))
+```
+
+## Bratio and R0
+
+```{r, echo=FALSE, fig.cap="Without any data weighting, the SSB trend is orders of magnitude lower than the base model, with a much lower estimate for R0. This suggests that the length composition data are the main drivers of the model scale.", out.width="50%"}
+knitr::include_graphics(here('model_runs','m0_8c','compare4_bratio_uncertainty.png'))
+
+
+knitr::include_graphics(here('model_runs','m0_8c','compare16_densities_sr_ln(R0).png'))
+```
+## Rec Deviations
+```{r, echo=FALSE, fig.cap="Recruitment deviations vary slightly among approaches; the unweighted model favors more higher recruitment years in the early period, but generally is up and down during the same years as the base."}
+knitr::include_graphics(here('model_runs','m0_8c','compare12_recdevs_uncertainty.png'))
+```
+## Survey Fits
+```{r, echo=FALSE, fig.cap="The unweighted model cannot even enter the ballpark of the survey data, likely because q is fixed to 1."}
+knitr::include_graphics(here('model_runs','m0_8c','compare13_indices.png'))
+```
+:::
+
+
 ### Francis weights instead of McCallister-Ianelli
-The francis weights are much lower overall than those suggested by M-I.
+The Francis weights are much lower overall than those suggested by M-I.
 
 ::: panel-tabset
 
 ## Francis vs MI weights
 ```{r, echo=FALSE}
-SS_tune_comps(base_model, 
+tune_comps(base_model, 
               option = 'Francis',
               niters_tuning = 0,
               allow_up_tuning = TRUE,
-              write = T,
+              write = F,
               dir = here('model_runs','m0_8-newMI-biasAdj')) %>%
   select(Name, Type, New_MI, New_Francis)
 ```
