@@ -15,11 +15,11 @@ Also do a test run with the REMA package.
 # Projection Inputs
 
 ```{r setup, echo = FALSE}
+library(here)
 library(dplyr)
 library(lubridate)
 library(tidyr)
 library(ggplot2)
-library(here)
 library(TMB)
 library(Rmisc)
 
@@ -205,7 +205,7 @@ build some sanity checks here so no order issues as before
 ## the setup where catches=ABC
 
 rec_table1 <-
-  read.table(here('projection','percentdb.out')) %>%
+  read.table(here::here('projection','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
   transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
             value=as.numeric(V5)) %>%
@@ -214,7 +214,7 @@ rec_table1 <-
   arrange(year, metric) %>%
   pivot_wider(names_from=year, values_from=value)
 rec_table2 <-
-  read.table(here('projection','alt2_proj.out'), header=TRUE) %>%
+  read.table(here::here('projection','alt2_proj.out'), header=TRUE) %>%
   filter(Year %in% (this_year+1:2)) %>%
   pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
   pivot_wider(names_from=Year, values_from=value)
@@ -264,7 +264,7 @@ status[1,c(1,4)] <- status[2,c(2,4)] <- status[3,c(2,4)] <- 'no'
 safe = noquote(rbind(safe1,status) )
 
 # safe[safe > 10e6] <- safe[safe>10e6]/1000
-write.csv(safe, file = here('tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
+write.csv(safe, file = here::here('tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
 
 # write.csv(rec_table, here('projection','rec_table.csv'), row.names=FALSE)
 
@@ -508,8 +508,8 @@ for(i in c('Eastern','Western','Central')){
                           model_name = paste0("ADMB: BSAI FHS ",i))
   ## save the formatted biomass_dat for each region
   biomass_dat[[idx]] <- admb_re$biomass_dat 
-  # 
-  input <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS ",i), 
+
+  input <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS ",i),
                               admb_re  = admb_re)
   ## fit REMA
   m <- fit_rema(input) ##save each M separately
@@ -528,6 +528,7 @@ input2 <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS MULTIVAR"),
                             biomass_dat  = bind_rows(biomass_dat))
 m2 <- fit_rema(input2) ##save each M separately
 output <- tidy_rema(rema_model = m2)
+# save(output, file = here::here('re',paste0(Sys.Date(),'-rema_output.rdata')))
 kableExtra::kable(output$parameter_estimates) 
 plots <- plot_rema(tidy_rema = output, biomass_ylab = 'Biomass (t)') # optional y-axis label
 plots$biomass_by_strata
@@ -547,19 +548,13 @@ props <- output$proportion_biomass_by_strata %>% filter(year == this_year) %>%  
 
 sum(props)==1
 
- 
-# abc23 <- as.numeric( rec_table[10,2])*apportionment
-# abc24 <- as.numeric( rec_table[10,3])*apportionment
-
-abc23 <- as.numeric(40175)*props
-abc24 <- as.numeric(40046)*props
-
-
-
-apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(40175,40046) )) %>%
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric(rec_table[10,2])/1000
+abc24 <- as.numeric(rec_table[10,3])/1000
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24)  )) %>%
   rbind( round(props*100,2) ,.) %>%
   data.frame() %>%
-  mutate(Total = c("",40175,40046),
+  mutate(Total = c("",abc23,abc24),
          Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
          Quantity = c("Area Apportionment %", 
                       "ABC (t)",
