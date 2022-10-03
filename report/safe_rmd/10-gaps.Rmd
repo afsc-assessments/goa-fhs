@@ -1,8 +1,15 @@
 # Data Gaps and Research Priorities
-The 2015 and 2017 stock assessments incorporated ageing error by using an existing ageing error matrix for BSAI flathead sole. A priority for future assessments is to analyze ageing error data for GOA flathead sole using methods described in Punt et al. (2008) and to incorporate a resulting ageing error matrix into the assessment. Future analyses should explore the relationship between natural mortality and catchability in the model, alternative parameter values, and the effects of these parameters on estimation of selectivity and other parameters. The assessment would benefit from an exploration of ways to better account for scientific uncertainty, especially uncertainty associated with parameters that are currently fixed in the model. Examination of genetic stock structure of flathead sole throughout its range and within the Gulf of Alaska and the Bering Sea is important for understanding whether spatial management units are properly allocated.
 
-SUMMARISE KEY SENSITIVITIES HERE TO AID IN FUTURE DIRECTIONS
+Future assessments of this stock should prioritize the following:
 
-## Life history and habitat utilization
+1) Investigating, and possibly improving, fits to the survey biomass index and mean-length data from the survey for recent years, which both appear to be declining. This might be achieved by revisiting the selectivity curve for both sexes and fleets, which oddly suggests that Males are selected at a younger age than females, and results in large Pearson residuals for the fishery length compositions (but see next point).
 
-## Assessment Data
+2) Replace the Pearson residual for compositional data with a more statistically sound method, such as one-step-ahead regression (@trijoulet2023). This might indicate that fishery compositional fits are not as poor as they currently seem.
+
+3) Carefully consider the interaction of the data weighting paradigm, the fixing of catchability at 1, and the input sample sizes for the compositional data. Using the McAllister-Ianelli weights (as was done here) or switching back to the Francis weights did not have a major effect on derived quantities, however, a sensitivity run (not shown) with no data weighting produced a different biomass timeseries and was unable to fit the survey (with fixed catchability), and suggests that there is conflict between the conditional age-at-length data and length composition data. This is consistent with the results of our likelihood profile analysis. The specification of the input sample sizes for AFSC groundfish assessments is an active area of research.
+
+Future analyses should explore the relationship between natural mortality and catchability in the model, alternative parameter values, and the effects of these parameters on estimation of selectivity and other parameters. 
+
+The assessment would benefit from an exploration of ways to better account for scientific uncertainty, especially uncertainty associated with parameters that are currently fixed in the model. 
+
+Examination of genetic stock structure of Flathead sole throughout its range and within the Gulf of Alaska and the Bering Sea is important for understanding whether spatial management units are properly allocated.
