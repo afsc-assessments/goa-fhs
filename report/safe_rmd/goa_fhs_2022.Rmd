@@ -89,7 +89,7 @@ c1 = catchvec[2,2] # estimated catch in current year
 c2 = round(catchvec[3,2]) # proj catch year + 1
 # c3 = catchvec[4,2] # proj catch year + 2
 # todo: build a function/switch to auto run the tier(a/b) - also for overfishing/overfished
-load(here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata")); mr <- t(data.frame(sapply(mr,round,4)))
+load(here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata")); mr <- t(data.frame(sapply(mr,round,4))) %>% as.data.frame(.)
 ```
 
 ```{r, child="01-summary.Rmd", eval = T}
