@@ -1,0 +1,512 @@
+# c3 = catchvec[4,2] # proj catch year + 2
+# todo: build a function/switch to auto run the tier(a/b) - also for overfishing/overfished
+load(here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata")); mr <- t(data.frame(sapply(mr,round,4)))
+class(mr)
+# c3 = catchvec[4,2] # proj catch year + 2
+# todo: build a function/switch to auto run the tier(a/b) - also for overfishing/overfished
+load(here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata")); mr <- t(data.frame(sapply(mr,round,4))) %>% as.data.frame(.)
+mr
+class(mr)
+mr["AFSC_Hurtado_SSB"]
+mr$AFSC_Hurtado_SSB
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv')))
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$YEAR <- as.character(catch$YEAR)
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%
+flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+flextable::colformat_num(big.mark = ",")
+catch
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv')))
+catch
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm = T))
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$YEAR <- as.character(catch$YEAR)
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%
+flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+flextable::colformat_num(big.mark = ",")
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+mutate(TTONS = rowSums(WGULF,CG,EGULF, na.rm = T))
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+mutate(TTONS = rowSums(WGULF,CG,EGULF, na.rm = T))
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+#then a simple sum(..., na.rm=TRUE) is enough to result in what you need
+mutate(TTONS = sum(WCULG,CG,EGULF, na.rm=TRUE))
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+#then a simple sum(..., na.rm=TRUE) is enough to result in what you need
+mutate(TTONS = sum(WGUFL,CG,EGULF, na.rm=TRUE))
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+#then a simple sum(..., na.rm=TRUE) is enough to result in what you need
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE))
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+#then a simple sum(..., na.rm=TRUE) is enough to result in what you need
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE))
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv')))
+class(catch)
+dim(catch)
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE))
+dim(catch)
+class(catch)
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame()
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$YEAR <- as.character(catch$YEAR)
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%
+flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+flextable::colformat_num(big.mark = ",")
+head(catch)
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv')))
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(Yr < 1991) %>% select(Year = yr, TTONS = catch(mt))
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(Year = yr, TTONS = catch(mt))
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(Year = yr, TTONS = catch_mt)
+names(catch)
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(Year = yr, "Total Catch (mt)" = catch_mt) %>%
+mutate("Western Gulf" = NA, "Central Gulf" = NA, "Eastern Gulf" = NA )
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() %>%
+bind_rows(.,
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(Year = yr, "Total Catch (mt)" = catch_mt) %>%
+mutate("Western Gulf" = NA, "Central Gulf" = NA, "Eastern Gulf" = NA ))
+catch
+read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame()
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() %>%
+bind_rows(.,
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(Year = yr, "TTONS" = catch_mt) %>%
+mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ))
+catch
+catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() %>%
+bind_rows(.,
+read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
+mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ))
+catch
+catch <-   bind_rows(read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
+mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ),
+read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() )
+catch
+here('data','catch',paste0('2022-04-18-catch-byArea.csv'))
+read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv')))
+catch <-   bind_rows(read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
+mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ),
+read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() )
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],3)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$YEAR <- as.character(catch$YEAR)
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%
+flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+flextable::colformat_num(big.mark = ",")
+catch <-   bind_rows(read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
+mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ),
+read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+rowwise() %>%
+mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() )
+catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
+catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
+catch$YEAR <- as.character(catch$YEAR)
+names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch) %>%
+flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+flextable::colformat_num(big.mark = ",")
+mgmtaction <- read.csv(here('tables','table3_closures.csv'))
+mgmtaction <- read.csv(here('tables','table3_closures.csv'))
+flextable::regulartable(mgmtaction) %>%
+flextable::set_caption("GOA Flathead sole fishery closures in 2015.")
+mgmtaction <- read.csv(here('tables','table3_closures.csv'))
+flextable::regulartable(mgmtaction) %>%
+flextable::set_caption("GOA Flathead sole fishery closures in 2015.")
+survArea <- read.csv(here('data','srvey','2022-04-18-index_raw.csv'))
+survArea <- read.csv(here('data','survey','2022-04-18-index_raw.csv'))
+head(survArea)
+survArea <- read.csv(here('data','survey','2022-04-18-index_by_area.csv'))
+head(survArea'')
+head(survArea)
+require(RODBC)
+require(dplyr)
+require(tidyverse)
+require(here)
+require(ggplot2); require(ggsidekick)
+require(r4ss)
+require(reshape2)
+require(rstudioapi)
+username_AFSC <- showPrompt(title="Username", message="Enter your AFSC username:", default="")
+password_AFSC <- askForPassword(prompt="Enter your AFSC password:")
+AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
+sqlColumns(AFSC,GOA.BIOMASS_TOTAL)
+?sqlColumns
+# Survey Biomass ----
+#* dwnld srv ----
+#*
+sqlColumns(AFSC, "GOA")
+# Survey Biomass ----
+#* dwnld srv ----
+#*
+sqlColumns(AFSC, "BIOMASS_TOTAL")
+# Survey Biomass ----
+#* dwnld srv ----
+#*
+dd <- sqlColumns(AFSC, "BIOMASS_TOTAL")
+head(dd)
+View(dd)
+# Survey Biomass ----
+#* dwnld srv ----
+#*
+dd <- sqlColumns(AFSC, "BIOMASS_AREA")
+View(dd)
+sqlTables(AFSC)
+dd <- sqlTables(AFSC)
+View(dd)
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv'))
+survSS
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+select(-month, -fleet, Year = yr, 'Observed Biomass' = obs, 'CV' = sterr)
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+select(-month, -fleet, Year = yr, 'Observed Biomass' = obs, 'CV' = sterr)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+select(-month, -fleet, Year = yr, 'Observed Biomass' = obs, 'CV' = sterr)
+survSS[survSS < 1&!is.na(survSS)] <- round(survSS[survSS < 1 & !is.na(survSS)],2)
+survSS[survSS > 1&!is.na(survSS)] <- round(survSS[survSS > 1 & !is.na(survSS)],0)
+survSS$YEAR <- as.character(survSS$YEAR)
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+select(-month, -fleet, Year = yr, 'Observed Biomass' = obs, 'CV' = sterr)
+survSS[survSS < 1&!is.na(survSS)] <- round(survSS[survSS < 1 & !is.na(survSS)],2)
+survSS[survSS > 1&!is.na(survSS)] <- round(survSS[survSS > 1 & !is.na(survSS)],0)
+# survSS$YEAR <- as.character(survSS$YEAR)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+select(-month, -fleet, Year = yr, 'Observed Biomass' = obs, 'CV' = sterr)
+survSS[survSS < 1&!is.na(survSS)] <- round(survSS[survSS < 1 & !is.na(survSS)],2)
+survSS[survSS > 1&!is.na(survSS)] <- round(survSS[survSS > 1 & !is.na(survSS)],0)
+survSS$Year <- as.character(survSS$Year)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+select(-month, -fleet, Year = yr, 'Observed Biomass (t)' = obs, 'CV' = sterr)
+survSS[survSS < 1&!is.na(survSS)] <- round(survSS[survSS < 1 & !is.na(survSS)],2)
+survSS[survSS > 1&!is.na(survSS)] <- round(survSS[survSS > 1 & !is.na(survSS)],0)
+survSS$Year <- as.character(survSS$Year)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+survSS <- read.csv(here('tables','table6_selex.csv'))
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+survSS <- read.csv(here('tables','table6_selex.csv'))
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.")
+?flextable
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::fit_to_width()
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::fit_to_width(.,max_width=5)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::fit_to_width(.,max_width=10)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::width(.,width=2)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::width(.,width=3)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::width(.,j=1,width=3)
+flextable::regulartable(survSS) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+flextable::width(.,j=1,width=3) %>%
+flextable::width(.,j=2:3,width=2)
+require(r4ss)
+require(here)
+require(tidyverse)
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+## note that in 2017 they did these vectors and combinations thereof for 2d plots
+q.vec <- log(seq(0.6, 10, length.out = 10)) ## from 2017
+m.vec <- seq(0.1,0.3, length.out = 10) ## from 2017; these apply to both males and females at the same time
+baser0 <- base_model$parameters[base_model$parameters$Label=='SR_LN(R0)','Value']
+r0.vec <- seq(baser0-3,baser0+3,0.2)
+base_model$likelihoods_by_fleet
+base_model$likelihoods_used
+base_model$likelihoods_used %>%
+mutate(component = rownames(.))
+base_model$likelihoods_used %>%
+mutate(component = rownames(.)) %>%
+filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment'))
+base_model_name = "Model 17.1a (2022)"
+old_model_name = "Model 17.0 (2017)"
+base_model$likelihoods_used %>%
+mutate(component = rownames(.)) %>%
+filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+select(Component, base_model_name = values)
+base_model_name
+base_model$likelihoods_used %>%
+mutate(component = rownames(.)) %>%
+filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+select(component, base_model_name = values)
+m17like <- m2017$likelihoods_used %>%
+mutate(component = rownames(.)) %>%
+filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+select(component, 'Model 17.0 (2017)' = values)
+m02 <- SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+bridgelike <- m02$likelihoods_used %>%
+mutate(component = rownames(.)) %>%
+filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+select( 'Model 17.1a (2022) with 2017 data' = values)
+baselike <- base_model$likelihoods_used %>%
+mutate(component = rownames(.)) %>%
+filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+select( 'Model 17.1a (2022)' = values)
+flextable::regulartable(bind_cols(m17like, bridgelike,baselike)) %>%
+flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.")
+m2017$parameters
+m17par <- m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )
+m17par <- m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )
+m17par
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ) %>%
+cbind(.,  base_model$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ) )
+dd <- base_model$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )
+sort(rownames(dd))
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+filter(!(grep('RecrDev',rownames(.))))
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+filter(!(grepl('RecrDev',rownames(.))))
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+filter(!(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) %>%
+cbind(.,  base_model$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%  filter(!(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) )
+m2017$parameters
+sort(rownames(m2017))
+sort(rownames(m2017$parameters))
+sort(rownames(base_model$parameters))
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+filter(rownames(.) != "SR_R1_offset" & !(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) %>%
+cbind(.,  base_model$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%  filter(!(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) )
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+filter(rownames(.) != "SR_R1_offset" & !(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) %>%
+cbind(.,  base_model$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%  filter(rownames(.) != "ForeRecr_2023" & !(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) )
+cbind(sort(rownames(m2017$parameters))[1:70],sort(rownames(base_model$parameters))[1:70])
+select(Treatment, Value,Parm_StDev ) )
+m2017$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+filter(rownames(.) != "SR_R1_offset" & !(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) %>%
+cbind(.,  base_model$parameters %>% mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%  filter(!(rownames(.) %in%  c("ForeRecr_2023",'FracFemale_GP_1')) & !(grepl('RecrDev',rownames(.)))) %>%
+select(Treatment, Value,Parm_StDev ) )
+dd <- sqlColumns(AFSC, "BIOMASS_INPFC_DEPTH")
+head(dd)
+dd
+test <- paste0("SELECT BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
+"BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
+"BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
+"BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
+"BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
+"BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
+"BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
+"BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
+"BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
+"FROM BIOMASS_INPFC_DEPTH\n ",
+"WHERE BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
+"ORDER BY BIOMASS_INPFC_DEPTH.YEAR")
+index_by_depth_area <- sqlQuery(AFSC, test)
+species <- 10130 #throughout make sure the SpeciesCode = 10130 for the survey, 103 for observer data
+sp_area <- "'GOA'"
+fyear <- 2022
+index_by_depth_area <- sqlQuery(AFSC, test)
+test <- paste0("SELECT BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
+"BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
+"BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
+"BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
+"BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
+"BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
+"BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
+"BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
+"BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
+"FROM BIOMASS_INPFC_DEPTH\n ",
+"WHERE BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
+"ORDER BY BIOMASS_INPFC_DEPTH.YEAR")
+index_by_depth_area <- sqlQuery(AFSC, test)
+head(index_by_depth_area)
+test <- paste0("SELECT GOA.BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
+"GOA.BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
+"GOA.BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
+"FROM GOA.BIOMASS_INPFC_DEPTH\n ",
+"WHERE GOA.BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
+"ORDER BY GOA.BIOMASS_INPFC_DEPTH.YEAR")
+index_by_depth_area <- sqlQuery(AFSC, test)
+HEAD(index_by_depth_area)
+head(index_by_depth_area)
+test <- paste0("SELECT GOA.BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
+# "GOA.BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
+"GOA.BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
+"GOA.BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
+"FROM GOA.BIOMASS_INPFC_DEPTH\n ",
+"WHERE GOA.BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
+"ORDER BY GOA.BIOMASS_INPFC_DEPTH.YEAR")
+index_by_depth_area <- sqlQuery(AFSC, test)
+head(index_by_depth_area)
+View(dd)
+m17par <- m2017$parameters %>% filter(!(grepl('RecrDev',rownames(.))))
+basepar <-  base_model$parameters %>% filter(!(grepl('RecrDev',rownames(.))))
+dim(m17par)
+dim(basepar)
+cbind(sort(basepar$Label),sort(m17par$Label))
+cbind(sort(basepar$Label),sort(m17par$Label)) %>% View()
+cbind(basepar$Label),(m17par$Label) %>% View()
+cbind(basepar$Label,(m17par$Label) %>% View()
+cbind(basepar$Label,m17par$Label) %>% View()
+m17par <- m2017$parameters %>% filter(!(grepl('InitAge',rownames(.)) &!(grepl('RecrDev',rownames(.)))))
+basepar <-  base_model$parameters %>% filter(!(grepl('InitAge',rownames(.)) & !(grepl('RecrDev',rownames(.)))))
+cbind(basepar$Label,m17par$Label) %>% View()
+cbind(m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+bind_cols(m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+m2017$parameters %>%
+bind_cols(rbind(c(NA,NA,NA),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+rbind(c(NA,NA,NA),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )
+)
+rbind(rep(NA,6),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+bind_cols(rbind(rep(NA,6),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+bind_cols(rbind(rep(NA,12),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+dim(rbind(rep(NA,12),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )))
+dim(base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+)
+bind_cols(rbind(matrix(NA, nrow = 7, ncol = 3),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+bind_cols(rbind(data.frame(matrix(NA, nrow = 7, ncol = 3)),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+bind_cols(bind_rows(data.frame(matrix(NA, nrow = 7, ncol = 3)),
+m2017$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev )),
+base_model$parameters %>%
+mutate(Treatment = ifelse(Phase <0, 'Fixed','Estimated')) %>%
+select(Treatment, Value,Parm_StDev ))
+?bind_rows
+library(dplyr)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+library(here)
+library(TMB)
+library(Rmisc)
+date_use = "2022-04-18"
+this_year = lubridate::year(Sys.Date())
+last_yr = this_year-1
+## Summarise and plot catches by discard/retention/geartype
+gearpal = rev(c('grey22',
+alpha('grey22',0.65),
+'goldenrod',
+alpha('goldenrod',0.65),
+'seagreen4',
+alpha('seagreen4',0.65)) )
+theme_set(ggsidekick::theme_sleek())
+theme_update(legend.text = element_text(size = 12), legend.position = 'bottom',
+axis.text = element_text(size = 14),axis.title  = element_text(size = 14))
+rec_table <- read.csv(here('projection','rec_table.csv'))
