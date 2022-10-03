@@ -1,29 +1,19 @@
 # Tables
 
 
-```{r}
-
-| **Parameter Name**                          | **Fishery**        | **Survey**         |
-|-------------------------------------|------------------|------------------|
-| Peak (age at plateau start)                 | Estimated [1,16]   | Estimated [1,20]   |
-| Width of plateau                            | Fixed (30)         | Fixed (30)         |
-| Ascending width (log)                       | Estimated [-4,12]  | Estimated [-4,12]  |
-| Descending width (log)                      | Fixed (8)          | Fixed (8)          |
-| Initial selectivity at age 0                | Fixed (-10)        | Fixed (-10)        |
-| Final selectivity at age 29                 | Fixed (15)         | Fixed (15)         |
-| Male peak offset                            | Estimated [-15,15] | Estimated [-15,15] |
-| Male Ascending width (log) offset           | Estimated [-15,15] | Estimated [-15,15] |
-| Male Descending width (log) offset          | Fixed (0)          | Fixed (0)          |
-| Male final offset (transformation required) | Fixed (1)          | Fixed (0)          |
-| Male apical selectivity                     | Fixed (1)          | Fixed (1)          |
-
-: Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.  
-
-```
-
+ 
 
 ```{r catchbyarea, echo = FALSE, warning = FALSE, message = FALSE}
-catch <- read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv')))
+catch <-   bind_rows(read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+  filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
+  mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ),
+read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
+ rowwise() %>% 
+  mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() )
+
+
+
+
 catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
 catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
 catch$YEAR <- as.character(catch$YEAR) 
@@ -34,7 +24,7 @@ flextable::regulartable(catch) %>%
   flextable::colformat_num(big.mark = ",")
 ```
 
-```{r catchvsharvest}
+```{r catchvsharvest, echo = FALSE, warning = FALSE, message = FALSE}
 
 spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))) %>%
   tidyr::pivot_wider(., id_cols = 'Yr',names_from = variable, values_from = value) %>%
@@ -60,10 +50,121 @@ flextable::regulartable(spex2) %>%
 
 \pagebreak
 
-```{r tab2}
-flextable::regulartable(data.frame(year = 1999:2000,
-                 catch = 1:2)) %>%  
-      flextable::set_caption("Commercial catch (t) and management action for northern rockfish in the Gulf of Alaska, 1961-present. The *Description of the catch time series* Section describes procedures use to estimate catch during 1961-1993. Ctach estimates for 1993-2019 are from NMFS Observer Program and Alaska Regional Office updated through October XX, 2020.")
+```{r tab3, echo = FALSE, warning = FALSE, message = FALSE}
+mgmtaction <- read.csv(here('tables','table3_closures.csv'))
+
+flextable::regulartable(mgmtaction) %>%  
+      flextable::set_caption("GOA Flathead sole fishery closures in 2015.")
 ```
 
 \pagebreak
+
+
+```{r tab4survbioareadepth, echo = FALSE, warning = FALSE, message = FALSE}
+survArea <- read.csv(here('data','survey','2022-04-18-index_by_area.csv'))
+
+flextable::regulartable(mgmtaction) %>%  
+      flextable::set_caption("Survey biomass by area and depth.")
+```
+
+
+```{r tab5inputsurv, echo = FALSE, warning = FALSE, message = FALSE}
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+  select(-month, -fleet, Year = yr, 'Observed Biomass (t)' = obs, 'CV' = sterr) 
+
+survSS[survSS < 1&!is.na(survSS)] <- round(survSS[survSS < 1 & !is.na(survSS)],2)
+survSS[survSS > 1&!is.na(survSS)] <- round(survSS[survSS > 1 & !is.na(survSS)],0)
+survSS$Year <- as.character(survSS$Year)
+
+
+flextable::regulartable(survSS) %>%  
+      flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+```
+
+```{r tab6selex, echo = FALSE, warning = FALSE, message = FALSE}
+survSS <- read.csv(here('tables','table6_selex.csv')) 
+
+flextable::regulartable(survSS) %>%  
+      flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+  flextable::width(.,j=1,width=3) %>%
+   flextable::width(.,j=2:3,width=2)
+```
+
+
+```{r likelihoodcomponents, echo = FALSE, warning = FALSE, message = FALSE}
+m17like <- m2017$likelihoods_used %>%
+  mutate(component = rownames(.)) %>%
+  filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+  select(component, 'Model 17.0 (2017)' = values)
+
+
+m02 <- SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+bridgelike <- m02$likelihoods_used %>%
+  mutate(component = rownames(.)) %>%
+  filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+  select( 'Model 17.1a (2022) with 2017 data' = values)
+
+baselike <- base_model$likelihoods_used %>%
+  mutate(component = rownames(.)) %>%
+  filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+  select( 'Model 17.1a (2022)' = values)
+
+flextable::regulartable(bind_cols(m17like, bridgelike,baselike)) %>%  
+      flextable::set_caption("Likelihood components for the base case 2022 model, the base case model with new data removed (data are as for the 2015 model), and the 2017 model. Values for likelihood components for the 2022 base case model cannot be compared directly with the other two models. The likelihoods for the 2017 model and the 2022 model with 2017 data vary slightly due to changes in the underlying software.") 
+```
+
+
+```{r parestgrowth, echo = FALSE, warning = FALSE, message = FALSE}
+ # Final parameter estimates of growth parameters and unfished recruitment with corresponding standard deviations for the 2017 base case model, the 2017 base case model with data up to 2015, and the 2015 model.
+```
+
+
+```{r parestselexfish, echo = FALSE, warning = FALSE, message = FALSE}
+ # Final fishery selectivity parameters for the 2017 base case model, the 2017 model with data up to 2015, and the 2015 model. “Est” refers to the estimated value and “Std. Dev” is the standard deviation of the estimate.  Parameters with NA for Std. Dev. are not estimated.
+```
+
+
+```{r parestselexsurv, echo = FALSE, warning = FALSE, message = FALSE}
+ # Final fishery selectivity parameters for the 2017 base case model, the 2017 model with data up to 2015, and the 2015 model. “Est” refers to the estimated value and “Std. Dev” is the standard deviation of the estimate.  Parameters with NA for Std. Dev. are not estimated.
+```
+
+```{r frates, echo = FALSE, warning = FALSE, message = FALSE}
+ # Estimated yearly fishing mortality rates (rates are apical fishing mortality rates across ages) for the proposed 2017 model.
+```
+
+```{r recdevs, echo = FALSE, warning = FALSE, message = FALSE}
+ # Recruitment deviations and standard deviations for the proposed 2017 model.
+```
+
+
+```{r ssbts, echo = FALSE, warning = FALSE, message = FALSE}
+# Table 13. Time series of total (age 3+) and spawning biomass and standard deviation of spawning biomass (Std_Dev) for the previous and proposed 2017 assessments.
+```
+
+
+```{r rects, echo = FALSE, warning = FALSE, message = FALSE}
+# TTime series of recruitment at ages 3 and 0 and standard deviation of age 0 recruits for the previous and proposed 2017 assessments.
+```
+
+
+
+```{r projSB, echo = FALSE, warning = FALSE, message = FALSE}
+# Projected spawning biomass for the seven harvest scenarios listed in the “Harvest Recommendations” section.
+```
+
+```{r projF, echo = FALSE, warning = FALSE, message = FALSE}
+#  Projected fishing mortality rates for the seven harvest scenarios listed in the “Harvest Recommendations” section.
+```
+
+```{r projcatch, echo = FALSE, warning = FALSE, message = FALSE}
+# Projected catches for the seven harvest scenarios listed in the “Harvest Recommendations” section.
+```
+
+
+```{r nontarg, echo = FALSE, warning = FALSE, message = FALSE}
+# Non-target catch in the directed GOA flathead sole fishery as a proportion of total weight of bycatch of each species. Conditional highlighting from white (lowest numbers) to green (highest numbers) is applied. No seabird bycatch was recorded in the GOA flathead sole fishery.
+```
+
+```{r prohibcath, echo = FALSE, warning = FALSE, message = FALSE}
+# Prohibited species catch caught in the GOA flathead sole fishery in 2015, 2016 and 2017.
+```
