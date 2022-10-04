@@ -8,7 +8,7 @@ editor_options:
 
 The reference fishing mortality rate for `r species` is determined by the amount of reliable population information available (Amendment 56 of the Fishery Management Plan for the groundfish fishery of the Bering Sea/Aleutian Islands).
 Estimates of $F_{40\%}$, $F_{35\%}$, and $SPR_{40\%}$ were obtained from a spawner-per recruit analysis.
-Assuming that the average recruitment from the `r paste0(range(subset(rd_breaks, era == 'Main')[,'yr']),collapse = "-")` year classes estimated in this assessment represents a reliable estimate of equilibrium recruitment, then an estimate of $B_{40\%}$ is calculated as the product of SPR40% times the equilibrium number of recruits.
+Assuming that the average recruitment from the `r paste0(range(subset(rd_breaks, era == 'Main')[,'yr']),collapse = "-")` year classes estimated in this assessment represents a reliable estimate of equilibrium recruitment, then an estimate of $B_{40\%}$ is calculated as the product of $SPR_{40\%}$ times the equilibrium number of recruits.
 Since reliable estimates of the `r year+1` spawning biomass (B), $B_{40\%}$, $F_{40\%}$, and $F_{35\%}$ exist and B>$B_{40\%}$, the `r species` reference fishing mortality is defined in Tier 3a.
 For this tier, $F_{ABC}$ is constrained to be ≤ $F_{40\%}$, and $F_{OFL}$ is defined to be $F_{35\%}$.
 
@@ -24,14 +24,12 @@ Because the `r species` stock has not been overfished in recent years and the st
 Amendment 56 to the GOA Groundfish Fishery Management Plan defines the "overfishing level" (OFL), the fishing mortality rate used to set OFL ($F_{OFL}$), the maximum permissible ABC, and the fishing mortality rate used to set the maximum permissible ABC.
 The fishing mortality rate used to set ABC ($F_{ABC}$) may be less than this maximum permissible level, but not greater.
 Because reliable estimates of reference points related to maximum sustainable yield (MSY) are currently not available but reliable estimates of reference points related to spawning per recruit are available, Northern rockfish in the GOA are managed under Tier 3 of Amendment 56.
-Tier 3 uses the following reference points: $B_{40\%}$, equal to 40% of the equilibrium spawning biomass that would be obtained in the absence of fishing; $F_{35\%}$,,equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 35% of the level that would be obtained in the absence of fishing; and $F_{40\%}$, equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 40% of the level that would be obtained in the absence of fishing.
+Tier 3 uses the following reference points: $B_{40\%}$, equal to 40% of the equilibrium spawning biomass that would be obtained in the absence of fishing; $F_{35\%}$, equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 35% of the level that would be obtained in the absence of fishing; and $F_{40\%}$, equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 40% of the level that would be obtained in the absence of fishing.
 Estimation of the $B_{40\%}$ reference point requires an assumption regarding the equilibrium level of recruitment.
 In this assessment, it is assumed that the equilibrium level of recruitment is equal to the average of age-2 recruitments between 1979 and `r year - 2`.
 Because of uncertainty in very recent recruitment estimates, we lag 2 years behind model estimates in our projection.
 Other useful biomass reference points which can be calculated using this assumption are $B_{100\%}$ and $B_{35\%}$, defined analogously to $B_{40\%}$.
-The `r year` estimates of these reference points are:
-
-The values of these quantities are:
+The `r year` estimates of these reference points are shown below. Values are from the projection model for `r base_model_name` and should not be compare directly to outputs from Stock Synthesis forecast outputs.
 
 | Quantity                      | Value |
 |-------------------------------|-------|
@@ -45,8 +43,6 @@ The values of these quantities are:
 |               $ABC_{2023}$                 |    `r safe[12,4]`     |
 |                  $OFL_{2023}$              |      `r safe[11,4]`   |
 
-: Unnumbered Table. Harvest recommendations from Model 17.1a. Values are from the projection model and should not be compare directly to outputs from Stock Synthesis forecast outputs.
-
 Female spawning biomass for `r year+1` is estimated at  `r safe[4,4]`  t.
 This is above the $B_{40\%}$ value of `r safe[6,4]`  t.
 Under Amendment 56, Tier 3, the maximum permissible fishing mortality for ABC is $F_{40\%}$ and fishing mortality for OFL is $F_{35\%}$.
@@ -54,12 +50,19 @@ Applying these fishing mortality rates for `r year`, yields an ABC of `r safe[12
 
 ### Area Allocation of Harvests
 
-TAC’s for flathead sole in the Gulf of Alaska are divided among four smaller management areas (Western, Central, West Yakutat and Southeast Outside). The area-specific ABC’s for flathead sole in the GOA are divided up over the four management areas by applying the fraction of the survey biomass estimated for each area (relative to the total over all areas) in 2018 and 2019 from the survey averaging random effects model to the  2018 and 2019 ABC’s. The area-specific allocations for 2018 and 2019 are:
+TAC for `r species` in the Gulf of Alaska are divided among four smaller management areas (Western, Central, West Yakutat and Southeast Outside). The area-specific ABC for `r species` in the GOA are divided up over the four management areas by applying the fraction of the survey biomass estimated for each area (relative to the total over all areas) in `r year+1` and `r year+2` from the survey averaging random effects model to the `r year+1` and `r year+2` ABCs, defined above. The area-specific allocations for `r year+1` and `r year+2` are:
 
-***TABLE HERE***
-
+```{r}
+  
+flextable::flextable(appo[,-1]) %>%
+     flextable::hline_top(part='all') %>% 
+    flextable::hline_bottom() %>%
+  flextable::colformat_num(big.mark = ',')
+ 
+```
 
 ### Harvest Projections
+
 A standard set of projections is required for each stock managed under Tiers 1, 2, or 3 of Amendment 56.
 This set of projections encompasses seven harvest scenarios designed to satisfy the requirements of Amendment 56, the National Environmental Policy Act, and the Magnuson-Stevens Fishery Conservation and Management Act (MSFCMA).
 
@@ -165,11 +168,19 @@ Examples of the types of concerns that might be relevant include the following:
 
 #### Assessment considerations
 
+Overall, the model fits all the data sets very well. Both the survey index, and survey and fishery composition data show no concerning patterns. All parameters were well estimated, without any convergence issues. Adding the new data had a minimal impact on estimated parameters and management quantities, corroborating the general stability of the model found in previous assessments. We therefore conclude there are no increased concerns and set this consideration at level 1.  
+
 #### Population dynamics considerations
+
+The spawning stock biomass has been above target for the entire time period for which there are data (Figure \@ref(fig:BFtrajectory)). The estimated age 3+ biomass has increased steadily since 2010, coincident with more positive than negative recruitment deviations in the last 10 years (Figure \@ref(fig:rects)). Since we have no increased concerns we set the concern level to 1.
 
 #### Ecosystem considerations
 
+xx
+
 #### Fishery performance
+
+This fishery has consistently caught only a small fraction of the ABC for the last 10 years (Figure \@ref(fig:catchvsTAC)). We did not examine CPUE trends nor spatial patterns of fishing. There are no changes in the duration of fishing openings. Altogether, we see no cause for concern and give this consideration a level 1 as well. 
 
 #### Summary and ABC recommendation
 
