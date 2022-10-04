@@ -42,6 +42,8 @@ spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
           catchRet = 100*round(1-discT/Catch,2) )%>%
   select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)  
 spex2$Year <- as.character(spex2$Year)        
+spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
+  spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
   
 flextable::regulartable(spex2) %>%  
       flextable::set_caption(paste0("Historical OFLs, ABCs, TACs, total catch and percent retention through ", date,".")) %>%
@@ -98,7 +100,7 @@ m17like <- m2017$likelihoods_used %>%
   select(component, 'Model 17.0 (2017)' = values)
 
 
-m02 <- SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m02 <- SS_output(here::here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 bridgelike <- m02$likelihoods_used %>%
   mutate(component = rownames(.)) %>%
   filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
@@ -137,12 +139,12 @@ flextable::regulartable(bind_cols(m17like, bridgelike,baselike)) %>%
 ```
 
 
-```{r ssbts, echo = FALSE, warning = FALSE, message = FALSE}
+```{r tabssbts, echo = FALSE, warning = FALSE, message = FALSE}
 # Table 13. Time series of total (age 3+) and spawning biomass and standard deviation of spawning biomass (Std_Dev) for the previous and proposed 2017 assessments.
 ```
 
 
-```{r rects, echo = FALSE, warning = FALSE, message = FALSE}
+```{r tabrects, echo = FALSE, warning = FALSE, message = FALSE}
 # TTime series of recruitment at ages 3 and 0 and standard deviation of age 0 recruits for the previous and proposed 2017 assessments.
 ```
 
