@@ -13,7 +13,7 @@
 ## Summary of Results
 No new models were considered this year.  The previously accepted model, referred to herein as `r old_model_name` was updated with new data, as described above, and the modeling software was bridged from Stock Synthesis v3.24u to v3.30.16. The present model is referred to as `r base_model_name`.
 
-The key results of the assessment, based on the author’s preferred model (Model 17.1a), are compared to the key results of the accepted 2021 update assessment [@Kapur2021] in the table below.
+The key results of the assessment, based on the author’s preferred model (`r base_model_name`), are compared to the accepted 2021 partial update assessment [@Kapur2021] in the table below.
 
 ```{r, child= "01a-main_table.Rmd", eval = T}
 ```
