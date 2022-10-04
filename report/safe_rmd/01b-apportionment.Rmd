@@ -9,14 +9,13 @@ The following table shows the recommended ABC apportionment for `r year` and `r 
 # apportionment table example
 
 appo <- read.csv(here::here('re',paste0("2022-10-03-AreaAppportionment.csv")))
- 
-
+appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
 appo$Year <- as.character(appo$Year)
-# appo[appo > 100& !is.na(appo)] <- round(appo[appo >100 & !is.na(appo)],0)
 flextable::flextable(appo[,-1]) %>%
      flextable::hline_top(part='all') %>% 
     flextable::hline_bottom() %>%
-  flextable::colformat_num(big.mark = ',')
+  flextable::colformat_num(big.mark = ',') %>%
+  flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0)
  
 ```
  
