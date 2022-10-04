@@ -7,36 +7,10 @@ editor_options:
 # Analytical approach
 
 ## General Model Structure
+Assessment models for `r species` have been conducted using the Stock Synthesis (@MethotWetzel2013) framework since 2018, with visualization via the r4ss package (@taylor_package_2016). Stock Synthesis (SS) is coded in AD Model Builder (@Fournier2021). SS is a flexible, sex- and age-structured integrated modeling platform that allows for rapid exploration of alternative model structures. A benchmark assessment was last completed in 2017 (@Turnock2017) using a previous version of SS (version 3.24). The current assessment model was bridged to the most recent version of SS as of early 2022 (version 3.30.17). The bridging approach was selected to produce results most similar to the 2017 benchmark. Specifically, there are discrepancies in the way survey timing is handled in SSv3.30+ and versions prior to 3.30, which meant that we needed to specify the observed survey index as occurring in at the beginning of the year, while aligning the observed survey length and age compositions with the mid-year biomass (month seven). An examination of likelihoods by component indicated that the converted model (before new data are added) was statistically identical to `r old_model_name`.
 
-Beginning in 2018 models were conducted using the SS3 and r4ss
-frameworks (Methot and Wetzel 2013, Taylor et al. 2018, R Core Team
-2020); the SS3 framework is coded in AD Model Builder (Fournier et al.
-2012). SS3 is a flexible, sex- and age-structured integrated modeling
-platform that allows for rapid exploration of alternative model
-structures. Extensive model exploration and new data sources were added
-in the 2018 assessment, and we refer the reader to that SAFE for more
-details (McGilliard et al. 2018). Briefly, foreign reported catches
-(1964-1987) were added and catch prior to 1964 was set to the average of
-the catches from 1964-1977. Based on CIE review feedback about
-uncertainty in initial age structure, an early period of recruitment
-deviations for age-0 recruits was estimated separately for the years
-1963-1972, in addition to the main period of age 0 recruitment
-deviations from 1973 onward, each subject to a sum-to-zero constraint.
-Recruitment in 2017-2020 was fixed to the mean recruitment for the main
-period because too few age 0-4 individuals were observed to estimate
-these recruitment deviations reliably.
-
-The assessment was a split sex, age-structured statistical catch-at-age
-model implemented in Stock Synthesis version 3.24u (SS3) using a maximum
-likelihood approach. SS3 equations can be found in Methot and Wetzel
-(2013) and further technical documentation is outlined in Methot (2009).
-Before 2013 assessments were conducted using an ADMB-based, split-sex,
-age-structured population dynamics model (Stockhausen 2011). A benchmark
-assessment was conducted in 2013 in SS3 (McGilliard et al. 2013).
-Briefly, the current assessment model covers 1955-2015. Age classes
-included in the model run from age 0 to 29. Age at recruitment was set
-at 0 years in the model. The oldest age class in the model, age 29,
-serves as a plus group. Survey catchability was fixed at 1.0.
+The proposed assessment model (`r base_model_name`), with updated data and SS software, covers years `r base_model$startyr` to  `r base_model$startyr` (there was a typographical error in the previous assessment document; `r old_model_name` also begun `r  m2017$startyr`). Age classes
+included in the model run from `r paste0(range(base_model$agebins), collapse = "-")` years. Age at recruitment was set at `r base_model$summary_age` years. The oldest age class in the model, age `r max(base_model$agebins)`, serves as a plus group. Survey catchability was fixed at 1.0.
 
 ### Fishery and Survey Selectivity
 
@@ -45,11 +19,11 @@ assessment model using an age-based time-invariant double normal
 functional form, which facilitates exploration of previous or
 alternative selectivity forms. The double-normal curve for both the
 survey and fishery is constrained by fixing the descending limb
-parameter(s) to mimic a logistic shape as previous assessments found no
+parameter(s) to mimic a logistic shape, as previous assessments found no
 evidence for dome-shaped selectivity in either. Male selectivity curves
 for the fishery and survey are estimated as an offset from the
 respective female curves. The estimated and fixed double-normal
-selectivity parameters by fleet and sex are presented in Table \@ref(tbl-selex).
+selectivity parameters by fleet and sex are presented in Table \@ref(tab:tab6selex).
 
 Length-based, sex-specific, logistic fishery and survey selectivity were
 implemented as sensitivity analyses in the 2013 assessment model runs
@@ -94,8 +68,7 @@ weights calculated using the Francis (2011) method, but the weights for
 the fishery length-composition data were increased slightly to improve
 model stability.
 
-In `r old_model_name`, and the 2015 assessment that preceded it, the method described in Francis (2011) was not used because of concerns raised about its use when using conditional age-at-length data. The effective sample size for length composition data was changed to the number of hauls (Volstad and
-Pennington 1994). In those assessments, scientists implemented the McAllister-Ianelli [@McAllister1997] method for weighting among data sources.
+In `r old_model_name`, and the 2015 assessment that preceded it, the method described in Francis (2011) was not used because of concerns raised about its use when using conditional age-at-length data. The effective sample size for length composition data was changed to the number of hauls (Volstad and Pennington 1994). In those assessments, scientists implemented the McAllister-Ianelli [@McAllister1997] method for weighting among data sources. In `r base_model_name`, the McAllister-Ianelli weights were tuned one time, following the update to the new SS software and addition of all data sources.
 
 ### Ageing Error Matrix
 
@@ -142,7 +115,9 @@ after corresponding to the onset of regular compositional data; constant
 bias adjustment from
 `r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[2:3]), collapse = '-')`,
 and a decline from the plateau to zero between years
-`r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[3:4]), collapse = '-')`. These breakpoints were identified using the method presented in Methot and Taylor (2011) as implemented in the `SS_fitbiasramp` function from `r4ss`. Briefly, this method tunes the breakpoints of the bias adjustment ramp to ensure that the estimated recruitment deviates are lognormally mean-unbiased. This approach therefore groups the data and time series into periods of lesser and greater information based on data availability, such that the start of the ramp aligns with the availability of composition data, the ramp down begins the last year those data are informative about recruitment, and the adjustment level is informed by life history.
+`r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[3:4]), collapse = '-')`. 
+
+These breakpoints were identified using the method presented in Methot and Taylor (2011) as implemented in the `SS_fitbiasramp` function from `r4ss`. Briefly, this method tunes the breakpoints of the bias adjustment ramp to ensure that the estimated recruitment deviates are lognormally mean-unbiased. This approach therefore groups the data and time series into periods of lesser and greater information based on data availability, such that the start of the ramp aligns with the availability of composition data, the ramp down begins the last year those data are informative about recruitment, and the adjustment level is informed by life history.
 
 
 ## Description of Alternative Models
@@ -157,11 +132,7 @@ sources to reflect the current information provided by AKFIN.
 
 (ref:senslink) 
 
-
-We also present the previously accepted
-model in its original form (in Synthesis version 3.24) and bridged to
-the latest Stock Synthesis software, both without any data changes, for
-comparison in Figures \@ref(fig:ssbcompare). to \@ref(fig:selexcompare). No new model structures are recommended this year.
+We also present the previously accepted model in its original form (in Synthesis version 3.24) for comparison in Figures \@ref(fig:ssbcompare) to \@ref(fig:selexcompare). No new model structures are recommended this year.
 
 ## Parameters Estimated Outside the Assessment Model
 
@@ -202,7 +173,7 @@ which is fixed within the current assessment.
 
 The survey catchability parameter $q$ was fixed at 1.0, as for previous
 `r species` assessments. We explored a sensitivity run where survey
-catchability was allowed to be calculated analytically or estimated, as well as a likelihood profile on $ln(q)$ (Figure \@ref(fig:profileLNq).
+catchability was allowed to be calculated analytically or estimated, as well as a likelihood profile on $ln(q)$ (Figure \@ref(fig:profileLNq)). 
 
 ## Parameters Estimated Inside the Assessment Model
 
@@ -210,7 +181,7 @@ A total of 86 parameters were estimated inside the assessment model.
 These include: 1) the log of unfished recruitment ($R_0$) 2) Sixty-six
 log-scale recruitment deviations; 3) Sex-specific parameters of the
 von-Bertalanffy growth curve, 4) Nine selectivity parameters in total
-for the fishery fleet and and survey (see Table XX).
+for the fishery fleet and and survey (see Table @\ref(tab:tab6selex)).
 
 The model also estimates a fishing mortality rate for each model year
 using the hybrid method. Details on the estimation method for the
@@ -239,7 +210,6 @@ selectivity forms. Here the double-normal curve is constrained to mimic
 a logistic shape because there was no evidence for dome-shaped survey
 selectivity.
 
-
-
 ### Objective Function
-Parameter estimates were obtained by minimizing the overall sum of a weighted set of negative log-likelihood components derived from fits to the model data described above and a set of penalty functions used to improve model convergence and impose various constraints (Methot and Wetzel 2013). Fits to observed annual fishery size and age compositions, as well as survey biomass estimates and size and conditional age-at-length compositions were included among the set of likelihood components. A likelihood component based on recruitment deviations from the mean was also included. Penalties were imposed to achieve good fits to annual fishery catches (biomass) and the assumed historical fishery catch. The functions used are described in more detail in Methot and Wetzel (2013) and in Appendix B of McGilliard et al. (2018).
+
+Parameter estimates were obtained by minimizing the overall sum of a weighted set of negative log-likelihood components derived from fits to the model data described above and a set of penalty functions used to improve model convergence and impose various constraints (@MethotWetzel2013). Fits to observed annual fishery size and age compositions, as well as survey biomass estimates and size and conditional age-at-length compositions were included among the set of likelihood components. A likelihood component based on recruitment deviations from the mean was also included. Penalties were imposed to achieve good fits to annual fishery catches (biomass) and the assumed historical fishery catch. The functions used are described in more detail in Methot and Wetzel (2013) and in Appendix B of McGilliard et al. (2018).
