@@ -100,11 +100,6 @@ baser0 <- base_model$parameters[base_model$parameters$Label=='SR_LN(R0)','Value'
 r0.vec <- seq(baser0-3,baser0+3,0.2)
 
 ## made a copy of this in case it busted. starter changed to control_modified.ss, and prior like to 1
-
-
-
-
-
 ```
 
 Extract, summarize and plot the profiles. These are saved under the base model in sub-folders within `profiles/`
@@ -227,6 +222,52 @@ profile_mm_summary <- SSsummarize(profiles_mm)
 save(profile_mm_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm/profile_mm.rdata" )
 
 
+mm.df.plotme0 <- reshape2::melt(profile_mm_summary$likelihoods, id = 'Label') %>%
+  merge(., mm.df, by = 'variable') %>%
+  filter( Label == 'TOTAL'   ) %>%
+  select(value,
+         NatM_uniform_Mal_GP_1 ,
+         NatM_uniform_Fem_GP_1 ) %>%
+  arrange(NatM_uniform_Fem_GP_1,NatM_uniform_Mal_GP_1 ) %>%
+  mutate(value = value-min(value)) %>% ## rescale
+  tidyr::pivot_wider(names_from = NatM_uniform_Fem_GP_1, 
+                     values_from = value)  
+mm.df.plotmeX <- sort(as.numeric(mm.df.plotme0$NatM_uniform_Mal_GP_1 ))
+mm.df.plotmeY <- sort(as.numeric(colnames(mm.df.plotme0)[2:11]))
+mm.df.plotmeZ <- as.matrix(mm.df.plotme0 %>% select(-NatM_uniform_Mal_GP_1 ))
+
+require(plotly)
+axx <- list(
+  title = "Male Natural Mortality"#,
+  # range = c(0,log(5))
+)
+
+axy <- list(
+  title = "Female Natural Mortality"
+  # range = c(0.1,0.3)
+)
+
+axz <- list(
+  title = "Total Likelihood (rescaled)"
+)
+
+which(mm.df.plotmeZ == min(mm.df.plotmeZ), arr.ind = TRUE)
+mm.df.plotmeX[8];mm.df.plotmeY[8] ## q, m
+## manually save from rstudio console
+
+
+plot_ly(x = ~mm.df.plotmeY,
+        y = ~mm.df.plotmeX, 
+        z = ~mm.df.plotmeZ, 
+        type = "surface",
+        contours = 
+          list(z = list(show = TRUE, color = 'white', start = 0, 
+                        end = qchisq(0.95,1)/2, size =1.92))) %>%
+  add_surface() %>%
+  layout( scene = list(xaxis = axy,
+                       yaxis = axx,
+                       zaxis = axz)) %>%
+  hide_colorbar()
 
 
 ```
@@ -235,55 +276,69 @@ save(profile_mm_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fh
 ## need to hard specify male and female Ms
 ## make grid of all combinations of q and M. M is always the same between male and females.
 qm.df <- expand.grid("LnQ_base_Survey" = q.vec,
-            "NatM_uniform_Fem_GP_1" = m.vec) %>%
-  mutate(NatM_uniform_Mal_GP_1 = NatM_uniform_Fem_GP_1)
+            "NatM_uniform_Fem_GP_1" = m.vec)# %>%
+  # mutate(NatM_uniform_Mal_GP_1 = NatM_uniform_Fem_GP_1)
 qm.df$variable <- paste0('replist',1:100)
 
-r4ss::SS_profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq",   
-                 string = c("LnQ_base_Survey","NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
-                 profilevec = qm.df)
+# r4ss::SS_profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq",   
+#                  string = c("LnQ_base_Survey","NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+#                  profilevec = qm.df)
 
 
 profiles_mq <- SSgetoutput(dirvec = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq", keyvec = 1:nrow(qm.df))
 profile_mq_summary <- SSsummarize(profiles_mq)
 
-save(profile_mq_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq/profile_mq.rdata" )
-
-reshape2::melt(profile_qm_summary$likelihoods, id = 'Label')
-
-
-profile_mq_summary$pars %>%
-  filter(Label %in% c('LnQ_base_Survey')) %>% head()
-
-
-## object for 2d plotting
-qm.df.plotme <- reshape2::melt(profile_mq_summary$likelihoods, id = 'Label') %>%
+save(profile_mq_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq/profile_mq_summary.rdata" )
+ 
+## object for 3d plotting
+qm.df.plotme0 <- reshape2::melt(profile_mq_summary$likelihoods, id = 'Label') %>%
   merge(., qm.df, by = 'variable') %>%
-  filter( Label == 'TOTAL') %>%
-  select(value,LnQ_base_Survey,
+  filter( Label == 'TOTAL'   ) %>%
+  select(value,
+         LnQ_base_Survey,
          NatM_uniform_Fem_GP_1 ) %>%
-  tidyr::pivot_wider(names_from = NatM_uniform_Fem_GP_1 , values_from = value) %>%
-  select(-LnQ_base_Survey) %>%
-  as.matrix()
-
-with(qm.df.plotme,persp::persp(x = LnQ_base_Survey , y =NatM_uniform_Fem_GP_1  , z = value))
-# with(subset(qm.df.plotme, NatM_uniform_Fem_GP_1 == 0.2 & Label == 'Total'), plot(LnQ_base_Survey~ value), xlim = c(0,1))
-
-
-ggplot(data = qm.df.plotme, aes(x = LnQ_base_Survey, 
-                                y = NatM_uniform_Fem_GP_1, fill = value)) +
-  geom_tile() 
-  
+  arrange(NatM_uniform_Fem_GP_1,LnQ_base_Survey) %>%
+  mutate(value = value-min(value)) %>% ## rescale
+  tidyr::pivot_wider(names_from = NatM_uniform_Fem_GP_1, 
+                     values_from = value)  
+qm.df.plotmeX <- sort(as.numeric(qm.df.plotme0$LnQ_base_Survey))
+qm.df.plotmeY <- sort(as.numeric(colnames(qm.df.plotme0)[2:11]))
+qm.df.plotmeZ <- as.matrix(qm.df.plotme0 %>% select(-LnQ_base_Survey))
 
 require(plotly)
+axx <- list(
+  title = "Survey  Q"#,
+  # range = c(0,log(5))
+)
 
-  plot_ly(  z = ~qm.df.plotme, type = "surface") %>%
-    add_surface()
-  
-  
-  require(surf3D)
-  surf3D::surf3D(data =qm.df.plotme, x = LnQ_base_Survey, y = NatM_uniform_Fem_GP_1, z = value, colkey=TRUE, bty="b2",
-       phi = 40, theta = 30, main="Half of a Torus")
+axy <- list(
+  title = "Natural Mortality (both sexes)"
+  # range = c(0.1,0.3)
+)
+
+axz <- list(
+  title = "Change in log-likelihood"
+)
+
+which(qm.df.plotmeZ == min(qm.df.plotmeZ), arr.ind = TRUE)
+exp(qm.df.plotmeX[2]);qm.df.plotmeY[9] ## q = 1.64, m = 0.27
+## manually save from rstudio console
+
+
+plot_ly(x = ~qm.df.plotmeY,
+        y = ~exp(qm.df.plotmeX), 
+        z = ~qm.df.plotmeZ, 
+        type = "surface",
+        contours = 
+          list(z = list(show = TRUE, color = 'white', start = 0, 
+                         end = qchisq(0.95,1)/2, size =1.92))) %>%
+  add_surface() %>%
+  layout( scene = list(xaxis = axy,
+                       yaxis = axx,
+                       zaxis = axz)) %>%
+  hide_colorbar()
+
+
 ```
 
 
