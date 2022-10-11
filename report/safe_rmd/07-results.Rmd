@@ -4,7 +4,7 @@
 
 ### Comparison of model update(s) from 2017
 
-`r old_model_name` and `r base_model_name`  have very similar spawning biomass (Figure \@ref(fig:ssbcompare)), survey biomass (Figure \@ref(fig:idxcompare)), recruitment (Figure \@ref(fig:reccompare)), fishing mortality (Figure \@ref(fig:Fcompare)), and stock status. The parameters of the estimated growth curves were also very similar (Table \@ref(tab:parestgrowth)). The resultant derived quantities are similar in their mean estimate and ranges, corroborating the stable nature of the model to data and configurations found previously [@Turnock2017]. While likelihoods are not directly comparable between `r old_model_name` and `r base_model_name`, a model run using the same (updated) software as XX and the 2017 data had statistically indistinguishable likelihoods by component (Table \@ref(tab:likelihoodcomponents)).
+`r old_model_name` and `r base_model_name`  have very similar spawning biomass (Figure \@ref(fig:ssbcompare)), survey biomass (Figure \@ref(fig:idxcompare)), recruitment (Figure \@ref(fig:reccompare)), fishing mortality (Figure \@ref(fig:Fcompare)), and stock status. The parameters of the estimated growth curves were also very similar (Table \@ref(tab:parestgrowth)). The resultant derived quantities are similar in their mean estimate and ranges, corroborating the stable nature of the model to data and configurations found previously [@Turnock2017]. While likelihoods are not directly comparable between `r old_model_name` and `r base_model_name`, a model run using the same (updated) software as `r old_model_name` and the 2017 data had statistically indistinguishable likelihoods by component (Table \@ref(tab:likelihoodcomponents)).
 
 ### Results for the recommended model: `r base_model_name` 
 
@@ -25,30 +25,7 @@ In summary, the data weights suggest that the model scale is particularly sensit
 
 ## Time Series Results
 
-Time series of biomass and recruitments are shown in Tables \@ref(tab:tabssbts) and \@ref(tab:tabrects)- and Figures \@ref(fig:SSBts) and \@ref(fig:rects). Time series of numbers-at-age and numbers-at-length, including mean age and length through time, are shown in Figures \@ref(fig:NAA1) to \@ref(fig:NAL2).
-
-Age 0 recruitment and standard deviations of age 0 recruitment are presented in Table 12 and Table 14 for the current and previous assessments. Total biomass for ages 3+, spawning stock biomass, and standard deviations of spawning stock biomass estimates for the previous and current assessments are presented in Table 13. Figure 21 shows spawning stock biomass estimates and corresponding asymptotic 95% confidence intervals. Figure 22 shows that biomass has been above $B_{35\%}$ and F has been low relative to $F_{35\%}$ for each year in the time series.
-
-**
-Include a table that has a set of parallel key results) for the previously accepted assessment, compared with new results. At a minimum this table should include spawning biomass and recruitment. 
-
-Definition of biomass measures used (e.g., age range used in the “age+” biomass)
-
-Definition of recruitment measures used (e.g., numbers at age 3)
-
-Table of estimated biomass time series, including age+ biomass and spawning biomass, **with confidence bounds** or other statistical measure of uncertainty if possible. 
-The time series included in this table **should end with estimates for the projection year**. Include estimates from previous SAFE for retrospective comparison.
-
-Table of estimated recruitment time series, including average of year classes spawned after 1976, **with confidence bounds** or other statistical measure of uncertainty if possible.  Include estimates from previous SAFE for retrospective comparisons
-
-Table of estimated numbers at age. 
-
-Graph of estimated biomass time series, with confidence bounds if possible
-
-Graph of estimated fishing mortality versus estimated spawning stock biomass (phase-plane plot), including applicable OFL and maximum FABC definitions for the stock. 
-Biomass should be scaled relative to $B_{MSY}$ for Tier 1 stocks and $B_{35\%}$ for Tier 3 stocks. 
-Fishing mortality should be scaled relative to the arithmetic mean of $F_{MSY}$ for Tier 1 stocks and $F_{35\%}$ for Tier 3 stocks. 
-Include 2 years of projected *F* and *B* in the phase-plane plot.
+Time series of stock spawning biomass, age-0 recruitment, fishing mortality, and standard deviations thereof for the current and previous assessments are shown in Tables \@ref(tab:bigts) and \@ref(tab:tabrects)- and Figures \@ref(fig:SSBts) and \@ref(fig:rects). Time series of numbers-at-age and numbers-at-length, including mean age and length through time, are shown in Figures \@ref(fig:NAA1) to \@ref(fig:NAL2). Figure \@ref(fig:ssbts) shows spawning stock biomass estimates and corresponding asymptotic 95% confidence intervals. Figure \@ref(fig:BFtrajectory) shows that biomass has been above $B_{35\%}$ and F has been low relative to $F_{35\%}$ for each year in the time series.
 
 ## Retrospective Analysis
 
