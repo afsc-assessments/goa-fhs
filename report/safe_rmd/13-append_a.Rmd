@@ -1,3 +1,4 @@
+
 # Appendix 10a. Supplemental catch data 
 
 In order to comply with the Annual Catch Limit (ACL) requirements, a dataset has been generated to help estimate total catch and removals from NMFS stocks in Alaska. 
@@ -33,16 +34,17 @@ aa[aa > 1 & !is.na(aa)] <- round(aa[aa > 1 & !is.na(aa)],0)
 aa[aa < 1 & !is.na(aa)] <- round(aa[aa < 1 & !is.na(aa)],2)
 aa$collection_year <- as.character(aa$collection_year)
 
-flextable::regulartable(aa) %>%
-  flextable::add_header_row(values = c("Year", 
-                                       rep('ADF&G', length(grep('adfg',colnames(aa)))),
-                                       rep('IPHC', length(grep('iphc',colnames(aa)))),
-                                       rep('NFMS', length(grep('nmfs',colnames(aa)))) )) %>%
+
+```
+
+```{r appxAADFG, echo = FALSE, warning = FALSE, message = FALSE}
+flextable::regulartable(aa %>%
+  select(grep('adfg',colnames(aa)))) %>% 
   flextable::autofit(part = "all") %>%
   flextable::align(align = "center", part = "all")%>% 
   flextable::merge_h(part = "header") %>%
   flextable::merge_v(part = "header")  %>%  
-  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from NMFS, ADF&G and IPHC data sources; values in kg.") #%>%
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from ADF&G; values in kg.") %>% flextable::autofit()
 # flextable::width( width = c(3,2,2))
 ```
  

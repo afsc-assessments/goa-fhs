@@ -170,10 +170,15 @@ bigts <- bind_rows(bind_rows(
   mutate(Year = as.numeric(gsub('SSB_',"",Label)), Value = round(Value,4)) %>%
   select(Year, 'Spawning Biomass' = Value, SD = StdDev) %>%
     filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
-  
-     m2017$timeseries %>%
-    mutate(SD = NA) %>%
-  select( Year = Yr, 'Recruitment' = Recruit_0 , SD) %>% reshape2::melt(id = c('Year','SD')),
+    
+    m2017$derived_quants[grep('Recr_',m2017$derived_quants$Label),
+                            c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('Recr_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Recruitment' = Value, SD = StdDev) %>%
+    filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
+  #    m2017$timeseries %>%
+  #   mutate(SD = NA) %>%
+  # select( Year = Yr, 'Recruitment' = Recruit_0 , SD) %>% reshape2::melt(id = c('Year','SD')),
     
   m2017$parameters[grep('RecrDev_', m2017$parameters$Label),c('Label','Value','Parm_StDev')] %>%
   mutate(Year = as.numeric(sapply(str_split(Label, "_",  n = 3), `[`, 3)), Value = round(Value,4),
@@ -189,18 +194,25 @@ m2017$derived_quants[grep('F_', m2017$derived_quants$Label),c('Label','Value','S
   select(Model,Year,variable, value, SD),
 
 bind_rows(  
-  base_model$derived_quants[grep('SSB_', base_model$derived_quants$Label),c('Label','Value','StdDev')] %>%
+  base_model$derived_quants[grep('SSB_',base_model$derived_quants$Label),
+                            c('Label','Value','StdDev')] %>%
   mutate(Year = as.numeric(gsub('SSB_',"",Label)), Value = round(Value,4)) %>%
   select(Year, 'Spawning Biomass' = Value, SD = StdDev) %>%
     filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
-   
-         base_model$timeseries %>% 
-    mutate(SD = NA) %>%
-  select( Year = Yr, 'Recruitment' = Recruit_0 , SD)  %>% reshape2::melt(id = c('Year','SD')),
+  
+    base_model$derived_quants[grep('Recr_',base_model$derived_quants$Label),
+                            c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('Recr_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Recruitment' = Value, SD = StdDev) %>%
+    filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
+  
+  # base_model$timeseries %>% 
+  #   mutate(SD = NA) %>%
+  #   select( Year = Yr, 'Recruitment' = Recruit_0 , SD)  %>% reshape2::melt(id = c('Year','SD')),
   base_model$parameters[grep('RecrDev_', base_model$parameters$Label),c('Label','Value','Parm_StDev')] %>%
-  mutate(Year = as.numeric(sapply(str_split(Label, "_",  n = 3), `[`, 3)), Value = round(Value,4),
-         Period =  sapply(str_split(Label, "_",  n = 3), `[`, 1)) %>%
-  select( Year, 'Recruitment Deviation' = Value, 'SD'=Parm_StDev)  %>% reshape2::melt(id = c('Year','SD')),
+    mutate(Year = as.numeric(sapply(str_split(Label, "_",  n = 3), `[`, 3)), Value = round(Value,4),
+           Period =  sapply(str_split(Label, "_",  n = 3), `[`, 1)) %>%
+    select( Year, 'Recruitment Deviation' = Value, 'SD'=Parm_StDev)  %>% reshape2::melt(id = c('Year','SD')),
   
 base_model$derived_quants[grep('F_', base_model$derived_quants$Label),c('Label','Value','StdDev')] %>%
   mutate(Year = as.numeric(gsub('F_',"",Label)), Value = round(Value,4)) %>%
@@ -209,27 +221,31 @@ base_model$derived_quants[grep('F_', base_model$derived_quants$Label),c('Label',
   mutate(SD = round(SD,4),
            Model = 'Model 17.1a (2022)',
          'Value (SD)' = paste0(value," (",SD,")")) %>%
-  select(Model,Year,variable, value,SD ))
+  select(Model,Year,variable, value,SD )) %>%
+  filter(Year < 2023)
    
 ## custom rounding
-
 bigts$value[bigts$value<1] <- round(bigts$value[bigts$value<1],4)
 bigts$value[bigts$value>1] <- round(bigts$value[bigts$value>1],0)
 bigts$SD[bigts$SD<1&!is.na(bigts$SD)] <- round(bigts$SD[bigts$SD<1&!is.na(bigts$SD)],4)
 bigts$SD[bigts$SD>1&!is.na(bigts$SD)] <- round(bigts$SD[bigts$SD>1&!is.na(bigts$SD)],0)
+
+bigts$value[is.na(bigts$value)] <- ""
 bigts$SD[is.na(bigts$SD)] <- ""
+
 ## blank out NA years
 bigts$value[bigts$Model == 'Model 17.0 (2017)' & bigts$Year>2018] <- ""
 bigts$SD[bigts$Model == 'Model 17.0 (2017)' & bigts$Year>2018] <- ""
-bigts$value[bigts$Model == 'Model 17.1a (2022)' & bigts$Year>2021] <- ""
-bigts$SD[bigts$Model == 'Model 17.1a (2022)' & bigts$Year>2021] <- ""
+# bigts$value[bigts$Model == 'Model 17.1a (2022)' & bigts$Year>2022] <- ""
+# bigts$SD[bigts$Model == 'Model 17.1a (2022)' & bigts$Year>2022] <- ""
 
 ## compound column
-bigts$value_SD <- paste0(prettyNum(bigts$value,big.mark = ",") ," (",prettyNum(bigts$SD,big.mark = ","),")")
+bigts$value_SD <- paste0( ifelse(is.na(bigts$value),"",prettyNum(bigts$value,big.mark = ",")) ,
+                          " (",
+                         ifelse(is.na(bigts$SD),"",prettyNum(bigts$SD,big.mark = ",")),
+                         ")")
 bigts$Year <- as.character(bigts$Year)
-
-## add in projected stuff
-# bigts[nrow(bigts+1),] <- c('Model 17.1a (2022)', '2022', variabl)
+ 
 bigts %>%
   arrange(variable) %>%
   filter(variable != 'Recruitment Deviation' & Year > 1978) %>%
@@ -249,21 +265,8 @@ tidyr::pivot_wider(., id_cols = c(Year),   names_from = c(Model,variable), value
     flextable::align(align = "center", part = "all")%>% 
    flextable::merge_h(part = "header") %>%
     flextable::merge_v(part = "header")   %>%
-    flextable::set_caption("Spawning Biomass, Recruitment, and Apical fishing mortality with associated standard deviations (in parentheses) from Model 17.0 (2017) and Model 17.1a (2022).") 
-
-
-# %>%
-#   arrange(Model,Year) %>%
-#   flextable::as_grouped_data(., groups = 'Model') %>%
-#   
-#   flextable::as_flextable( hide_grouplabel=T) %>%  
-#   flextable::set_header_labels(YEAR = "") %>% 
-#   # color(part = "footer", color = "#800000") %>%
-#   flextable::bold( bold = TRUE, part="header") %>% 
-#   flextable::align(i = ~ !is.na(Model), align = "center") %>% 
-#   flextable::bold(i = ~ !is.na(Model)) %>%  
-# 
-#   flextable::width(width = 2)
+    flextable::set_caption("Spawning Biomass, Recruitment, and Apical fishing mortality with associated standard deviations (in parentheses) from Model 17.0 (2017) and Model 17.1a (2022).")  %>%
+  flextable::width(  width = c(1,rep(2,6)))
 ```
 
  

@@ -91,7 +91,7 @@ tmp1
 ## year. Use weekly catches from from previous years to get
 ## proportion of catch by week to estimate terminal year catch.
 
-files <- list.files(here('data','catch','weekly_catches'), full.names=TRUE)
+files <- list.files(here::here('data','catch','weekly_catches'), full.names=TRUE)
 test <- lapply(1:length(files), function(i){
   skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
   data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
@@ -114,7 +114,7 @@ message("Predicted ", this_year, " catch = ", round(catch_this_year + catch_to_a
 
 #* catches for projection years ----
 ##  use last 5 years' real data average
-SS_catch <- read.csv(here('data','catch',paste0(date_use,"-catch_forSS.csv")))
+SS_catch <- read.csv(here::here('data','catch',paste0(date_use,"-catch_forSS.csv")))
 
 projc <- SS_catch %>% 
   filter(yr  < this_year & yr  > (this_year-6)) %>% 
@@ -138,26 +138,27 @@ in folder need model_proj setup spp catch tacpar
 
 make sure sppcatch references correct model proj the years in spp catch are ignored dimensions on model proj will cause failure if wrong (when I copied in the model proj from 2021 with the 2009 setup it ran)
 
+also need tacpar and main.exe
+
 ```{r}
 ## from CCM
-source(here('c:/users/maia.kapur/work/assessments/proj_functions/write_proj.r'))
-source(here('c:/users/maia.kapur/work/assessments/proj_functions/write_proj_spcat.r')) # manually changed line 24 to not invoke data subdir
-source(here('c:/users/maia.kapur/work/assessments/proj_functions/setup.r')) ## changed line 19 to turn off FMSY_35 as was done before
-source(here('c:/users/maia.kapur/work/assessments/proj_functions/get_proj_res.r'))
-## passed to write_proj function
-base_22 <- r4ss::SS_output(here('model_runs','m0_8'), verbose = FALSE)
+source(here::here('c:/users/maia.kapur/work/assessments/proj_functions/write_proj.r'))
+source(here::here('c:/users/maia.kapur/work/assessments/proj_functions/write_sppcatch.r')) # manually changed line 24 to not invoke data subdir
+source(here::here('c:/users/maia.kapur/work/assessments/proj_functions/write_setup.r')) ## changed line 19 to turn off FMSY_35 as was done before
+source(here::here('c:/users/maia.kapur/work/assessments/proj_functions/get_proj_res.r'))
+## passed to write_proj function 
 spp = "GOA_Flathead"
 ## Write .dat file in /projection/data
-write_proj(dir = here('projection'),
-           data = base_22,
-           NSEX = base_22$nsexes, # number of sexes used in assessment model
+write_proj(dir = here::here('projection/data'),
+           data = base_model,
+           NSEX = base_model$nsexes, # number of sexes used in assessment model
            Nfishery = 1, 	# number of fisheries(fleets) 
            fleets = 1, # fleet index number (associated with commercial fishery)
            rec_age = 3, 	# assumed age at recruitment
-           max_age = max(base_22$agebins), 		# maximum age in model
-           NAGE = length(3: max(base_22$agebins)), 	# number of ages
-           FY = 1977,  					# first year used to subset SSB
-           rec_FY = base_22$startyr, 	# first year used to subset recruitment
+           max_age = max(base_model$agebins), 		# maximum age in model
+           NAGE = length(3: max(base_model$agebins)), 	# number of ages
+           FY = 1984,  					# first year used to subset SSB
+           rec_FY = 1984, # base_model$startyr, 	# first year used to subset recruitment
            rec_LY_decrement =0, 	# value subtracted from assessment final year to subset recruitment
            spawn_month = 1, # spawning month
            Fratios = 1 	# Proportion F per fishery
@@ -172,15 +173,16 @@ nsims=1000			# number of projection model simulations
 nproj=14			# number of projection years ALSO USED BY get_proj_res
 ## passed to get_proj_res
 spp="GOA_flathead"
-setup(dir = here('projection'),
-      data = base_22,
+write_setup(dir = here::here('projection'),
+      data = base_model,
       nsims = 1000,
       nproj = 17)
 
 ## write spcat
-write_proj_spcat(dir = here('projection'),
-                 data = base_22, 
-                 ct_yrs = 3,
+write_sppcatch(dir = here::here('projection'),
+                 datfile = 'data/projection_data.dat', ## what to point to 
+                 data = base_model, 
+                 ct_yrs = 3, ## this year and two forecast years
                  catch_vector_use = catchvec[3:5,])
 ```
 
@@ -223,7 +225,7 @@ proj_scenario0 %>%
 ## the setup where catches=ABC
 
 rec_table1 <-
-  read.table(here('projection','percentdb.out')) %>%
+  read.table(here::here('projection','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
   transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
             value=as.numeric(V5)) %>%
@@ -232,7 +234,7 @@ rec_table1 <-
   arrange(year, metric) %>%
   pivot_wider(names_from=year, values_from=value)
 rec_table2 <-
-  read.table(here('projection','alt2_proj.out'), header=TRUE) %>%
+  read.table(here::here('projection','alt2_proj.out'), header=TRUE) %>%
   filter(Year %in% (this_year+1:2)) %>%
   pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
   pivot_wider(names_from=Year, values_from=value)
@@ -282,9 +284,8 @@ status[1,c(1,4)] <- status[2,c(2,4)] <- status[3,c(2,4)] <- 'no'
 safe = noquote(rbind(safe1,status) )
 
 # safe[safe > 10e6] <- safe[safe>10e6]/1000
-write.csv(safe, file = here('tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
-
-# write.csv(rec_table, here('projection','rec_table.csv'), row.names=FALSE)
+write.csv(safe, file = here::here('tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
+write.csv(rec_table, here::here('projection','rec_table.csv'), row.names=FALSE)
 
 
 ## Table 1 total Catch by area ----
@@ -346,28 +347,7 @@ pull_date <- '2022-04-18'
 iba <- read.csv(here::here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
   group_by(YEAR,AREA) %>%
   dplyr::summarise(BIOM_MT = BIOM,
-            CV_total=sqrt(BIOMVAR)/BIOM ) #%>%
-  # filter(YEAR > 2010)
-
-# iba %>% filter(AREA == 'CENTRAL GOA') %>%  
-# write.csv(., 
-#           here('re','Central',paste0(Sys.Date(),'-values_for_redat.csv') ),
-#           row.names=FALSE)
-# 
-# iba %>% filter(AREA == 'EASTERN GOA') %>%
-#   write.csv(., 
-#             here('re','Eastern',paste0(Sys.Date(),'-values_for_redat.csv') ),
-#             row.names=FALSE)
-# 
-# iba %>% filter(AREA == 'WESTERN GOA') %>% 
-# write.csv(., 
-#           here('re','WESTERN',paste0(Sys.Date(),'-values_for_redat.csv') ),
-#           row.names=FALSE)
-# 
-# 
-# iba %>% 
-#   tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV_total))
-
+            CV_total=sqrt(BIOMVAR)/BIOM )
 
 for(i in c('Eastern','Western','Central')){
   tempdir <- here::here('re',i)
@@ -393,9 +373,7 @@ for(i in c('Eastern','Western','Central')){
   write(T1,paste(write_file),ncolumns = 1,append=T) 
   setwd(tempdir)
   shell('re.exe')
-  
   ## now ready to wrangle
- 
 } 
 
 
@@ -404,102 +382,77 @@ for(i in c('Eastern','Western','Central')){
 ## Wrangle ADMB-RE outputs
 ```{r}
 ## function to wrangle data from ADMB-RE
-this_year <- max(iba$YEAR)
-read_rwout <- function(x){
+# this_year <- max(iba$YEAR)
+# read_rwout <- function(x){
+# 
+#   rawl <-  scan(x,
+#        skip = 7,
+#        what = as.list(rep("",length(1984:(this_year+1)))), ## normally it's this year +1
+#        flush = TRUE) %>% 
+#     data.frame()
+# 
+#   ## label columns and rows and drop
+#   rownames(rawl) <- c('Year',as.matrix(rawl[,ncol(rawl)]))[1:8]
+#   rawl<-rawl[1:(ncol(rawl)-1)]
+#   names(rawl) <- as.matrix(rawl[1, ])
+#   rawl <- rawl[-1, ]
+#   rawl <- rawl[1:6,]
+#   ## biomA = estimated biomass (natural scale)
+#   currBio <-  rawl %>% 
+#     tibble::rownames_to_column() %>%  
+#     tidyr::pivot_longer(-rowname) %>% 
+#     tidyr::pivot_wider(names_from=rowname, values_from=value) %>%
+#     dplyr::filter(name == this_year) %>%
+#     dplyr::select(biomA)
+#   currBio <- as.numeric(currBio)
+#   
+#   names(currBio) = paste(basename(dirname(x)))
+#   
+#   
+#   return(currBio)
+# } ## end read_rwout
 
-  rawl <-  scan(x,
-       skip = 7,
-       what = as.list(rep("",length(1984:(this_year+1)))), ## normally it's this year +1
-       flush = TRUE) %>% 
-    data.frame()
-
-  ## label columns and rows and drop
-  rownames(rawl) <- c('Year',as.matrix(rawl[,ncol(rawl)]))[1:8]
-  rawl<-rawl[1:(ncol(rawl)-1)]
-  names(rawl) <- as.matrix(rawl[1, ])
-  rawl <- rawl[-1, ]
-  rawl <- rawl[1:6,]
-  ## biomA = estimated biomass (natural scale)
-  currBio <-  rawl %>% 
-    tibble::rownames_to_column() %>%  
-    tidyr::pivot_longer(-rowname) %>% 
-    tidyr::pivot_wider(names_from=rowname, values_from=value) %>%
-    dplyr::filter(name == this_year) %>%
-    dplyr::select(biomA)
-  currBio <- as.numeric(currBio)
-  
-  names(currBio) = paste(basename(dirname(x)))
-  
-  
-  return(currBio)
-} ## end read_rwout
-
- rwout0 <- list.files(here::here('re'), pattern = paste('rwout'), full.names = T, recursive = T, include.dirs = FALSE)
- rwout <- rwout0[!grepl('2019|2021',rwout0 )] ## grab new runs (not 2019 nor 2021)
-  
-  ## by hand inspection, biomA should actually be
-  # CENTRAL = 94280.3
-  # EASTERN = 14492.6
-  # WESTERN = 82104.9
-  
-  dt0 <- lapply(rwout, read_rwout) %>% 
-    unlist() %>%
-    data.frame() 
-  
-  names(dt0) <- 'cb'
-  
-## these are the apportionments by 3 areas; still need to dwnslale EGOA
-mgmtf <- dt0 %>% 
-  tibble::rownames_to_column() %>%  
-  pivot_longer(-rowname) %>% 
-  mutate(sv = sum(value)) %>%
-  group_by(rowname) %>%
-  summarise(propBio = value/sv) %>% 
-  pivot_wider(names_from = rowname, values_from = c(propBio)) 
-
-
+#  rwout0 <- list.files(here::here('re'), pattern = paste('rwout'), full.names = T, recursive = T, include.dirs = FALSE)
+#  rwout <- rwout0[!grepl('2023|2024',rwout0 )] ## grab new runs (not 2019 nor 2021)
+#   
+#   ## by hand inspection, biomA should actually be
+#   # CENTRAL = 94280.3
+#   # EASTERN = 14492.6
+#   # WESTERN = 82104.9
+#   
+#   dt0 <- lapply(rwout, read_rwout) %>% 
+#     unlist() %>%
+#     data.frame() 
+#   
+#   names(dt0) <- 'cb'
+#   
+# ## these are the apportionments by 3 areas; still need to dwnslale EGOA
+# mgmtf <- dt0 %>% 
+#   tibble::rownames_to_column() %>%  
+#   pivot_longer(-rowname) %>% 
+#   mutate(sv = sum(value)) %>%
+#   group_by(rowname) %>%
+#   summarise(propBio = value/sv) %>% 
+#   pivot_wider(names_from = rowname, values_from = c(propBio))  
 
 ## EGOA: Eastern goes to SE, Western goes to Yakutat
 ## this has not yet updated for 2022
-egfrac <- read.csv(here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
-
-apportionment <- mgmtf %>% 
-  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
-         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
-  select(Western, Central, WestYakutat,Southeast)
-
-sum(apportionment)==1
-
-
-abc23 <- as.numeric( rec_table[10,2])*apportionment
-abc24 <- as.numeric( rec_table[10,3])*apportionment
-
-abc23 <- as.numeric( 40175)*apportionment
-abc24 <- as.numeric(40046)*apportionment
-
-apportionment2 <- rbind(apportionment,abc22,abc23)
-write.csv(apportionment2,file = here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
-
-
-## table of indices x area ----
-# iba <- read.csv(here('data','survey',paste0(pull_date,'-index_by_area.csv'))) %>%
-#   group_by(YEAR,AREA) %>%
-#   summarise(BIOM_MT = BIOM,
-#             CV=sqrt(BIOMVAR)/BIOM ) 
+# egfrac <- read.csv(here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
 # 
-# index <- read.csv(here('data','survey',paste0(pull_date,'-index.csv'))) %>%
-#   group_by(YEAR) %>%
-#   summarise(BIOM_MT = BIOM,
-#             CV_total=sqrt(BIOMVAR)/BIOM)
+# apportionment <- mgmtf %>% 
+#   mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+#          Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+#   select(Western, Central, WestYakutat,Southeast)
 # 
-# iba %>% 
-#   tidyr::pivot_wider(.,names_from = AREA, values_from = c(BIOM_MT, CV)) %>%
-#   merge(., index, by = 'YEAR') %>%
-#   select(YEAR, BIOM_MT, CV_total, everything()) %>%
-#   write.csv(., 
-#             here('DATA',paste0(Sys.Date(),'-table2_indices_area.csv') ),
-#             row.names=FALSE)
-
+# sum(apportionment)==1
+# 
+# 
+# abc23 <- as.numeric( rec_table[10,2])*apportionment
+# abc24 <- as.numeric( rec_table[10,3])*apportionment
+#  
+# 
+# apportionment2 <- rbind(apportionment,abc22,abc23)
+# write.csv(apportionment2,file = here('re',paste0(Sys.Date(),"-AreaAppportionment-ADMBRE.csv")))
 
 ```
 
@@ -546,11 +499,11 @@ input2 <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS MULTIVAR"),
                             biomass_dat  = bind_rows(biomass_dat))
 m2 <- fit_rema(input2) ##save each M separately
 output <- tidy_rema(rema_model = m2)
-save(output, file = here('re',paste0(Sys.Date(),'-rema_output.rdata')))
-kableExtra::kable(output$parameter_estimates) 
-plots <- plot_rema(tidy_rema = output, biomass_ylab = 'Biomass (t)') # optional y-axis label
-plots$biomass_by_strata
-ggsave(plots$biomass_by_strata, file = here::here('re','rema_outs.png'), width = 12, height = 10, unit = 'in', dpi = 520)
+# save(output, file = here('re',paste0(Sys.Date(),'-rema_output.rdata')))
+# kableExtra::kable(output$parameter_estimates) 
+# plots <- plot_rema(tidy_rema = output, biomass_ylab = 'Biomass (t)') # optional y-axis label
+# plots$biomass_by_strata
+# ggsave(plots$biomass_by_strata, file = here::here('re','rema_outs.png'), width = 12, height = 10, unit = 'in', dpi = 520)
 
 # compare <- compare_rema_models(rema_models = list(m),
 #                                admb_re = admb_re,
@@ -559,26 +512,27 @@ ggsave(plots$biomass_by_strata, file = here::here('re','rema_outs.png'), width =
 ## final apportionment qtties; still need to include Eastern downscaling and ABCs
 # kableExtra::kable(tail(output$proportion_biomass_by_strata, 3)) 
 
+
+load("~/assessments/2022/goa-fhs-2022/RE/2022-10-03-rema_output.rdata") ## output
+
 egfrac <- read.csv(here::here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
-props <- output$proportion_biomass_by_strata %>% filter(year == this_year) %>%   mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+props <- output$proportion_biomass_by_strata %>% 
+  filter(year == 2021) %>% 
+  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
          Southeast = Eastern*egfrac$Eastern.Fraction) %>%
   select(Western, Central, WestYakutat,Southeast)
 
 sum(props)==1
 
- rec_table <- read.csv(here('projection','rec_table.csv'))
-abc23 <- as.numeric( rec_table[10,2])*apportionment
-abc24 <- as.numeric( rec_table[10,3])*apportionment
-
-abc23 <- as.numeric(40175)*props
-abc24 <- as.numeric(40046)*props
 
 
-
-apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(40175,40046) )) %>%
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2]) 
+abc24 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
   rbind( round(props*100,2) ,.) %>%
   data.frame() %>%
-  mutate(Total = c("",40175,40046),
+  mutate(Total = c("",abc23,abc24),
          Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
          Quantity = c("Area Apportionment %", 
                       "ABC (t)",
