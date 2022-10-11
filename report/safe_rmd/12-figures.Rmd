@@ -43,6 +43,8 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','compare10_recrui
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','compare8_Fvalue_uncertainty.png'))
 ```
 
+\newpage
+
 ```{r selexcompare, fig.cap="Sex-specific age selectivity curves by fleet (panels) (ref:comparecap) Male selectivity curves are dashed; female curves are solid.", eval = T}
 knitr::include_graphics(here('figs','7_slx_compare.png'))
 ```
@@ -53,7 +55,7 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','bio1_siz
 ```
 
 
-(ref:lencompcap) Observed (grey shaded area, black points and lines) and expected (colored lines) proportions-at-length by sex for the Model 17.1a. Females are shown in the upper half of each plot (red lines), males in the lower half (blue lines)
+(ref:lencompcap) Observed (grey shaded area, black points and lines) and expected (colored lines) proportions-at-length by sex for `r base_model_name`. Females are shown in the upper half of each plot (red lines), males in the lower half (blue lines)
 
 
 ```{r lencompfit, fig.cap="(ref:lencompcap). Compositions for the fishery (upper panel) and survey (lower panel) are aggregated over all years of available data.", eval = T}
@@ -78,7 +80,7 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_len
 
 
 
-```{r meanLfish, fig.cap="(ref:meanLcap). Data shown for the Fishery", eval = T}
+```{r meanLfish, fig.cap="(ref:meanLcap). Data shown for the Fishery.", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_data_weighting_TA1.8_Fishery.png'))
 ```
 
@@ -128,7 +130,7 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_con
  
 (ref:SSBcap) time series of estimated over time (solid blue line and circles) and asymptotic 95% confidence intervals (blue dashed lines and/or bars) for `r base_model_name`.
 
-```{r SSBts, fig.cap="Spawning stock biomass (mt)(ref:SSBcap) Point at 1977 is virgin biomass.",  eval = T}
+```{r SSBts, fig.cap="Spawning stock biomass (mt) (ref:SSBcap) Point at 1977 is virgin biomass.",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts7_Spawning_biomass_(mt)_with_95_asymptotic_intervals_intervals.png'))
 ```
 
@@ -136,9 +138,14 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts7_Spaw
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age-0_recruits_(1000s)_with_95_asymptotic_intervals.png'))
 ```
 
+
 (ref:NAAcap) Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time 
 
+
+
 (ref:NALcap) Numbers at length (grey bubbles) by year for females (left) and males (right). Red line indicates mean length through time 
+
+
 
 ```{r NAA1, fig.cap="(ref:NAAcap) (1 of 2).", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
@@ -169,6 +176,7 @@ knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','plots','bi
 knitr::include_graphics(here('figs','22_BFTrajectory.png'))
 ```
 
+\newpage
 
 (ref:retrocap) for base case model runs with 0 to 10 years of the most recent data removed. 
 
@@ -219,27 +227,20 @@ knitr::include_graphics(here('docs',"compare2_spawnbio_uncertainty.png"))
 ```
 
 ```{r foodwebAdult, echo = FALSE,  fig.cap="Gulf of Alaska food web from the GOA ecosystem model (Aydin et al., 2007) highlighting adult flathead sole links to predators (blue boxes and lines) and prey (green boxes and lines).  Box size reflects relative standing stock biomass.", out.width="25%",eval = T, echo = FALSE}
-knitr::include_graphics(here('figs','null.png')) 
+knitr::include_graphics(here('figs','Aydin2007_webAdult.png')) 
 ```
 
 ```{r foodwebJuv, echo = FALSE,  fig.cap="Gulf of Alaska food web from the GOA ecosystem model (Aydin et al., 2007) highlighting juvenile flathead sole links to predators (blue boxes and lines) and prey (green boxes and lines).  Box size reflects relative standing stock biomass.", out.width="25%",eval = T, echo = FALSE}
-knitr::include_graphics(here('figs','null.png')) 
+knitr::include_graphics(here('figs','Aydin2007_webJuvenile.png')) 
 ```
 
-```{r dietadult, echo = FALSE,  fig.cap="Diet composition for Gulf of Alaska adult flathead sole from the GOA ecosystem model (Aydin et al., 2007).", out.width="25%",eval = T, echo = FALSE}
-knitr::include_graphics(here('figs','null.png')) 
+```{r aydindiet, echo = FALSE,  fig.cap="Diet composition for Gulf of Alaska juveniles (left) and adults (right) flathead sole from the GOA ecosystem model (data fromAydin et al., 2007).", eval = T, echo = FALSE}
+knitr::include_graphics(here('figs','Aydin2007_diet.png')) 
+```
+ 
+
+```{r aydinmort, echo = FALSE,  fig.cap="Decomposition of natural mortality for Gulf of Alaska juveniles (left) and adults (right) flathead sole from the GOA ecosystem model (data from Aydin et al., 2007).",  eval = T, echo = FALSE}
+knitr::include_graphics(here('figs','Aydin2007_mortality.png')) 
 ```
 
-
-```{r dietjuv, echo = FALSE,  fig.cap="Diet composition for Gulf of Alaska juvenile flathead sole from the GOA ecosystem model (Aydin et al., 2007).", out.width="25%",eval = T, echo = FALSE}
-knitr::include_graphics(here('figs','null.png')) 
-```
-
-```{r mortadult, echo = FALSE,  fig.cap="Decomposition of natural mortality for Gulf of Alaska adult flathead sole from the GOA ecosystem model (Aydin et al., 2007).", out.width="25%",eval = T, echo = FALSE}
-knitr::include_graphics(here('figs','null.png')) 
-```
-
-
-```{r mortjub, echo = FALSE,  fig.cap="Decomposition of natural mortality for Gulf of Alaska juvenile flathead sole from the GOA ecosystem model (Aydin et al., 2007).", out.width="25%",eval = T, echo = FALSE}
-knitr::include_graphics(here('figs','null.png')) 
-```
+ 
