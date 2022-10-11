@@ -391,6 +391,7 @@ SSplotSelex(base_model, fleets = 2, subplot = 2, agefactors = 'Asel',legendloc  
 ```
 
 ## SB vs F plot
+
 This was Fig 22 in the 2017 model with this caption: Spawning stock biomass relative to B35% and fishing mortality (F) relative to F35% from 1978-2019 (solid black line), the OFL control rule (dotted red line), the maxABC control rule (solid red line), B35% (vertical grey line), and F35% (horizontal grey line). The 2018 and 2019 spawning biomass and fishing mortality rates are as predicted by Alternatives 1 and 2 in the harvest projections.
 
 Need to read 2023/2024 sb, F from alternatives 1 and 2 in proj.
@@ -446,6 +447,48 @@ ggsave(last_plot(),
 
 ```
 
+# Par table (old vs new) 
+Copied this code from 2021 sablefish update.
+
+```{r}
+
+#names of quantities to table, add descending limb parameters
+growthPars <- c("NatM_p_1_Fem_GP_1",
+"L_at_Amin_Fem_GP_1",
+"L_at_Amax_Fem_GP_1",
+"VonBert_K_Fem_GP_1",
+"CV_young_Fem_GP_1",
+"CV_old_Fem_GP_1",
+"NatM_p_1_Mal_GP_1",
+"L_at_Amin_Mal_GP_1",
+"L_at_Amax_Mal_GP_1",
+"VonBert_K_Mal_GP_1",
+"CV_young_Mal_GP_1",
+"CV_old_Mal_GP_1",
+"SR_LN(R0)",
+"SR_BH_steep", 
+"Recr_Virgin")
+
+selexPars <- c(m2017$parameters[grepl('Sel|DblN',m2017$parameters$Label),'Label'],base_model$parameters[grepl('Sel|DblN',base_model$parameters$Label),'Label'])
+
+#likelihoods to table, you could add the individual survey likelihoods here
+like <- c("	TOTAL	",
+"	Survey	",
+"	Discard	",
+"	Length_comp	",
+"	Age_comp	",
+"	Parm_priors	") #,
+
+legend.labels <- c(base_model_name, old_model_name)
+summaryoutput <- r4ss::SSsummarize(list(base_model, m2017))
+ 
+SStableComparisons(summaryoutput,likenames=like, names=growthPars, modelnames=legend.labels,   csv=TRUE, csvdir = here('tables'), 
+                   csvfile='parcompare_growth.csv')
+
+ 
+SStableComparisons(summaryoutput,likenames=like, names=selexPars, modelnames=legend.labels,   csv=TRUE,csvdir = here('tables'), 
+                   csvfile='parcompare_selex.csv')
+```
 
 # Comparing nhauls
 In `01_bridging.qmd` we landed on `m0_8-newMI-biasAdj` as the base model. This has all the new data, corrects the historical survey datapoint, and updates the aging error matrix. The parameter hitting bounds is InitialF and we decided to leave that as-is.
