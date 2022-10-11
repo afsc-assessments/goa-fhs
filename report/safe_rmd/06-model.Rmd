@@ -100,8 +100,8 @@ Recruitment deviations for the period
 were estimated as "early-period" recruits separately from "main-period"
 recruits `r paste0(range(subset(rd_breaks, era == 'Main')[,'yr']),collapse = "-")` such that the vector of recruits for each period
 had a sum-to-zero constraint, rather than forcing a sum-to-zero
-constraint across all recruitment deviations. Recruitment deviations
-prior to the start of composition data and in the most recent years in
+constraint across all recruitment deviations. The main period ends in `r `max(subset(rd_breaks, era == 'Main')$yr` as the age at recruitment used for projections beginning in 2023 is assumed to be three years; recruitment deviations are therefore set to zero for 2021 and 2022.
+Recruitment deviations prior to the start of composition data and in the most recent years in
 the time-series are less informed than in the middle of the time-series,
 which creates a bias in the estimation of recruitment deviations and
 mean recruitment that is corrected by estimating a bias adjustment
@@ -150,7 +150,7 @@ done for previous assessments. We explore likelihood profiles over $M$, as well 
 
 ### Weight at Length
 
-The weight-length relationship used in `r old_model_name` [@Turnock2017] is used in the current assessment: $w_l = \alpha L^\beta$ where $\alpha$ = `r base_model$parameters[base_model$parameters$Label == 'Wtlen_1_Fem_GP_1','Value']` and $\beta$ = `r base_model$parameters[base_model$parameters$Label == 'Wtlen_2_Fem_GP_1','Value']`, with length (L) in centimeters and weight (w) was measured in
+The weight-length relationship used in `r old_model_name` [@Turnock2017] is used in the current assessment: $w_l = \alpha L^\beta$ where $\alpha$ = `r base_model$parameters[base_model$parameters$Label == 'Wtlen_1_Fem_GP_1','Value']` and $\beta$ = `r base_model$parameters[base_model$parameters$Label == 'Wtlen_2_Fem_GP_1','Value']`, with length (L) in centimeters and weight (w) in
 kilograms.
 
 ### Maturity at Age Ogive
@@ -177,10 +177,9 @@ catchability was allowed to be calculated analytically or estimated, as well as 
 
 ## Parameters Estimated Inside the Assessment Model
 
-A total of 86 parameters were estimated inside the assessment model.
-These include: 1) the log of unfished recruitment ($R_0$) 2) Sixty-six
-log-scale recruitment deviations; 3) Sex-specific parameters of the
-von-Bertalanffy growth curve, 4) Nine selectivity parameters in total
+A total of `r nrow(subset(base_model$parameters, Phase >0))` parameters were estimated inside the assessment model.
+These included: 1) the log of unfished recruitment ($R_0$) 2) `r  length(grep('RecrDev',base_model$parameters$Label[base_model$parameters$Phase >0]))`
+log-scale recruitment deviations; 3) Sex-specific parameters corresponding to von-Bertalanffygrowth, maturity, and natural morality (`r length(grep('GP',base_model$parameters$Label[base_model$parameters$Phase >0]))`) , 4) `r length(grep('Sel|DblN',base_model$parameters$Label[base_model$parameters$Phase >0]))` selectivity parameters in total
 for the fishery fleet and and survey (see Table @\ref(tab:tab6selex)).
 
 The model also estimates a fishing mortality rate for each model year
@@ -190,8 +189,7 @@ aforementioned parameters are below.
 ### Recruitment
 
 The log of unfished recruitment ($R_0$), log-scale recruitment
-deviations for an early period (1963-1972) and a main period (1973-2021)
-were estimated (see [Recruitment Deviations]). A 1:1 sex ratio is assumed.
+deviations for an early period (`r paste0(range(subset(rd_breaks, era == 'Early')[,'yr']),collapse = "-")`) and a main period (`r paste0(range(subset(rd_breaks, era == 'Main')[,'yr']),collapse = "-")`) were estimated (see [Recruitment Deviations]). A 1:1 sex ratio is assumed.
 
 ### Growth
 
@@ -212,4 +210,4 @@ selectivity.
 
 ### Objective Function
 
-Parameter estimates were obtained by minimizing the overall sum of a weighted set of negative log-likelihood components derived from fits to the model data described above and a set of penalty functions used to improve model convergence and impose various constraints (@MethotWetzel2013). Fits to observed annual fishery size and age compositions, as well as survey biomass estimates and size and conditional age-at-length compositions were included among the set of likelihood components. A likelihood component based on recruitment deviations from the mean was also included. Penalties were imposed to achieve good fits to annual fishery catches (biomass) and the assumed historical fishery catch. The functions used are described in more detail in Methot and Wetzel (2013) and in Appendix B of McGilliard et al. (2018).
+Parameter estimates were obtained by minimizing the overall sum of a weighted set of negative log-likelihood components derived from fits to the model data described above and a set of penalty functions used to improve model convergence and impose various constraints (@MethotWetzel2013). Fits to observed annual fishery size and age compositions, as well as survey biomass estimates and size and conditional age-at-length compositions were included among the set of likelihood components. A likelihood component based on recruitment deviations from the mean was also included. Penalties were imposed to achieve good fits to annual fishery catches (biomass) and the assumed historical fishery catch. The functions used are described in more detail in @MethotWetzel2013 and in Appendix B of McGilliard et al. (2018).
