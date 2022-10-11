@@ -139,6 +139,4 @@ load(here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata"
 
 ```{r, child="13-append_a.Rmd", eval = T}
 ```
-
-```{r, child="14-append_vast.Rmd", eval = T}
-```
+ 
