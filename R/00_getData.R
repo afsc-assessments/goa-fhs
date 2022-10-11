@@ -58,6 +58,25 @@ catch0 <- GET_CATCH(fsh_sp_area=fsh_sp_area,
 catch0 <- arrange(catch0, YEAR, ZONE, GEAR1)
 write.csv(catch0, file=here('data','catch',paste0(Sys.Date(),'-catch-raw.csv') ), row.names=FALSE)
 
+#* non-commercial catch (for table only) ----
+## downloaded fom AKFIN, manually deleted rows and saved as CSV
+
+# test <- paste0("SELECT GOA.BIOMASS_TOTAL.YEAR as YEAR,\n ",
+#                "GOA.BIOMASS_TOTAL.TOTAL_BIOMASS as BIOM,\n ",
+#                "GOA.BIOMASS_TOTAL.TOTAL_POP as POP,\n ",
+#                "GOA.BIOMASS_TOTAL.BIOMASS_VAR as BIOMVAR,\n ",
+#                "GOA.BIOMASS_TOTAL.POP_VAR as POPVAR,\n ",
+#                "GOA.BIOMASS_TOTAL.HAUL_COUNT as NUMHAULS,\n ",
+#                "GOA.BIOMASS_TOTAL.CATCH_COUNT as NUMCAUGHT\n ",
+#                "FROM GOA.BIOMASS_TOTAL\n ",
+#                "WHERE GOA.BIOMASS_TOTAL.SPECIES_CODE in (",species,")\n ",
+#                "ORDER BY GOA.BIOMASS_TOTAL.YEAR")
+# index0 <- sqlQuery(AFSC, test)
+# if(!is.data.frame(index)) stop("Failed to query GOA survey data")
+# write.csv(index0, here('data','survey',paste0(Sys.Date(),'-index_raw.csv') ),row.names=FALSE)
+
+
+
 ## note that even tho a nontrivial % is discarded, the previous model treated them all as landings
 ## (didn't model discards separately, and included in total summator)
 catchA <- catch0 %>%
