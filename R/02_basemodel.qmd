@@ -14,14 +14,14 @@ Here I make all tables & plots relevant to the report. It is assumed that projec
 
 ```{r custom plot settings, echo = FALSE}
 ggplot2::theme_set(ggsidekick::theme_sleek( base_size = 15))
-theme_replace(text= element_text(family = "roboto condensed", size = 15),
-              title = element_text(size = 15)) 
+theme_replace(text= element_text(family = "roboto condensed", size = 10),
+              title = element_text(size = 10)) 
 
 require(MetBrewer)
 require(ggtext)
 require(showtext)
 
-font_add_google("Roboto Condensed", "roboto condensed")
+font_add_google("roboto condensed")
 showtext_opts(dpi = 520)
 showtext_auto(enable = TRUE)
 
@@ -169,7 +169,7 @@ SSplotComparisons(modcomp,
 
 ```{r}
 
-catch <- read.csv(here('data','catch','2022-04-18-catch_forSS.csv'))
+catch <- read.csv(here::here('data','catch','2022-10-13-catch_forSS.csv'))
 mgmt0 <- read.csv('C:/Users/maia.kapur/Work/assessments/2021/GOA-flathead/data/2021-09-20-GOA_flathead_harvest_reformat.csv', header = F)[,-1]
 
 mgmt1 <- rbind(mgmt0[1:2,],as.numeric(gsub(",", "", mgmt0[3,]))) ## make harvest specs numeric (remove comma)
@@ -180,43 +180,31 @@ mgmt<- mgmt1%>%
   select(Yr, TAC, ABC, OFL)
 
 ## extrapolated catches
-xtrayrs <- data.frame(Yr = sppcatch$Yr,
-                      Catch = sppcatch$catch)
-
+xtrayrs <- data.frame(xtrayrs)
+names(xtrayrs) = c('Yr','Catch')
+pp <- sample(docPal,3)
 merge(mgmt, base_model$catch %>% 
         select(Yr, Catch = Obs),
-      by ='Yr', all.y = TRUE)  %>%
-  # merge(., xtrayrs, by = 'Yr',all = T) %>%
-  # mutate(c1= Catch, c2= Catch) %>%
-  data.frame(.) %>%
-  # select(-Catch.x, -Catch.y) %>%
+      by ='Yr', all.y = TRUE)  %>% 
+  data.frame(.) %>% 
   reshape2::melt(., id = 'Yr') %>%
   mutate(value = as.numeric(value), Yr = as.numeric(Yr)) %>%
   filter(variable != 'OFL') %>%
-  ggplot(., aes(x = Yr,y = value, color = variable, group = variable)) +
-  geom_line(lwd = 1.1) +
-  # theme(base_size = 18) +
-  ggsidekick::theme_sleek(base_size = 18) +
-  theme(legend.position = 'none')+
-  # theme(legend.position = c(0.8,0.9), legend.text = element_text(size = 18)) +
-  # theme(legend.text = element_text(size = 14), legend.position = 'bottom',
-  #       axis.text = element_text(size = 14),axis.title  = element_text(size = 14)) +
+  ggplot(., aes(x = Yr,y = value, color = variable, linetype = variable, group = variable)) +
+  geom_line(lwd = 1.1) + 
+  ggsidekick::theme_sleek(base_size = 13) +
+  theme(legend.position = 'none')+ 
   scale_x_continuous(limits = c(1990,2025), 
                      breaks =  seq(1990,2025,5),
-                     labels = seq(1990,2025,5)) +
-  # scale_color_manual(values = cbpal,
-  #                    labels = c('TAC','ABC','OFL',"Catches in Base Model", "Catches used in Projections" ))+
-  # annotate('text', x = rep(2020.5,4), y = c(47500,40000,30000, 4500),
-  #          label = c('OFL','ABC','TAC','Catches'),
-  #          color = c(cbpal[3:1],'grey44'), size = 6)+
-  scale_color_manual(values = sensPal,
+                     labels = seq(1990,2025,5)) + 
+  scale_color_manual(values =  pp,
                      labels = c('TAC','ABC',"Catches in Base Model", "Catches used in Projections" ))+
-  annotate('text', x = rep(2020.5,3), y = c(40000,30000, 4500),
-           label = c('ABC','TAC','Catches'),
-           color = c(sensPal[2:1],'grey44'), size = 6)+
+  annotate('text', x = rep(2020.5,3), y = c(30000,40000, 4500),
+           label = c('TAC','ABC','Catches'),
+           color = pp, size = 6)+
   labs(x = 'Year', y = 'Catch or Harvest Spex (t)', color = '')
 
-ggsave(last_plot(), file = here("figs","harvest_spex_vs_catch.png"),
+ggsave(last_plot(), file = here::here("figs","harvest_spex_vs_catch.png"),
        height = 7, width  = 12, unit = 'in', dpi = 520)
 ```
 
@@ -451,7 +439,7 @@ fig22 <- bind_rows(fig22, c('Yr' = 2024,
   
 ggplot(data = fig22, aes(x = as.numeric(SB_B35), y = as.numeric(F_F35))) +
   geom_path(color = baseCol, lwd = 0.75, aes(group = type)) +
-  geom_point(data = subset(fig22, Yr > 2021), color = 'blue') +
+  geom_point(data = subset(fig22, Yr > 2021), color = 'seagreen4') +
   scale_x_continuous(limits = c(0,3.5)) +
   scale_y_continuous(limits = c(0,1.5)) +
   geom_hline(yintercept = 1, col = 'grey88') +  geom_vline(xintercept = 1, col = 'grey88') +
