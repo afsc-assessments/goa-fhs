@@ -30,7 +30,7 @@ data.frame(Source = c(rep("U.S. trawl fishery", 2),
 
 ## Fishery
 
-(ref:ssfilesource) used in the assessment can be seen in the Stock Synthesis data file hosted here: https://github.com/mkapur-noaa/goa-fhs-2022/ModelFiles_Preliminary.
+(ref:ssfilesource) used in the assessment can be seen in the Stock Synthesis data file (`data.dat`) hosted here: https://github.com/mkapur-noaa/goa-fhs-2022/ModelFiles_PlanTeam.
 
 
 ### Catch
@@ -39,7 +39,7 @@ The assessment included catch data from `r min(base_model$catch$Yr)` to `r date`
 
 ### Age and Size Composition
 
-Fishery length composition data were included in 2cm bins from `r paste0(range(base_model$lbins), collapse = "-")` cm in `r with(subset(base_model$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", "))`. These data were current on AKFIN as of  `r date`. Compositional data were omitted in years where there were less than 15 hauls that included measured flathead sole `r  c(1982:2022)[which(!(1982:2022 %in%  unique(base_model$lendbase$Yr)))]`. The effective sample size for fishery length composition data were the annual number of hauls [@Pennington1994]. Fishery length composition (ref:ssfilesource)
+Fishery length composition data were included in 2cm bins from `r paste0(range(base_model$lbins), collapse = "-")` cm in `r with(subset(base_model$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", "))`. These data were current on AKFIN as of  `r date`. Compositional data were omitted in years where there were less than 15 hauls that included measured flathead sole: `r paste0(c(1982:2022)[which(!(1982:2022 %in%  unique(base_model$lendbase$Yr)))], collapse =", ")`. The effective sample size for fishery length composition data were the annual number of hauls [@Pennington1994]. Fishery length composition observations (ref:ssfilesource)
 
 ## Survey
 
@@ -54,7 +54,7 @@ Figure \@ref(fig:survmap) shows maps of survey CPUE in the GOA for the most rece
 
 
 ### Age and Size Composition 
-This assessment includes sex-specific length compositions from the trawl survey, as well as age frequencies of fish by length (conditional age-at-length, CAAL). For both compositional data types, the effective sample size was the number of hauls [@Pennington1994]; see section on data weighting for further discussion.
+This assessment includes sex-specific length compositions from the trawl survey, as well as age frequencies of fish by length (conditional age-at-length, CAAL). For both compositional data types, the effective sample size was the number of hauls [@Pennington1994]; see section on data weighting for further discussion. CAAL data before 1990 was not included for consistency with previous models.
 Marginal survey age composition data is also included in the data input file, but is "ghosted" and therefore does not contribute to the joint negative log likelihood. 
 
 We use conditional age-at-length data for the following reasons: 1) The approach preserves information on the relationship between length and age and provides information on variability in length-at-age such that growth parameters and variability in growth can be estimated within the model. 2) The approach resolves the issue of double-counting individual fish when using both length- and age-composition data (as length-composition data are used to calculate the marginal age compositions). See Stewart (2005) for further discussion of the use of conditional age-at-length data in fishery stock assessments.  
