@@ -36,10 +36,8 @@ Conduct retrospectives, make and save general comparison plots.
 2017 asessment showes SSB, age-0 Recruits and survey fits.
 
 ```{r retrospectives}
-
-SS_doRetro(masterdir =  here('model_runs','m0_8-newMI-biasAdj'),
-           oldsubdir = "",
-           # newsubdir = here('model_runs','m0_8-newMI-biasAdj','retrospectives'),
+retro(dir =  here('model_runs','m0_8-newMI-biasAdj'),
+           oldsubdir = "", 
            years = 0:-10)
 retroModels <- SSgetoutput(dirvec = file.path( here('model_runs','m0_8-newMI-biasAdj'), "retrospectives", paste("retro", 0:-10, sep = "")))
 retroSummary <- SSsummarize(retroModels)
@@ -91,6 +89,7 @@ I repeat this exercise and share results; if q is still high in this manner, wor
 - See what happens if steepness is estimated
 
 ## Likelihood Profiles
+Make a copy of this in case it busts.Starter changed to control_modified.ss, and prior like to 1.
 Establish vectors and run the profiles.
 ```{r likelihood profiles}
 ## note that in 2017 they did these vectors and combinations thereof for 2d plots
@@ -99,7 +98,7 @@ m.vec <- seq(0.1,0.3, length.out = 10) ## from 2017; these apply to both males a
 baser0 <- base_model$parameters[base_model$parameters$Label=='SR_LN(R0)','Value']
 r0.vec <- seq(baser0-3,baser0+3,0.2)
 
-## made a copy of this in case it busted. starter changed to control_modified.ss, and prior like to 1
+## 
 ```
 
 Extract, summarize and plot the profiles. These are saved under the base model in sub-folders within `profiles/`
