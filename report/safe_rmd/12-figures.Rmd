@@ -1,13 +1,12 @@
-# Figures 
+\newpage
 
-```{r ageerr, fig.cap="Values for ageing error matrix in previous model (black lines) and Model 17.1a (blue lines). The previous model's values were based on BSAI age reads of Flathead sole.", eval = T}
-knitr::include_graphics(here("figs","ageerr_compare.png"))
-```
+# Figures 
 
 ```{r removals, fig.cap="Catch biomass in metric tons 1978-2022 (as of October 1, 2022).", eval = T}
 knitr::include_graphics(here("model_runs","m0_8-newMI-biasAdj","plots","catch1 landings.png"))
 ```
 
+\newpage
 
 ```{r catchvsTAC, fig.cap="Catch biomass in tons 1190-2022 (as of October 1, 2022) and harvest specifications from the Federal Register for GOA Flathead Sole.", eval = T}
 knitr::include_graphics(here("figs","harvest_spex_vs_catch.png"))
@@ -21,23 +20,40 @@ knitr::include_graphics(here("figs","harvest_spex_vs_catch.png"))
 knitr::include_graphics(here('figs','2_cpue_maps.png'))
 ```
 
+\newpage
+
+```{r ageerr, fig.cap="Values for ageing error matrix in previous model (black lines) and Model 17.1a (blue lines). The previous model's values were based on BSAI age reads of Flathead sole.", eval = T}
+knitr::include_graphics(here("figs","ageerr_compare.png"))
+```
+
+\newpage
+
+```{r biasramp, fig.cap="Estimated recruitment deviations (top panel) and bias adjustment ramp (bottom panel). The ramp corresponds to the ratio of the standard error in the estimated recruitment deviations to the overall variance in recruitment; during periods of data-richness, this ratio is reduced (as more data are available to inform the deviations) and therefore the ramp assigns the heaviest weight to those model years within the likelihood function. Very recent years are less certain as we have not yet seen these recruitment events in the compositional data, which is anticipated to happen at a roughly 3-year lag for GOA Flathead sole.",  eval = T}
+knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','plots','recdevs1_points.png'))
+knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','plots','recruit_fit_bias_adjust.png'))
+```
+
+\newpage
 
 (ref:comparecap) for `r base_model_name` (green lines and/or points) and `r old_model_name` (grey lines and/or points).
-
-
-
 
 ```{r ssbcompare, fig.cap=" Time series of spawning biomass with asymptotic 95% confidence intervals (ribbons) (ref:comparecap)",out.width="50%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','compare2_spawnbio_uncertainty.png'))
 ```
 
+\newpage
+
 ```{r idxcompare, fig.cap="Observed survey biomass index (points), estimated survey biomass (lines), and asymptotic 95% confidence intervals (vertical lines and transparent ribbons), (ref:comparecap) Note that the last two years of survey data, as well as the 2001 datapoint, have been updated in 2022 to reflect the current database.", eval = T}
 knitr::include_graphics(here('figs','3_cpue_compare.png'))
 ```
 
+\newpage
+
 ```{r reccompare, fig.cap=" Time series of age-0 recruits (ref:comparecap)", out.width="50%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','compare10_recruits_uncertainty.png'))
 ```
+
+\newpage
 
 ```{r Fcompare, fig.cap="Apical fishing mortality (ref:comparecap)", out.width="50%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','compare8_Fvalue_uncertainty.png'))
@@ -49,11 +65,13 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','compare8_Fvalue_
 knitr::include_graphics(here('figs','7_slx_compare.png'))
 ```
 
+\newpage
 
 ```{r growth, fig.cap="Estimated length-at-age relationship with 95% asymptotic confidence intervals for males (blue) and females (red). The blue dashed line and red solid line show the mean relationship and dotted lines show confidence intervals.", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','bio1_sizeatage.png'))
 ```
 
+\newpage
 
 (ref:lencompcap) Observed (grey shaded area, black points and lines) and expected (colored lines) proportions-at-length by sex for `r base_model_name`. Females are shown in the upper half of each plot (red lines), males in the lower half (blue lines)
 
@@ -62,18 +80,34 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','bio1_siz
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit__aggregated_across_time.png'))
 ```
 
+\newpage
+
+```{r pearsonL, fig.cap="Pearson residuals for length-composition data for the fishery (top) and survey (bottom). Females are red, males are blue. Closed bubbles are positive residuals (observed > expected) and open bubbles are negative residuals (observed < expected).", eval = T}
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit__multi-fleet_comparison.png'))
+```
+
+
+\newpage
+
+
 ```{r lencompfitFish1, fig.cap="(ref:lencompcap). Data shown for the Fishery (1 of 2).", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt1mkt0_page1.png'))
 ```
+
+\newpage
 
 
 ```{r lencompfitFish2, fig.cap="(ref:lencompcap). Data shown for the Fishery (2 of 2).", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt1mkt0_page2.png'))
 ```
+\newpage
+
 
 ```{r lencompfitsurv, fig.cap="(ref:lencompcap). Data shown for the Survey.", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt2mkt0.png'))
 ```
+
+\newpage
 
 
 (ref:meanLcap) Mean length for Survey with 95% confidence intervals based on input sample sizes. Thinner intervals (with capped ends) show result of further adjusting sample sizes based on suggested multiplier (with 95% interval); see section on data weighting for further details.
@@ -85,15 +119,16 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_len
 ```
 
 
+\newpage
+
 
 ```{r meanLsurv, fig.cap="(ref:meanLcap). Data shown for the Survey.", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_data_weighting_TA1.8_Survey.png'))
 ```
 
 
-```{r pearsonL, fig.cap="Pearson residuals for length-composition data for the fishery (top) and survey (bottom). Females are red, males are blue. Closed bubbles are positive residuals (observed > expected) and open bubbles are negative residuals (observed < expected).", eval = T}
-knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit__multi-fleet_comparison.png'))
-```
+\newpage
+
 
 
 (ref:caalcap) Observed and expected mean age-at-length for both females and males with 90% intervals about observed age-at-length (left panels) and observed and expected standard deviation in age-at-length (right panels) for the Model 17.1a for years
@@ -102,17 +137,25 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_len
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_Andre_plotsflt2mkt0_page1.png'))
 ```
 
+\newpage
+
 ```{r caalfit2, fig.cap="(ref:caalcap) 2001-2007 (2 of 4).", out.height="75%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_Andre_plotsflt2mkt0_page2.png'))
 ```
+
+\newpage
 
 ```{r caalfit3, fig.cap="(ref:caalcap) 2009-2015 (3 of 4).", out.height="75%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_Andre_plotsflt2mkt0_page3.png'))
 ```
 
+\newpage
+
 ```{r caalfit4, fig.cap="(ref:caalcap) 2017-2021 (4 of 4).", out.height="75%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_Andre_plotsflt2mkt0_page4.png'))
 ```
+
+\newpage
 
 (ref:caalresidcap) Pearson residuals associated with fits to the length-at-age relationship within the model for females (red) and males (blue) for the survey, years
 
@@ -120,57 +163,58 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_con
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_residsflt2mkt0_page1.png'))
 ```
 
+\newpage
+
 ```{r caalresid2, fig.cap="(ref:caalresidcap) 2009-2021 (2 of 2).", out.height="75%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_residsflt2mkt0_page2.png'))
 ```
  
+\newpage
+
 ```{r caalpearson, fig.cap="(ref:caalresidcap) 2009-2021 (2 of 2).", out.height="75%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_condAALfit_residsflt2mkt0_page2.png'))
 ``` 
  
+\newpage
+
 (ref:SSBcap) time series of estimated over time (solid blue line and circles) and asymptotic 95% confidence intervals (blue dashed lines and/or bars) for `r base_model_name`.
 
 ```{r SSBts, fig.cap="Spawning stock biomass (mt) (ref:SSBcap) Point at 1977 is virgin biomass.",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts7_Spawning_biomass_(mt)_with_95_asymptotic_intervals_intervals.png'))
 ```
 
+\newpage
+
 ```{r rects, fig.cap="Age-zero recruitment (ref:SSBcap) Point at 1977 is virgin recruitment.",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age-0_recruits_(1000s)_with_95_asymptotic_intervals.png'))
 ```
 
+\newpage
 
-(ref:NAAcap) Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time 
+  
 
-
-
-(ref:NALcap) Numbers at length (grey bubbles) by year for females (left) and males (right). Red line indicates mean length through time 
-
-
-
-```{r NAA1, fig.cap="(ref:NAAcap) (1 of 2).", out.width = "50%",  eval = T}
+```{r NAA1, fig.cap=" Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time  (1 of 2).", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
 ```
 
-```{r NAA2, fig.cap="(ref:NAAcap) (2 of 2).", out.width = "50%",  eval = T}
+```{r NAA2, fig.cap="Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time  (2 of 2).", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex2_beg.png'))
 ```
 
-```{r NAL1, fig.cap="(ref:NALcap) (1 of 2).",  out.width = "50%", eval = T}
+```{r NAL1, fig.cap="Numbers at length (grey bubbles) by year for females (left) and males (right). Red line indicates mean length through time (1 of 2).",  out.width = "50%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers6_len_sex2.png'))
 ```
 
 
-```{r NAL2, fig.cap="(ref:NALcap) (2 of 2).",  out.width = "50%", eval = T}
+```{r NAL2, fig.cap="Numbers at length (grey bubbles) by year for females (left) and males (right). Red line indicates mean length through time (2 of 2).",  out.width = "50%", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers6_len_sex2.png'))
 ```
 
 
-```{r biasramp, fig.cap="Estimated recruitment deviations (top panel) and bias adjustment ramp (bottom panel). The ramp corresponds to the ratio of the standard error in the estimated recruitment deviations to the overall variance in recruitment; during periods of data-richness, this ratio is reduced (as more data are available to inform the deviations) and therefore the ramp assigns the heaviest weight to those model years within the likelihood function. Very recent years are less certain as we have not yet seen these recruitment events in the compositional data, which is anticipated to happen at a roughly 3-year lag for GOA Flathead sole.",  eval = T}
-knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','plots','bias_adj_panel.png'))
-```
 
 
-(ref:SSBcap2) Spawning stock biomass relative to B~35%~ and fishing mortality (F) relative to  F~35%~ from 1978-2021 (solid green line), the OFL control rule (solid red line), the $max_{ABC}$ control rule (dotted red line), B~35%~ (vertical grey line), and F~35%~ (horizontal grey line). The 2022 and 2023 spawning biomass and fishing mortality rates are as predicted by Alternatives 1 and 2 in the harvest projections.
+
+(ref:SSBcap2) Spawning stock biomass relative to B~35%~ and fishing mortality (F) relative to  F~35%~ from 1978-2021 (solid green line), the OFL control rule (solid red line), the $max_{ABC}$ control rule (dotted red line), B~35%~ (vertical grey line), and F~35%~ (horizontal grey line). The 2022-2024 spawning biomass and fishing mortality rates (green points) are as predicted by Alternatives 1 and 2 from the harvest projections.
 
 ```{r BFtrajectory, fig.cap="(ref:SSBcap2)",  eval = T}
 knitr::include_graphics(here('figs','22_BFTrajectory.png'))
@@ -206,7 +250,7 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','profiles','profi
 ```
 
 
-```{r profilemm, fig.cap="3-d visualization of simultaneous profile over natural mortality for each sex separately. The white contour indicates a log-likelihood difference of 1.92 from Model 17.1a; models within these bounds are statistically indistinguishable. The minimum likelihood occured when both sexes' M = 0.256.", eval = T}
+```{r profilemm, fig.cap="3-d visualization of simultaneous profile over natural mortality for each sex separately. The white contour indicates a log-likelihood difference of 1.92 from Model 17.1a; models within these bounds are statistically indistinguishable. The minimum likelihood occured when both sexes' M = 0.256. It is fixed to 0.2 in the base model.", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mm','mm_3d.png'))
 ```
 
@@ -214,8 +258,8 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','profiles','profi
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q','q_profile_piner.png'))
 ```
 
-```{r profileqm, fig.cap="3-d visualization of simultaneous profile over natural mortality and survey catchability. Natural mortality was identical for both sexes in these runs. The white contours indicate a log-likelihood difference of 1.92 from Model 17.1a; models within these bounds are statistically indistinguishable. The minimum likelihood occurred at q = 1.64 and M = 0.27.", eval = T}
-knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq','mq_3d.png'))
+```{r profileqm, fig.cap="3-d visualization of simultaneous profile over natural mortality and survey catchability. Natural mortality was identical for both sexes in these runs. The white contours indicate a log-likelihood difference of 1.92 from Model 17.1a; models within these bounds are statistically indistinguishable. The minimum likelihood occurred at q = 1.64 and M = 0.27. Q is fixed to 1 and M is fixed to 0.2 in the base model.", eval = T}
+knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq','mq_3d.png'))
 ```
 
 ```{r profileR0, fig.cap="Likelihood profiles by data component for the log of unfished recruitment (ln[R0]).  (ref:profilecap)", out.height="25%", eval = T}
@@ -234,7 +278,7 @@ knitr::include_graphics(here('figs','Aydin2007_webAdult.png'))
 knitr::include_graphics(here('figs','Aydin2007_webJuvenile.png')) 
 ```
 
-```{r aydindiet, echo = FALSE,  fig.cap="Diet composition for Gulf of Alaska juveniles (left) and adults (right) flathead sole from the GOA ecosystem model (data fromAydin et al., 2007).", eval = T, echo = FALSE}
+```{r aydindiet, echo = FALSE,  fig.cap="Diet composition for Gulf of Alaska juveniles (left) and adults (right) flathead sole from the GOA ecosystem model (data from Aydin et al., 2007).", eval = T, echo = FALSE}
 knitr::include_graphics(here('figs','Aydin2007_diet.png')) 
 ```
  
