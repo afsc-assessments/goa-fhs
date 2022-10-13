@@ -24,7 +24,7 @@ require(here)
 require(tidyverse)
 
 models <- c('3.24U','3.30_old_mles', '3.30_adjust_timing', '3.30_converted')
-colrs <- c('black',alpha('goldenrod',0.2),alpha('dodgerblue2',0.2),'seagreen4')
+colrs <- c('grey22',MetBrewer::met.brewer(name = 'Degas',n = 15))  #c('black',alpha('goldenrod',0.2),alpha('dodgerblue2',0.2),'seagreen4')
 outlist <- lapply(paste0(here('model_runs','01_bridging','cole',models)),
                   function(x) c(model=x, SS_output(x, covar=FALSE, printstats=FALSE, verbose=FALSE)))
  
@@ -239,9 +239,9 @@ Right now 2022 catches are a placeholder, will project closer to the time of.
 
 ```{r include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c('2017 Base v3.30.16','+catch', '+survey biomass', '+fishery lengths','+survey lengths','+CAAL')
-m0_1 <- SS_output(here('model_runs','m0_1'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# m0_1 <- SS_output(here('model_runs','m0_1'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_1,    png = T, dir = here('model_runs','m0_1'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_1 )),  plot = FALSE, png = T, plotdir = here('model_runs','m0_1'), uncertainty=TRUE,  legendlabels = models)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1 )),  plot = T, png = T, plotdir = here('model_runs','m0_1'), uncertainty=TRUE,  legendlabels = models[1:2])
 knitr::include_graphics(here('model_runs','m0_1','plots','data_plot2.png'))
 ```
 
@@ -252,13 +252,13 @@ In addition to the 2019 & 2021 data points, this time series has a different val
 ```{r include = F, echo = FALSE, warning = FALSE, message = FALSE}
 m0_2 <- SS_output(here('model_runs','m0_2'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_2, png = T, dir = here('model_runs','m0_2'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_2'), uncertainty=TRUE,  legendlabels = models, indexPlotEach = T)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_2'), uncertainty=TRUE,  legendlabels = models[1:3], indexPlotEach = T)
 m0_3 <- SS_output(here('model_runs','m0_3'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 ```
 
 ## Add fishery length comps `m_03`
 
-As previously, data before 1989 are included but turned off. The following years of the fishery length comps are ghosted: `r paste(unique(m0_3$ghostlendbase$Yr), collapse = ", ")`. I noticed that the input data in the previous model is in somewhat strange raw numbers (i.e an observed number of 132.708 within a sample size of 46). When you run `ss_output()` on the original data, it returns `lendbase` scaled to 1, which I used to spot check that the extracted data was accurate in the `00_getData.R` script. So, I replaced the entire data frame in this step, acknowledging that the input scale is different.
+As previously, data before 1989 are included but turned off. The following years of the fishery length comps are ghosted: `r paste(unique(m0_3$ghostlendbase$Yr), collapse = ", ")` based on the 15-haul cutoff, which is slightly different than 2017 (2000 and 2008 are included now). I noticed that the input data in the previous model is in somewhat strange raw numbers (i.e an observed number of 132.708 within a sample size of 46). When you run `ss_output()` on the original data, it returns `lendbase` scaled to 1, which I used to spot check that the extracted data was accurate in the `00_getData.R` script. So, I replaced the entire data frame in this step, acknowledging that the input scale is different.
 
 The aggregate fit is fine but the residuals in the early period are awful (this was the case before as well).
 
