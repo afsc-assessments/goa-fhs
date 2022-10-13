@@ -1,14 +1,14 @@
 ## Area Allocation of Harvest
 
-Area apportionment for ABC of `r species` is currently based on the proportion of survey biomass projected for each area in `r year+1` and `r year+2` using the new survey averaging random effects model "REMA" developed by the survey averaging working group (see https://github.com/afsc-assessments/rema for more information).  A bridging exercise confirmed that this package, written in Template Model Builder, produces the same results as the ADMB-RE package used for this stock in previous years when fitting the three geographic strata simultaneously. Please refer to the 2017 full stock assessment report [@Turnock2017] for information regarding the apportionment rationale for GOA `r species`.
+Area apportionment for ABC of `r species` is currently based on the proportion of survey biomass projected for each area using the new survey averaging random effects model "REMA" developed by the survey averaging working group (see https://github.com/afsc-assessments/rema for more information).  A bridging exercise confirmed that this package, written in Template Model Builder, produces the same results as the ADMB-RE package used for this stock in previous years when fitting the three geographic strata simultaneously. Please refer to the 2017 full stock assessment report [@Turnock2017] for information regarding the apportionment rationale for GOA `r species`.
  
-The following table shows the recommended ABC apportionment for `r year` and `r year +1`. The author notes that in previous projections of the `r species` model (including those one in 2021), the time series of recruitments and spawning biomass began in 1984 (the start of the main period for recruitment deviations), not 1977 as required by a 1999 memo by R. Maraso. For the present assessment (`r base_model_name`), inputs to the projection module have been corrected to use the time series of recruitment and SSB beginning in 1977. Projections assume recruitment at age 3.
+The following table shows the recommended ABC apportionment for `r year+1` and `r year+2`. The author notes that in previous projections of the `r species` model (including those one in 2021), the time series of recruitments and spawning biomass began in 1984 (the start of the main period for recruitment deviations), not 1977 as requested by a 1999 memo by R. Maraso. For consistency between previous assessments and the current assessment (`r base_model_name`), inputs to the correction module continue to use the time series of recruitment and SSB beginning in 1984, which corresponds to the onset of most survey data. Projections assume recruitment at age 3.
 
 
 ```{r}
 # apportionment table example
 
-appo <- read.csv(here::here('re',paste0("2022-10-03-AreaAppportionment.csv")))
+appo <- read.csv(here::here('re',paste0("2022-10-13-AreaAppportionment.csv")))
 appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
 appo$Year <- as.character(appo$Year)
 flextable::flextable(appo[,-1]) %>%
