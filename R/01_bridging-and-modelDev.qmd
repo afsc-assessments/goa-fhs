@@ -188,10 +188,10 @@ Here I run the converted model with the *new* aging error matrix from `aic2p`. T
 
 ```{r include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c('3.24U (2017)','3.30_converted','3.30_newAgeErr')
-m0_4 <- SS_output(here('model_runs','01_bridging','cole','m04_update_ageing_error'))
-# SS_plots(m0_4)
-# SSplotComparisons(SSsummarize(list(m2017,m0_0,m0_4)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
-# SSplotComparisons(SSsummarize(list(m0_0,m0_4)),
+m0_4age <- SS_output(here('model_runs','01_bridging','cole','m04_update_ageing_error'))
+# SS_plots(m0_4age)
+# SSplotComparisons(SSsummarize(list(m2017,m0_0,m0_4age)),  uncertainty=TRUE, subplot = 1, legendlabels = models)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_4age)),
 #                   plot = FALSE, png = T,
 #                   plotdir = here('model_runs','01_bridging','cole','m04_update_ageing_error'), 
 #                   uncertainty=TRUE,  legendlabels = models[2:3])
@@ -235,7 +235,7 @@ SSplotComparisons(SSsummarize(list(m0_0,m0_0check)),  uncertainty=TRUE, subplot 
 
 ## Add catch `m0_1`
 
-Right now 2022 catches are a placeholder, will project closer to the time of.
+2022 catches are a final estimate as of 13 Oct 2022.
 
 ```{r include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c('2017 Base v3.30.16','+catch', '+survey biomass', '+fishery lengths','+survey lengths','+CAAL')
@@ -264,7 +264,7 @@ The aggregate fit is fine but the residuals in the early period are awful (this 
 
 ```{r include = F, echo = FALSE, warning = FALSE, message = FALSE}
 # SS_plots(m0_3,   png = T, dir =   here('model_runs','m0_3'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels =  models,indexPlotEach = T)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_3'), uncertainty=TRUE,  legendlabels =  models[1:4],indexPlotEach = T)
 ```
 
 ```{r, echo=FALSE, out.height = '25%'}
@@ -280,7 +280,7 @@ The nsamp (nhauls) has changed by 1 or so across years between the old version a
 m0_4 <- SS_output(here('model_runs','m0_4'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_4,   png = T, dir =   here('model_runs','m0_4'))
 # SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4)),
-# plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models,indexPlotEach = T)
+# plot = FALSE, png = T, plotdir = here('model_runs','m0_4'), uncertainty=TRUE,  legendlabels = models[1:5],indexPlotEach = T)
 ```
 
 ## Add survey CAALs & marginal survey ages as ghost fleet `m0_5`
@@ -296,7 +296,7 @@ Good to look at the SS.html file to confirm the marginal ages are indeed ghosted
 ```{r include = TRUE, echo = FALSE, warning = FALSE, message = FALSE}
 m0_5 <- SS_output(here('model_runs','m0_5'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SS_plots(m0_5,   png = T, dir =   here('model_runs','m0_5'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4,m0_5)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5'), uncertainty=TRUE,  legendlabels = models,indexPlotEach = T)
+# SSplotComparisons(SSsummarize(list(m0_0,m0_1,m0_2,m0_3,m0_4,m0_5)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_5'), uncertainty=TRUE,  legendlabels = models[1:6],indexPlotEach = T)
 
 ## view entirety of new data
 par(mfrow = c(1,2))
@@ -336,11 +336,11 @@ Here are some tests runs with the survey data:
 -   `m0_6d`: this is `m0_6` with both the changes mentioned above (revert year 2001 and remove values after 2017). This is generally equivalent to using the 2017 benchmark survey INDEX data, since all values besides 2001 were consistent between design-based survey pulls.
 
 ```{r include = F, echo = FALSE, warning = FALSE, message = FALSE}
-models = c("2017 base", "m0_6", "m0_6b [reverted 2001 survey]", 
-           "m0_6c [truncate survey]", "m0_6d [revert & truncate]")
-m0_6b <- SS_output(here('model_runs','m0_6b'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-m0_6c <- SS_output(here('model_runs','m0_6c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-m0_6d <- SS_output(here('model_runs','m0_6d'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# models = c("2017 base", "m0_6", "m0_6b [reverted 2001 survey]", 
+#            "m0_6c [truncate survey]", "m0_6d [revert & truncate]")
+# m0_6b <- SS_output(here('model_runs','m0_6b'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# m0_6c <- SS_output(here('model_runs','m0_6c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+# m0_6d <- SS_output(here('model_runs','m0_6d'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 # SSplotComparisons(SSsummarize(list(m0_0,m0_6,m0_6b,m0_6c,m0_6d)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_6d'), uncertainty=TRUE,  legendlabels = models, indexPlotEach = T)
 ```
 
@@ -386,10 +386,10 @@ This takes model `m0_6` and replaces the series with the model-based VAST data (
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c("2017 base", "m0_6", "m0_7 [VAST data instead]")
 m0_7 <- SS_output(here('model_runs','m0_7'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-# SS_plots(m0_7,   png = T, dir =   here('model_runs','m0_7'))
-# SSplotComparisons(SSsummarize(list(m0_0,m0_6,m0_7)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_7'), uncertainty=TRUE,  legendlabels = models, indexPlotEach = T)
-par(mfrow = c(1,2))
-SSplotIndices(m0_6, subplots = 2);SSplotIndices(m0_7, subplots = 2)
+SS_plots(m0_7,   png = T, dir =   here('model_runs','m0_7'))
+SSplotComparisons(SSsummarize(list(m0_0,m0_6,m0_7)),  plot = FALSE, png = T, plotdir = here('model_runs','m0_7'), uncertainty=TRUE,  legendlabels = models, indexPlotEach = T)
+# par(mfrow = c(1,2))
+# SSplotIndices(m0_6, subplots = 2);SSplotIndices(m0_7, subplots = 2)
 ```
 
 The model seems largely insensitive to the survey data, at least at the scale difference we're seeing here. The stability and upward trend in recent years is conserved at the expense of poor fits to the index. That said, there really is not a ton of information in our index, which means the model is likely relying more heavily on other information sources (namely lengths). I notice too that early lengths from the fishery are pretty overfit.
@@ -407,15 +407,15 @@ This section adds in the new aging error matrix, does a final pass on warning me
 
 ## Add New Aging Error Matrix `m0_8`  
 
-Recall that we ran the 2017 model with the new aging error matrix (here `m0_4`) and didn't see a strong change in derive quants; but for completeness I recommend we use the (latest) info that we have. After running this model I pasted in the data_ss.new so the formatting was improved.
+Recall that we ran the 2017 model with the new aging error matrix (here `m0_4`) and didn't see a strong change in derived quants. For completeness and following the CIE, I recommend we use the (latest) info that we have. After running this model I pasted in the data_ss.new so the formatting was improved.
 
 ```{r, include = F, echo = FALSE, warning = FALSE, message = FALSE}
 models = c("2017 base", "m0_6", "m0_4 (base w/ new ageerr)", "m0_8 (m0_6 w/ new ageerr)")
 m0_8 <- SS_output(here('model_runs','m0_8'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-## double check error matrices are indeed distinct
-m0_6$age_error_mean; m0_4$age_error_mean; m0_8$age_error_mean
+## double check error matrices are indeed distinct bw m06 and 4age, 8
+m0_6$age_error_mean; m0_4age$age_error_mean; m0_8$age_error_mean
 # SS_plots(m0_8,   png = T, dir =   here('model_runs','m0_8'))
-SSplotComparisons(SSsummarize(list(m0_0,m0_6,m0_4,m0_8)),  plot = T, png = F, plotdir = here('model_runs','m0_8'), uncertainty=TRUE,  legendlabels = models, indexPlotEach = T, subplots = c(2,11,13))
+# SSplotComparisons(SSsummarize(list(m0_0,m0_6,m0_4age,m0_8)),  plot = T, png = T, plotdir = here('model_runs','m0_8'), uncertainty=TRUE,  legendlabels = models, indexPlotEach = T)
 SSplotComparisons(SSsummarize(list(m0_0,m0_6,m0_4,m0_8)),   legendlabels = models, indexPlotEach = T, subplots = c(2,11,13))
 ```
 
@@ -426,26 +426,29 @@ First I do a run with the data weights reverted to 1 for the composition & surve
 ```{r echo = F, warning = FALSE, message = FALSE }
 m0_8c <- SS_output(here('model_runs','m0_8c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
-SSplotComparisons(SSsummarize(list(base_model,
+SSplotComparisons(SSsummarize(list(m0_8,
                                    m0_8c)),
                   plotdir = here('model_runs','m0_8c'),
                   print =T,
                   col = c(baseCol,sensPal[4]),
                   # subplots = c(2,13),
-                  legendlabels = c('Model 17.1a (2022)',
-                                   'Base Model with no weights'))
+                  legendlabels = c('m0_8 [putative base]',
+                                   'm0_8 with no weights'))
 
 ```
 
 
-Doing a cursory check to see if Francis weights are very different than MI at this point. The suggested MI values (when starting from nothing) are roughly in line with what's in `m0_8`; the francis values, however, all are down-weighted instead (?).
+Doing a cursory check to see if Francis weights are very different than MI at this point. The suggested MI values (when starting from nothing) are roughly in line with what's in `m0_8`; the Francis values, however, all are down-weighted instead (?).
+
+Also note that the values vary slightly depending whether you start from m0_8 or m0_8c. Because starting from the former is basically doing a new set of tuning, I instead start from the unweighted model and use those values.
+
 ```{r echo = F, warning = FALSE, message = FALSE }
 ## just check out the values
 tune_comps(m0_8c, 
-              option = 'Francis',
+              option = 'MI',
               niters_tuning = 0,
               allow_up_tuning = TRUE,
-              write = F,
+              write =F,
               dir = here('model_runs','m0_8c')) %>%
   select(Name, Type, New_MI, New_Francis)
 ```
@@ -459,19 +462,20 @@ I'm going to stick with the new M-I values for now. However, I think future mode
 m0_8newMI <- SS_output(here('model_runs','m0_8-newMI'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 m0_8newFrancis <- SS_output(here('model_runs','m0_8-newFrancis'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
-# SSplotComparisons(SSsummarize(list(m2017, 
-#                                    # base_model,
-#                                    # m0_8,m0_8c,
-#                                    m0_8newMI,
-#                                    m0_8newFrancis)),
-#                   print = F,
-#                   plotdir =here('model_runs','m0_8-newFrancis'),
-#                   # subplots = c(2,4,11,13),
-#                   legendlabels = c('m2017',
-#                                    'base model (new MI)',
-#                                    # 'm0_8c [no weights]',
-#                                    # 'm0_8 new MI',
-#                                    'm0_8 new Francis'))
+SSplotComparisons(SSsummarize(list(m2017,
+                                   # base_model,
+                                   m0_8,
+                                   # m0_8c,
+                                   m0_8newMI,
+                                   m0_8newFrancis)),
+                  print = T,
+                  plotdir =here('model_runs','m0_8-newFrancis'),
+                  # subplots = c(2,4,11,13),
+                  legendlabels = c('m2017',
+                                   'm0_8',
+                                   # 'm0_8c [no weights]',
+                                   'm0_8 new MI',
+                                   'm0_8 new Francis'))
 
 cbind(m0_8newMI$likelihoods_used,m0_8newFrancis$likelihoods_used)
 ```
@@ -480,9 +484,12 @@ cbind(m0_8newMI$likelihoods_used,m0_8newFrancis$likelihoods_used)
 Now that we have the new data weights, to deal with the warning "Main recdev biasadj is >2 times ratio of rmse to sigmaR", I will go with what comes out of `SS_fitbiasramp`. This suggests new breakpoints and maximum value for the ramp. This recommends *retaining the endyr for the ramp around 2015*, likely in response to the availability of the comp data. 
 
 
-I took a look at the rmse_table. This shows the mean bias adjustment during each era; generally, we'd want to see the estimated sigma-R to approach our input. The warning means that the RMSE of the estimated rec-devs (in the report file) is very small (bias-adj is greater than rmse-squared over sigma-r-squared). I'm pretty sure the ideal offset value is given in eq 19 in the SS manual, and it's the third column of the rmse table here (0.168711 for MPD). After running, we can see that the mean bias adj now is much more in line with the ratio for the main period.
+I took a look at the rmse_table. This shows the mean bias adjustment during each era; generally, we'd want to see the estimated sigma-R to approach our input. The warning means that the RMSE of the estimated rec-devs (in the report file) is very small (bias-adj is greater than rmse-squared over sigma-r-squared). I'm pretty sure the ideal offset value is given in eq 19 in the SS manual, and it's the third column of the rmse table here (0.168711 for MPD). 
+
+After running, we can see that the mean bias adj now is much more in line with the ratio for the main period.
 
 This did away with the bias adjustment warning. 
+
 Both models have `InitF_seas_1_flt_1Fishery`  on bounds, and warnings about convergence in FMSY which I'm not too worried about since we derive those using a difference model instead. They also both have slightly high convergence (enough to throw warning). This goes away if the rec-dev bias ramp is pushed out but because that effectively upweights the comps data (against the recommendation of the weights) I'm going to leave it alone.
 
 The BASE MODEL is now `m0_8-newMI-biasAdj`.
@@ -490,19 +497,18 @@ The BASE MODEL is now `m0_8-newMI-biasAdj`.
 
 newBy <- SS_fitbiasramp(m0_8newMI, verbose = FALSE)
 round(newBy$df$value[1:4], 1);round(newBy$df$value[5], 5)
-
-
 m0_8newMI$rmse_table
-m0_8newMIbias <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
+m0_8newMIbias <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 SS_fitbiasramp(m0_8newMIbias, verbose = TRUE)
-m0_8newMIbias$rmse_table
-SSplotComparisons(SSsummarize(list(m2017, m0_8,m0_8newMI,m0_8newMIbias)),
-                  subplots = c(2,4,11,13),
-                  legendlabels = c('m2017',
-                                   'm0_8', 
-                                   'm0_8 new MI',
-                                    'm0_8 new MI + reduce bias'))
+
+# m0_8newMIbias$rmse_table
+# SSplotComparisons(SSsummarize(list(m2017, m0_8,m0_8newMI,m0_8newMIbias)),
+#                   subplots = c(2,4,11,13),
+#                   legendlabels = c('m2017',
+#                                    'm0_8', 
+#                                    'm0_8 new MI',
+#                                     'm0_8 new MI + reduce bias'))
 
 ```
 
