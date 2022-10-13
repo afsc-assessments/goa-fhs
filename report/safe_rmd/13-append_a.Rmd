@@ -4,13 +4,7 @@
 In order to comply with the Annual Catch Limit (ACL) requirements, a dataset has been generated to help estimate total catch and removals from NMFS stocks in Alaska. 
 This dataset estimates total removals that occur during non-directed groundfish fishing activities. 
 This includes removals incurred during research, subsistence, personal use, recreational, and exempted fishing permit activities, but does not include removals taken in fisheries other than those managed under the groundfish FMP. These estimates represent additional sources of removals to the existing Catch Accounting System estimates. 
-For Gulf of Alaska (GOA) northern rockfish, these estimates can be compared to the research removals reported in previous assessments (Heifetz et al. 2009; Table 10 A-1). 
-Northern rockfish research removals are minimal relative to the fishery catch and compared to the research removals of other species. The majority of research removals are taken by the Alaska Fisheries Science Center’s (AFSC) biennial bottom trawl survey which is the primary research survey used for assessing the population status of northern rockfish in the GOA. 
-Other research activities that harvest northern rockfish include longline surveys by the International Pacific Halibut Commission and the AFSC and the State of Alaska’s trawl surveys. 
-Recreational harvest of northern rockfish rarely occurs. 
-Total removals from activities other than a directed fishery have been near 10 t for 2010 -- 2017. 
-The 2017 other removals is <1% of the 2018 recommended ABC of 4,529 t and represents a very low risk to the northern rockfish stock. Research harvests from trawl in recent years are higher in odd years due to the biennial cycle of the AFSC bottom trawl survey in the GOA and have been less than 10 t except in 2013 when 18 t were removed. 
-These removals do not pose a significant risk to the northern rockfish stock in the GOA.
+For Gulf of Alaska (GOA) northern rockfish, these estimates can be compared to the research removals reported in previous assessments.
 
 
 ```{r appxAcatch, echo = FALSE, warning = FALSE, message = FALSE}
@@ -39,12 +33,34 @@ aa$collection_year <- as.character(aa$collection_year)
 
 ```{r appxAADFG, echo = FALSE, warning = FALSE, message = FALSE}
 flextable::regulartable(aa %>%
-  select(grep('adfg',colnames(aa)))) %>% 
+  select(collection_year ,grep('adfg',colnames(aa)))) %>% 
   flextable::autofit(part = "all") %>%
   flextable::align(align = "center", part = "all")%>% 
   flextable::merge_h(part = "header") %>%
   flextable::merge_v(part = "header")  %>%  
   flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from ADF&G; values in kg.") %>% flextable::autofit()
+# flextable::width( width = c(3,2,2))
+```
+
+```{r appxAIPHC, echo = FALSE, warning = FALSE, message = FALSE}
+flextable::regulartable(aa %>%
+  select(collection_year , grep('iphc',colnames(aa)))) %>% 
+  flextable::autofit(part = "all") %>%
+  flextable::align(align = "center", part = "all")%>% 
+  flextable::merge_h(part = "header") %>%
+  flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from the IPHC; values in kg.") %>% flextable::autofit()
+# flextable::width( width = c(3,2,2))
+```
+
+```{r appxANFMS, echo = FALSE, warning = FALSE, message = FALSE}
+flextable::regulartable(aa %>%
+  select(collection_year ,grep('nmfs',colnames(aa)))) %>% 
+  flextable::autofit(part = "all") %>%
+  flextable::align(align = "center", part = "all")%>% 
+  flextable::merge_h(part = "header") %>%
+  flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from NMFS; values in kg.") %>% flextable::autofit()
 # flextable::width( width = c(3,2,2))
 ```
  
