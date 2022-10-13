@@ -3,12 +3,11 @@
 
 In order to comply with the Annual Catch Limit (ACL) requirements, a dataset has been generated to help estimate total catch and removals from NMFS stocks in Alaska. 
 This dataset estimates total removals that occur during non-directed groundfish fishing activities. 
-This includes removals incurred during research, subsistence, personal use, recreational, and exempted fishing permit activities, but does not include removals taken in fisheries other than those managed under the groundfish FMP. These estimates represent additional sources of removals to the existing Catch Accounting System estimates. 
-For Gulf of Alaska (GOA) northern rockfish, these estimates can be compared to the research removals reported in previous assessments.
+This includes removals incurred during research, subsistence, personal use, recreational, and exempted fishing permit activities, but does not include removals taken in fisheries other than those managed under the groundfish FMP. These estimates represent additional sources of removals to the existing Catch Accounting System estimates.  
 
 
 ```{r appxAcatch, echo = FALSE, warning = FALSE, message = FALSE}
-aa0 <- read.csv(here('data','catch','10112022-noncommercialfisherycatch.csv'))
+aa0 <- read.csv(here::here('data','catch','10112022-noncommercialfisherycatch.csv'))
 aa <- aa0 %>%
   filter(FMP.Area == 'GOA') %>%
   group_by(Collection.Year,Collection.Agency,Collection.Name) %>%
@@ -18,10 +17,10 @@ aa <- aa0 %>%
   data.frame() 
 
 ## for header rows
-repnums <- aa0 %>%
-   group_by(Collection.Agency) %>%
-  summarise(n = length(unique(Collection.Name))) %>%
-  arrange(Collection.Agency)
+# repnums <- aa0 %>%
+#    group_by(Collection.Agency) %>%
+#   summarise(n = length(unique(Collection.Name))) %>%
+#   arrange(Collection.Agency)
 
 aa <-  aa %>% select(collection_year , order(colnames(aa)))
 aa[aa > 1 & !is.na(aa)] <- round(aa[aa > 1 & !is.na(aa)],0)
@@ -30,6 +29,8 @@ aa$collection_year <- as.character(aa$collection_year)
 
 
 ```
+
+\newpage 
 
 ```{r appxAADFG, echo = FALSE, warning = FALSE, message = FALSE}
 flextable::regulartable(aa %>%
@@ -52,6 +53,8 @@ flextable::regulartable(aa %>%
   flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from the IPHC; values in kg.") %>% flextable::autofit()
 # flextable::width( width = c(3,2,2))
 ```
+
+\newpage
 
 ```{r appxANFMS, echo = FALSE, warning = FALSE, message = FALSE}
 flextable::regulartable(aa %>%
