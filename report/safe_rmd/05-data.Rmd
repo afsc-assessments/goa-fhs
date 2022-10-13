@@ -1,6 +1,6 @@
 # Data
 
-The following table summarizes the data used in the stock assessment model for northern rockfish (bold denotes new data for this assessment):
+The following table summarizes the data used in the stock assessment model for `r species`:
 
 ```{r}
 
@@ -35,11 +35,11 @@ data.frame(Source = c(rep("U.S. trawl fishery", 2),
 
 ### Catch
 
-The assessment included catch data from `r min(base_model$catch$Yr)` to `r date` (Figure \@ref(fig:removals)). Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, (Table \@ref(tab:catchbyarea)). Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years \@ref(fig:catchvsTAC). 
+The assessment included catch data from `r min(base_model$catch$Yr)` to `r date` (Figure \@ref(fig:removals)). Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years (Figure \@ref(fig:catchvsTAC)).  Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, (Table \@ref(tab:catchbyarea)). 
 
 ### Age and Size Composition
 
-Fishery length composition data were included in 2cm bins from 6-56cm in `r with(subset(base_model$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", "))`; data were omitted in years where there were less than 15 hauls that included measured flathead sole (1982-1988, 2000, 2008). The effective sample size for fishery length composition data were the number of hauls [@Pennington1994]. Fishery length composition (ref:ssfilesource)
+Fishery length composition data were included in 2cm bins from `r paste0(range(base_model$lbins), collapse = "-")` cm in `r with(subset(base_model$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", "))`. These data were current on AKFIN as of  `r date`. Compositional data were omitted in years where there were less than 15 hauls that included measured flathead sole `r  c(1982:2022)[which(!(1982:2022 %in%  unique(base_model$lendbase$Yr)))]`. The effective sample size for fishery length composition data were the annual number of hauls [@Pennington1994]. Fishery length composition (ref:ssfilesource)
 
 ## Survey
 
@@ -63,6 +63,6 @@ Input survey length composition and CAAL data, and the corresponding sample size
 
 
 ### Maturity Data
-The maturity ogive for flathead sole followed an age-based logistic curve where age at 50% maturity was 9.7 and age at 95% maturity was 12.8. 
+The maturity ogive for flathead sole followed an age-based logistic curve where age at 50% maturity was `r base_model$parameters[grep('Mat50%_Fem_GP_1',base_model$parameters$Label),'Value']` and age at 95% maturity was 12.54. 
 
 
