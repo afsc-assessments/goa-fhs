@@ -397,37 +397,61 @@ Need to read 2023/2024 sb, F from alternatives 1 and 2 in proj.
 ```{r}
 ## take all reference values from Proj, noting that refs to "ofl" correspond to "b35" therein
 rec_table1 <-
-  read.table(here('projection','percentdb.out')) %>%
+  read.table(here::here('projection','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
   transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
             value=as.numeric(V5)) %>%
-  filter(year %in% (this_year+1:2) & scenario==1 &
-           metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
+  filter(year %in% (this_year:(this_year+2)) & scenario==1 
+         &  metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc', 'F_Mean')
+         ) %>%
   arrange(year, metric) %>%
   tidyr::pivot_wider(names_from=year, values_from=value)
-rec_table2 <-
-  read.table(here('projection','alt2_proj.out'), header=TRUE) %>%
-  filter(Year %in% (this_year+1:2)) %>%
-   tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
-   tidyr::pivot_wider(names_from=Year, values_from=value)
+# rec_table2 <-
+#   read.table(here::here('projection','alt2_proj.out'), header=TRUE) %>%
+#   filter(Year %in% (this_year+1:2)) %>%
+#    tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+#    tidyr::pivot_wider(names_from=Year, values_from=value)
 
 ## use these as denominators
 b35 <- as.numeric(subset(rec_table1, metric == 'SSBFofl')[,'2023']) ## in mt
 f35 <- as.numeric(subset(rec_table1, metric == 'Fofl')[,'2023'] )
 b100 <- as.numeric(subset(rec_table1, metric == 'SSBF100')[,'2023']) ## in mt
 
-fig22 <- mod17$timeseries %>% dplyr::select(Yr, SpawnBio, Fy = `F:_1`) %>%
+fig22 <- base_model$timeseries %>% dplyr::select(Yr, SpawnBio, Fy = `F:_1`) %>%
   filter(Yr > 1977  ) %>%
   mutate(SB_B35 = SpawnBio/(1000*b35), F_F35 = Fy/f35, type = 'aa') %>%
   arrange(., Yr)
+
+## fill in yr, spawnbio, fy, b/b35, f/f35, type for proj yeras
+
+fig22[fig22$Yr == 2022,] <- c(2022, 
+                              as.numeric(1000*subset(rec_table1, metric == 'SSBMean')[,'2022']),
+                            as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2022']),
+                             as.numeric(subset(rec_table1, metric == 'SSBMean')[,'2022']/b35),
+                               as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2022']/f35),
+                            'aa')
+
+fig22[fig22$Yr == 2023,] <- c(2023, 
+                              as.numeric(1000*subset(rec_table1, metric == 'SSBMean')[,'2023']),
+                            as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2023']),
+                             as.numeric(subset(rec_table1, metric == 'SSBMean')[,'2023']/b35),
+                               as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2023']/f35),
+                            'aa')
+
+fig22 <- bind_rows(fig22, c('Yr' = 2024, 
+                             "SpawnBio" = as.numeric(1000*subset(rec_table1, metric == 'SSBMean')[,'2024']),
+                            'Fy' = as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2024']),
+                             "SB_B35"= as.numeric(subset(rec_table1, metric == 'SSBMean')[,'2024']/b35),
+                               "F_F35"= as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2024']/f35),
+                           'type'= 'aa'))
 # fig22$type[fig22$Yr > 1978] <- 'BB'
 # fig22$type[fig22$Yr == 1978] <- NA
-
+# fig22[,1:5] <- as.numeric(fig22[,1:5])
 ## showing the OFL and ABC control rules. These are actually relative to B100
   
-ggplot(data = fig22, aes(x = SB_B35, y = F_F35)) +
+ggplot(data = fig22, aes(x = as.numeric(SB_B35), y = as.numeric(F_F35))) +
   geom_path(color = baseCol, lwd = 0.75, aes(group = type)) +
-  # geom_point(color = Yr) +
+  geom_point(data = subset(fig22, Yr > 2021), color = 'blue') +
   scale_x_continuous(limits = c(0,3.5)) +
   scale_y_continuous(limits = c(0,1.5)) +
   geom_hline(yintercept = 1, col = 'grey88') +  geom_vline(xintercept = 1, col = 'grey88') +
@@ -438,7 +462,7 @@ ggplot(data = fig22, aes(x = SB_B35, y = F_F35)) +
   labs(x = expression('Spawning Biomass/B'[35]*"%"),y = expression('F/F'[35]*"%"))
 
 ggsave(last_plot(),
-       file = here('figs','22_BFTrajectory.png'),
+       file = here::here('figs','22_BFTrajectory.png'),
        width = 5, height = 5, dpi = 400)
 
 
@@ -477,15 +501,37 @@ like <- c("	TOTAL	",
 "	Age_comp	",
 "	Parm_priors	") #,
 
-legend.labels <- c(base_model_name, old_model_name)
+legend.labels <-
 summaryoutput <- r4ss::SSsummarize(list(base_model, m2017))
+partab<- SStableComparisons(summaryoutput,likenames=like, names=growthPars)[c(1:6,8:12,15),]
+names(partab)[2:3] <-  c(base_model_name, old_model_name)
+partab[c(1,7),2] <- 0.2 ## manual fill natM since label changed
+partab[,2:3] <- round(partab[,2:3],3)
+partab$Label <- c("Natural Mortality (both sexes)",
+                  "Length at age 2 (females, cm)",
+                  "Linf (females, cm)",
+                  "von Bertalanffy k (females, cm/yr)",
+                  "CV in length-at-age 2 (females)",
+                  "CV in length-at-age 59 (females)",
+                  "Length at age 2 (males, cm)",
+                  "Linf (males, cm)",
+                  "von Bertalanffy k (males, cm/yr)",
+                  "CV in length-at-age 2 (males)",
+                  "CV in length-at-age 59 (males)",
+                  "Unfished Recruitment (millions)")
  
-SStableComparisons(summaryoutput,likenames=like, names=growthPars, modelnames=legend.labels,   csv=TRUE, csvdir = here('tables'), 
-                   csvfile='parcompare_growth.csv')
+write.csv(partab, here::here('tables','parcompare_growth.csv'), row.names = FALSE)
 
- 
-SStableComparisons(summaryoutput,likenames=like, names=selexPars, modelnames=legend.labels,   csv=TRUE,csvdir = here('tables'), 
-                   csvfile='parcompare_selex.csv')
+parSelex <-  SStableComparisons(summaryoutput,likenames=like, names=selexPars, modelnames=c(base_model_name, old_model_name))
+
+## manually move stuff around
+parSelex[1:6,1:2] <- parSelex[23:28,1:2]; parSelex[23:28,] <- NA
+parSelex[12:17,1:2] <- parSelex[34:39,1:2] ; parSelex[34:39,] <- NA
+parSelex<-parSelex[!is.na(parSelex)] ## drop NAs
+write.csv(parSelex[grep('Fishery', parSelex$Label),],
+          file = here::here('tables','parcompare_selexfishery.csv'), row.names = FALSE)
+write.csv(parSelex[grep('Survey', parSelex$Label),],
+          file = here::here('tables','parcompare_selexsurvey.csv'), row.names = FALSE)
 ```
 
 # Comparing nhauls
