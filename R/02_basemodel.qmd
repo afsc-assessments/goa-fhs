@@ -80,7 +80,7 @@ SSplotComparisons(modcomp,
                   legendlabels = c('No Survey Data < 1994',modlabs[2]))
 
 
-SSplotData(base_srv1993)
+# SSplotData(base_srv1993)
 ```
 
 ## base and q estimated/analytical
@@ -123,10 +123,9 @@ SSplotComparisons(modcomp,
 
 ```{r}
 ## manually check it used the right values
-
 base_olderr <-  SS_output( here('model_runs','m0_8-newMI-biasAdj-oldAgeErr'))
-base_olderr$age_error_mean; base_olderr$age_error_sd
-base_model$age_error_mean; base_model$age_error_sd
+base_olderr$age_error_mean; base_model$age_error_mean
+base_olderr$age_error_sd; base_model$age_error_sd
 
 modcomp <- SSsummarize(list(base_olderr,base_model))
 
