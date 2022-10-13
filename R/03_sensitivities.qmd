@@ -133,6 +133,8 @@ SSplotProfile(profile_m_summary, # summary object
 dev.off()
 
 ## values for report
+which(mm.df.plotmeZ == min(mm.df.plotmeZ), arr.ind = TRUE)
+
 
 profile_m_summary$likelihoods %>%
   reshape2::melt(id = 'Label') %>%
@@ -142,7 +144,7 @@ profile_m_summary$likelihoods %>%
  
 apply(profile_m_summary,1,which.min( likelihoods))
 
-which.min(profile_m_summary$likelihoods)
+m.vec[which.min(profile_m_summary$likelihoods[1,1:length(m.vec)])]
 
 mvecuse <- profile_m_summary$pars[profile_m_summary$pars$Label == 'NatM_uniform_Fem_GP_1',]
 mvecuse[3] ## mle for length
@@ -183,7 +185,7 @@ profile_q_summary <- SSsummarize(profiles_q)
 
 save(profile_q_summary,
      file =here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q','profile_q_summary.rdata') )
-
+q.vec[which.min(profile_q_summary$likelihoods[1,1:length(q.vec)])]
 png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q','q_profile_piner.png'),
     width = 10, height = 7, unit = 'in', res = 520)
 
@@ -201,12 +203,12 @@ dev.off()
 
 ```{r profile M sex separately}
 ## this was not done last year; given growth regimes vary, explore 2d profile of various M values for males and females
-mm.df <- expand.grid("NatM_uniform_Mal_GP_1" = m.vec,
+  mm.df <- expand.grid("NatM_uniform_Mal_GP_1" = m.vec,
             "NatM_uniform_Fem_GP_1" = m.vec)
 
-r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm",
-                 string = c("NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
-                 profilevec = mm.df)
+# r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm",
+#                  string = c("NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+#                  profilevec = mm.df)
 
 mm.df$variable <- paste0('replist',1:nrow(mm.df))
 
@@ -270,14 +272,14 @@ plot_ly(x = ~mm.df.plotmeY,
 ## need to hard specify male and female Ms
 ## make grid of all combinations of q and M. M is always the same between male and females.
 qm.df <- expand.grid("LnQ_base_Survey" = q.vec,
-            "NatM_uniform_Fem_GP_1" = m.vec)# %>%
-  # mutate(NatM_uniform_Mal_GP_1 = NatM_uniform_Fem_GP_1)
+                     "NatM_uniform_Fem_GP_1" = m.vec)%>%
+  mutate(NatM_uniform_Mal_GP_1 = NatM_uniform_Fem_GP_1)
+
+
+r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq",
+                 string = c("LnQ_base_Survey","NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+                 profilevec = qm.df)
 qm.df$variable <- paste0('replist',1:100)
-
-# r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq",
-#                  string = c("LnQ_base_Survey","NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
-#                  profilevec = qm.df)
-
 
 profiles_mq <- SSgetoutput(dirvec = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq", keyvec = 1:nrow(qm.df))
 profile_mq_summary <- SSsummarize(profiles_mq)
