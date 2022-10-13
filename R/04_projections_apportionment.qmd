@@ -100,7 +100,7 @@ catchvec <- matrix(c((last_yr-1),
                      this_year:(this_year+2),
                      SS_catch$catch_mt[SS_catch$yr == last_yr-1],
                      SS_catch$catch_mt[SS_catch$yr == last_yr],
-                     round(catch_this_year + catch_to_add,0),
+                     SS_catch$catch_mt[SS_catch$yr == this_year],
                      rep(projc, 2)), ncol = 2)
 
 # save(catchvec,file = here::here('data', 'catch', paste0(Sys.Date(),"-catches_for_proj.rdata")))
@@ -265,48 +265,48 @@ write.csv(rec_table, here::here('projection','rec_table.csv'), row.names=FALSE)
 
 
 ## Table 1 total Catch by area ----
-
-
 ## update these from 2018-previous year (values beforehand should show what's in base mod)
-t12020 <- read.csv(here("data","2021-10-28-catch.csv")) %>% 
-  group_by(YEAR,ZONE ) %>%
-  summarise(zone_total = sum(TONS)) %>%
-  select(YEAR, ZONE ,zone_total) %>%
-  filter(YEAR > 2017) %>%
-  tidyr::pivot_wider(., id_cols = 'YEAR', names_from = ZONE, values_from = zone_total) %>%
-  mutate(total_catch = sum(CG,SE,WG,WY),
-         EG = WY+SE) %>%
-  select(YEAR, total_catch, WG,CG,EG) 
+# t12020 <- read.csv(here("data","2021-10-28-catch.csv")) %>% 
+#   group_by(YEAR,ZONE ) %>%
+#   summarise(zone_total = sum(TONS)) %>%
+#   select(YEAR, ZONE ,zone_total) %>%
+#   filter(YEAR > 2017) %>%
+#   tidyr::pivot_wider(., id_cols = 'YEAR', names_from = ZONE, values_from = zone_total) %>%
+#   mutate(total_catch = sum(CG,SE,WG,WY),
+#          EG = WY+SE) %>%
+#   select(YEAR, total_catch, WG,CG,EG) 
 
 ## get current by-area catches from weekly catches CSV
 
-this_year= 2021
-files <- list.files(here('data','weekly_catches'), full.names=TRUE)
-test <- lapply(1:length(files), function(i){
-  skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
-  data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
-                        stringsAsFactors=FALSE))
-})
-weekly_catches <- do.call(rbind, test)
-names(weekly_catches) <- c('species', 'date', 'catch')
-weekly_catches <- weekly_catches %>%
-  ## The species is split by area still
-  filter(grepl("Flathead", x=species)) %>%
-  mutate(date=lubridate::mdy(date), week=week(date),  year=year(date))
-# catch_this_year <- 
-weekly_catches %>% 
-  filter(year==this_year) %>%
-  mutate(ZONE = gsub(" ","",gsub(" Flathead Sole","",species))) %>%
-  group_by(year, ZONE) %>%
-  summarise(zone_total=sum(catch)) %>%
-  tidyr::pivot_wider(., id_cols = 'year', 
-                     names_from = ZONE, 
-                     values_from = zone_total) %>%
-  mutate(total_catch = sum(CGOA,GOASEOutside,GOAWestYakutat,WGOA),
-         EG = GOAWestYakutat+GOASEOutside ) %>%
-  select(YEAR = year, total_catch, WG=WGOA,CG=CGOA ,EG) %>% 
-  rbind(t12020,.,) %>%
-  write.csv(., file = here('data',paste0(Sys.Date(),"Table1Catch.csv")), row.names = FALSE)
+# this_year= 2021
+# files <- list.files(here('data','weekly_catches'), full.names=TRUE)
+# test <- lapply(1:length(files), function(i){
+#   skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
+#   data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
+#                         stringsAsFactors=FALSE))
+# })
+# weekly_catches <- do.call(rbind, test)
+# names(weekly_catches) <- c('species', 'date', 'catch')
+# weekly_catches <- weekly_catches %>%
+#   ## The species is split by area still
+#   filter(grepl("Flathead", x=species)) %>%
+#   mutate(date=lubridate::mdy(date), week=week(date),  year=year(date))
+# # catch_this_year <- 
+# weekly_catches %>% 
+#   filter(year==this_year) %>%
+#   mutate(ZONE = gsub(" ","",gsub(" Flathead Sole","",species))) %>%
+#   group_by(year, ZONE) %>%
+#   summarise(zone_total=sum(catch)) %>%
+#   tidyr::pivot_wider(., id_cols = 'year', 
+#                      names_from = ZONE, 
+#                      values_from = zone_total) %>%
+#   mutate(total_catch = sum(CGOA,GOASEOutside,GOAWestYakutat,WGOA),
+#          EG = GOAWestYakutat+GOASEOutside ) %>%
+#   select(YEAR = year, total_catch, WG=WGOA,CG=CGOA ,EG) %>% 
+#   rbind(t12020,.,) %>%
+#   write.csv(., file = here('data',paste0(Sys.Date(),"Table1Catch.csv")), row.names = FALSE)
+
+
 ```
 # Area apportionment 
 ## ADMB style
@@ -351,8 +351,6 @@ for(i in c('Eastern','Western','Central')){
   shell('re.exe')
   ## now ready to wrangle
 } 
-
-
 ```
 
 ## Wrangle ADMB-RE outputs
