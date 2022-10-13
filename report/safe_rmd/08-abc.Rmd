@@ -9,7 +9,7 @@ editor_options:
 The reference fishing mortality rate for `r species` is determined by the amount of reliable population information available (Amendment 56 of the Fishery Management Plan for the groundfish fishery of the Bering Sea/Aleutian Islands).
 Estimates of $F_{40\%}$, $F_{35\%}$, and $SPR_{40\%}$ were obtained from a spawner-per recruit analysis.
 Assuming that the average recruitment from the `r paste0(range(subset(rd_breaks, era == 'Main')[,'yr']),collapse = "-")` year classes estimated in this assessment represents a reliable estimate of equilibrium recruitment, then an estimate of $B_{40\%}$ is calculated as the product of $SPR_{40\%}$ times the equilibrium number of recruits.
-Since reliable estimates of the `r year+1` spawning biomass (B), $B_{40\%}$, $F_{40\%}$, and $F_{35\%}$ exist and B>$B_{40\%}$, the `r species` reference fishing mortality is defined in Tier 3a.
+Since reliable estimates of the `r year` spawning biomass (B), $B_{40\%}$, $F_{40\%}$, and $F_{35\%}$ exist and B>$B_{40\%}$, the `r species` reference fishing mortality is defined in Tier 3a.
 For this tier, $F_{ABC}$ is constrained to be ≤ $F_{40\%}$, and $F_{OFL}$ is defined to be $F_{35\%}$.
 
 Because the `r species` stock has not been overfished in recent years and the stock biomass is relatively high, it is not recommended to adjust $F_{ABC}$ downward from its upper bound.
@@ -19,15 +19,11 @@ Because the `r species` stock has not been overfished in recent years and the st
 
 *Specification of OFL and Maximum Permissible ABC*
 
-Amendment 56 to the GOA Groundfish Fishery Management Plan defines the "overfishing level" (OFL), the fishing mortality rate used to set OFL ($F_{OFL}$), the maximum permissible ABC, and the fishing mortality rate used to set the maximum permissible ABC.
-The fishing mortality rate used to set ABC ($F_{ABC}$) may be less than this maximum permissible level, but not greater.
-Because reliable estimates of reference points related to maximum sustainable yield (MSY) are currently not available but reliable estimates of reference points related to spawning per recruit are available, Northern rockfish in the GOA are managed under Tier 3 of Amendment 56.
 Tier 3 uses the following reference points: $B_{40\%}$, equal to 40% of the equilibrium spawning biomass that would be obtained in the absence of fishing; $F_{35\%}$, equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 35% of the level that would be obtained in the absence of fishing; and $F_{40\%}$, equal to the fishing mortality rate that reduces the equilibrium level of spawning per recruit to 40% of the level that would be obtained in the absence of fishing.
 Estimation of the $B_{40\%}$ reference point requires an assumption regarding the equilibrium level of recruitment.
-In this assessment, it is assumed that the equilibrium level of recruitment is equal to the average of age-2 recruitments between 1979 and `r year - 2`.
-Because of uncertainty in very recent recruitment estimates, we lag 2 years behind model estimates in our projection.
+In this assessment, it is assumed that the equilibrium level of recruitment is equal to the average of age-3 recruitments between 1984 and `r year`.
 Other useful biomass reference points which can be calculated using this assumption are $B_{100\%}$ and $B_{35\%}$, defined analogously to $B_{40\%}$.
-The `r year` estimates of these reference points are shown below. Values are from the projection model for `r base_model_name` and should not be compared directly to outputs from Stock Synthesis forecast outputs.
+The `r year+1` estimates of these reference points are shown below. Values are from the projection model for `r base_model_name` and should not be compared directly to outputs from Stock Synthesis forecast outputs.
 
 | Quantity                      | Value |
 |-------------------------------|-------|
