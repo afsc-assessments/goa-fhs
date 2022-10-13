@@ -499,9 +499,9 @@ newBy <- SS_fitbiasramp(m0_8newMI, verbose = FALSE)
 round(newBy$df$value[1:4], 1);round(newBy$df$value[5], 5)
 m0_8newMI$rmse_table
 
-m0_8newMIbias <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m0_8newMIbias <- SS_output(here::here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 SS_fitbiasramp(m0_8newMIbias, verbose = TRUE)
-
+ggsave(last_plot(), file = here::here("bias_adj_panel.png"), width = 8, height = 10, unit = 'in', dpi = 520)
 # m0_8newMIbias$rmse_table
 # SSplotComparisons(SSsummarize(list(m2017, m0_8,m0_8newMI,m0_8newMIbias)),
 #                   subplots = c(2,4,11,13),
