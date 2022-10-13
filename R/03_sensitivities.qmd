@@ -156,13 +156,13 @@ r4ss::profile(dir = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/mode
           string = "SR_LN(R0)",
           profilevec = r0.vec)
 
-profiles_R0 <- SSgetoutput(dirvec = here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0'), keyvec = 1:length(r0.vec))
+profiles_R0 <- SSgetoutput(dirvec = here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0'), keyvec = 1:length(r0.vec))
 profile_R0_summary <- SSsummarize(profiles_R0)
 
 save(profile_R0_summary,
-     file =here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','profile_R0_summary.rdata') )
+     file =here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','profile_R0_summary.rdata') )
 
-png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','r0_profile_piner.png'),
+png(here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','r0_profile_piner.png'),
     width = 10, height = 7, unit = 'in', res = 520)
 
 SSplotProfile(profile_R0_summary, # summary object
