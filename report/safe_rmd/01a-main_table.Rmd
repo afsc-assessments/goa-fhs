@@ -2,7 +2,7 @@
 # using built in example data 
 
 flextable::flextable(safe) %>% 
-    flextable::add_header_row(values =c("","2022","2023","2023","2024"), top=FALSE) %>%
+    flextable::add_header_row(values =c("","2022","2023","2023","2024"), top=T) %>%
     flextable::border_remove() %>% 
     flextable::compose(i=1, j=1:2, part='header', 
                        value=flextable::as_paragraph('')) %>%
