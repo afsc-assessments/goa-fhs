@@ -36,12 +36,12 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare2
 ```
 
 ## Rec Deviations
-```{r echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data, but the deviations take longer to be informed in the truncated model."}
+```{r echo=FALSE, fig.cap="The deviations take longer to be informed in the truncated model."}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare11_recdevs.png'))
 ```
 ## Survey Fits
 
-```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
+```{r, echo=FALSE, fig.cap="The survey fits are basically identical during the period of shared data."}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare13_indices.png'))
 ```
 :::
