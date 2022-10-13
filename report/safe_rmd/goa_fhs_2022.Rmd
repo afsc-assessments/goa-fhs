@@ -70,7 +70,7 @@ species = params$species
 base_model <- SS_output(here::here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 m2017 <- SS_output(here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 
-safe <- read.csv(here('tables','2022-08-30-safe_table.csv')) 
+safe <- read.csv(here::here('tables','2022-10-13-safe_table.csv')) 
 
 base_model_name = "Model 17.1a (2022)"
 old_model_name = "Model 17.0 (2017)"
@@ -79,8 +79,7 @@ year = base_model$endyr
 
 m2017 <- SS_output(here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 
-
-date = 'October 22, 2022'
+date = 'October 13, 2022'
 model = "base"
 end_proj = year + 17
 best_f = 0.0641 # from the best_f function in groundfishr package
@@ -88,10 +87,9 @@ ofl = 8000 # placeholder while i figure things out
 ## load catchvec
 rd_breaks <- base_model$recruit %>% group_by(era) %>% summarise(yr = range(Yr))
 # todo: read from proj output
-# here('data', 'catch', paste0(Sys.Date(),"-catches_for_proj.rdata"))
-load(here('data','catch','2022-08-25-catches_for_proj.rdata')) # catchvec
-c1 = catchvec[2,2] # estimated catch in current year
-c2 = round(catchvec[3,2]) # proj catch year + 1
+load(here('data','catch','2022-10-13-catches_for_proj.rdata')) # catchvec
+c1 = catchvec[3,2] # estimated catch in current year
+c2 = round(catchvec[4,2]) # proj catch year + 1
 # c3 = catchvec[4,2] # proj catch year + 2
 # todo: build a function/switch to auto run the tier(a/b) - also for overfishing/overfished
 load(here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata")); mr <- t(data.frame(sapply(mr,round,4))) %>% as.data.frame(.)
