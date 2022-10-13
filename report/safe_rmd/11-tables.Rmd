@@ -1,26 +1,23 @@
+\newpage
+
 # Tables
 
 
- 
-
 ```{r catchbyarea, echo = FALSE, warning = FALSE, message = FALSE}
-catch <-   bind_rows(read.csv(here('data','catch',paste0('2022-04-18-catch_forSS.csv'))) %>%
+
+catch_area <- bind_rows(read.csv(here::here('data','catch',paste0('2022-10-13-catch_forSS.csv'))) %>%
   filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
   mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ),
-read.csv(here('data','catch',paste0('2022-04-18-catch-byArea.csv'))) %>%
- rowwise() %>% 
-  mutate(TTONS = sum(WGULF,CG,EGULF, na.rm=TRUE)) %>% data.frame() )
+  read.csv(here::here('data','catch','2022-10-13-catch-byArea.csv')))
 
 
+catch_area[catch_area < 1&!is.na(catch_area)] <- round(catch_area[catch_area < 1 & !is.na(catch_area)],2)
+catch_area[catch_area > 1&!is.na(catch_area)] <- round(catch_area[catch_area > 1 & !is.na(catch_area)],0)
+catch_area$YEAR <- as.character(catch_area$YEAR) 
 
-
-catch[catch < 1&!is.na(catch)] <- round(catch[catch < 1 & !is.na(catch)],2)
-catch[catch > 1&!is.na(catch)] <- round(catch[catch > 1 & !is.na(catch)],0)
-catch$YEAR <- as.character(catch$YEAR) 
-
-names(catch) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
-flextable::regulartable(catch) %>%  
-      flextable::set_caption(paste0("Total and regional annual catch of GOA Flathead sole through ", date,". Data are from NMFS Observer Program and Alaska Regional Office.")) %>%
+names(catch_area) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch_area) %>%  
+      flextable::set_caption("Total and regional observed annual catch (mt) of GOA Flathead sole through Oct 13,2022. Data are from NMFS Observer Program and Alaska Regional Office. Note that in the base model, a total catch of 687 mt was used as the 2022 full year estimate.") %>%
   flextable::colformat_num(big.mark = ",")
 ```
 
@@ -31,7 +28,7 @@ spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))
   filter(Yr > 1994)
 
 ## manually reshape the raw catches for discard/retained percentage
-catch_discard <- read.csv(here::here('data','catch',paste0('2022-04-18-catch-raw.csv'))) %>%
+catch_discard <- read.csv(here::here('data','catch',paste0('2022-10-13-catch-raw.csv'))) %>%
   # merge(., spex, by.x = 'YEAR', by.y ='Yr') %>%
   filter(TYPE == 'D') %>%
   group_by(YEAR) %>%
@@ -46,7 +43,7 @@ spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Y
   spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
   
 flextable::regulartable(spex2) %>%  
-      flextable::set_caption(paste0("Historical OFLs, ABCs, TACs, total catch and percent retention through ", date,".")) %>%
+      flextable::set_caption("Historical OFLs, ABCs, TACs, total catch (used in model) and percent retention through 13 Oct, 2022.") %>%
   flextable::colformat_num(big.mark = ",")
 ```
 
@@ -130,7 +127,7 @@ flextable::regulartable(bind_cols(m17like, bridgelike,baselike)) %>%
 
 
 ```{r parestgrowth, echo = FALSE, warning = FALSE, message = FALSE}
-pargrowth <-read.csv(here('tables','parcompare_growth.csv'))
+pargrowth <-read.csv(here::here('tables','parcompare_growth.csv'))
 pargrowth[,2:3] <- round(pargrowth[,2:3],3)
 names(pargrowth) <- c('Parameter',base_model_name,old_model_name)
 flextable::regulartable(pargrowth) %>%  
@@ -140,7 +137,7 @@ flextable::regulartable(pargrowth) %>%
 
 
 ```{r parestselexfish, echo = FALSE, warning = FALSE, message = FALSE}
- parsel1 <-read.csv(here('tables','parcompare_selexfishery.csv'))
+parsel1 <-read.csv(here::here('tables','parcompare_selexfishery.csv'))
 parsel1[,2:3] <- round(parsel1[,2:3],3)
 names(parsel1) <- c('Parameter',base_model_name,old_model_name)
 flextable::regulartable(parsel1) %>%  
@@ -150,7 +147,7 @@ flextable::regulartable(parsel1) %>%
 
 
 ```{r parestselexsurv, echo = FALSE, warning = FALSE, message = FALSE}
-parsel2 <-read.csv(here('tables','parcompare_selexsurvey.csv'))
+parsel2 <-read.csv(here::here('tables','parcompare_selexsurvey.csv'))
 parsel2[,2:3] <- round(parsel2[,2:3],3)
 names(parsel2) <- c('Parameter',base_model_name,old_model_name)
 flextable::regulartable(parsel2) %>%  
@@ -265,8 +262,9 @@ tidyr::pivot_wider(., id_cols = c(Year),   names_from = c(Model,variable), value
     flextable::align(align = "center", part = "all")%>% 
    flextable::merge_h(part = "header") %>%
     flextable::merge_v(part = "header")   %>%
-    flextable::set_caption("Spawning Biomass, Recruitment, and Apical fishing mortality with associated standard deviations (in parentheses) from Model 17.0 (2017) and Model 17.1a (2022).")  %>%
-  flextable::width(  width = c(1,rep(2,6)))
+    flextable::set_caption("Spawning Biomass, Recruitment, and Apical fishing mortality with associated standard deviations (in parentheses) from Model 17.0 (2017) and Model 17.1a (2022).")  %>% 
+  flextable::autofit()
+  # flextable::width(  width = c(1,rep(2,6)))
 ```
 
  
@@ -295,10 +293,15 @@ flextable::regulartable(projC) %>%
 ```
 
 
-```{r nontarg, echo = FALSE, warning = FALSE, message = FALSE}
-# Non-target catch in the directed GOA flathead sole fishery as a proportion of total weight of bycatch of each species. Conditional highlighting from white (lowest numbers) to green (highest numbers) is applied. No seabird bycatch was recorded in the GOA flathead sole fishery.
+```{r nontarg, echo = FALSE, warning = FALSE, message = FALSE, tab.cap = "Non-target catch in the directed GOA flathead sole fishery as a proportion of total weight of bycatch of each species. Conditional highlighting from white (lowest numbers) to green (highest numbers) is applied. No seabird bycatch was recorded in the GOA flathead sole fishery. 2015 and 2016 appear to just contain the nontarget catch for flathead trips, and are therefore > 1. These data have not been updated since 2016."}
+knitr::include_graphics(here('tables','nontargetcatch.png'))
+
 ```
 
 ```{r prohibcath, echo = FALSE, warning = FALSE, message = FALSE}
-# Prohibited species catch caught in the GOA flathead sole fishery in 2015, 2016 and 2017.
+prohib <-read.csv(here::here('tables','prohibitedSpecies.csv'))  
+prohib[prohib == 0] <- ""
+flextable::regulartable(prohib) %>%  
+  flextable::set_caption("Prohibited species catch caught in the GOA flathead sole fishery in 2018, 2019 and 2021") 
+
 ```
