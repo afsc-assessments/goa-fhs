@@ -2,14 +2,14 @@
 
 # Figures 
 
-```{r removals, fig.cap="Catch biomass in metric tons 1978-2022 (as of October 1, 2022).", eval = T}
-knitr::include_graphics(here("model_runs","m0_8-newMI-biasAdj","plots","catch1 landings.png"))
+```{r removals, fig.cap="Catch biomass in metric tons 1978-2022 (2022 catch is estimated).", eval = T}
+knitr::include_graphics(here::here("model_runs","m0_8-newMI-biasAdj","plots","catch1 landings.png"))
 ```
 
 \newpage
 
-```{r catchvsTAC, fig.cap="Catch biomass in tons 1190-2022 (as of October 1, 2022) and harvest specifications from the Federal Register for GOA Flathead Sole.", eval = T}
-knitr::include_graphics(here("figs","harvest_spex_vs_catch.png"))
+```{r catchvsTAC, fig.cap="Catch biomass in tons and harvest specifications from the Federal Register for GOA Flathead Sole.", eval = T}
+knitr::include_graphics(here::here("figs","harvest_spex_vs_catch.png"))
 ```
 
 
