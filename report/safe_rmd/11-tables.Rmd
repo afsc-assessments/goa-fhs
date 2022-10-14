@@ -292,8 +292,10 @@ flextable::regulartable(projC) %>%
   flextable::set_caption("Projected mean catch (t) for the seven harvest scenarios listed in the Harvest Recommendations section.") 
 ```
 
+\newpage
 
-```{r nontarg, echo = FALSE, warning = FALSE, message = FALSE, tab.cap = "Non-target catch in the directed GOA flathead sole fishery as a proportion of total weight of bycatch of each species. Conditional highlighting from white (lowest numbers) to green (highest numbers) is applied. No seabird bycatch was recorded in the GOA flathead sole fishery. 2015 and 2016 appear to just contain the nontarget catch for flathead trips, and are therefore > 1. These data have not been updated since 2016."}
+```{r nontarg, echo = FALSE, warning = FALSE, message = FALSE, out.height = "60%", tab.cap = "Non-target catch in the directed GOA flathead sole fishery as a proportion of total weight of bycatch of each species. Conditional highlighting from white (lowest numbers) to green (highest numbers) is applied. No seabird bycatch was recorded in the GOA flathead sole fishery. 2015 and 2016 appear to just contain the nontarget catch for flathead trips, and are therefore > 1. These data have not been updated since 2016."}
+flextable::regulartable(data = data.frame(NA))
 knitr::include_graphics(here('tables','nontargetcatch.png'))
 
 ```

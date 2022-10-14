@@ -23,7 +23,7 @@ parameter(s) to mimic a logistic shape, as previous assessments found no
 evidence for dome-shaped selectivity in either. Male selectivity curves
 for the fishery and survey are estimated as an offset from the
 respective female curves. The estimated and fixed double-normal
-selectivity parameters by fleet and sex are presented in Table \@ref(tab:tab6selex).
+selectivity parameters by fleet and sex are presented in Table 10.\@ref(tab:tab6selex).
 
 <!-- Length-based, sex-specific, logistic fishery and survey selectivity were -->
 <!-- implemented as sensitivity analyses in the 2013 assessment model runs -->
@@ -92,8 +92,7 @@ and ageing error is expected to be very similar.
 (ref:aed)
 
 
-An examination of `r base_model_name` using the previous ageing error matrix did not have a
-significant effect on derived quantities.
+An examination of `r base_model_name` using the previous ageing error matrix did not have a significant effect on derived quantities.
 
 ### Recruitment Deviations
 
@@ -108,7 +107,7 @@ Recruitment deviations prior to the start of composition data and in the most re
 the time-series are less informed than in the middle of the time-series,
 which creates a bias in the estimation of recruitment deviations and
 mean recruitment that is corrected by estimating a bias adjustment
-factor following Methot and Taylor (2011). The breakpoints for the bias adjustment ramp are shown in Figure \@ref(fig:biasramp), and are characterized by a linear
+factor following Methot and Taylor (2011). The breakpoints for the bias adjustment ramp are shown in Figure 10.\@ref(fig:biasramp), and are characterized by a linear
 increase from zero to a plateau of from
 `r base_model$breakpoints_for_bias_adjustment_ramp[5]` from
 `r paste0(range(round(as.numeric(base_model$breakpoints_for_bias_adjustment_ramp))[1:2]), collapse = '-')`,
@@ -174,14 +173,14 @@ which is fixed within the current assessment.
 
 The survey catchability parameter $q$ was fixed at 1.0, as for previous
 `r species` assessments. We explored a sensitivity run where survey
-catchability was allowed to be calculated analytically or estimated, as well as a likelihood profile on $ln(q)$ (Figure \@ref(fig:profileLNq)). 
+catchability was allowed to be calculated analytically or estimated, as well as a likelihood profile on $ln(q)$ (Figure 10.\@ref(fig:profileLNq)). 
 
 ## Parameters Estimated Inside the Assessment Model
 
 A total of `r nrow(subset(base_model$parameters, Phase >0))` parameters were estimated inside the assessment model.
 These included: 1) the log of unfished recruitment ($R_0$) 2) `r  length(grep('RecrDev',base_model$parameters$Label[base_model$parameters$Phase >0]))`
 log-scale recruitment deviations; 3) Sex-specific parameters corresponding to von-Bertalanffygrowth, maturity, and natural morality (`r length(grep('GP',base_model$parameters$Label[base_model$parameters$Phase >0]))`) and 4) `r length(grep('Sel|DblN',base_model$parameters$Label[base_model$parameters$Phase >0]))` selectivity parameters in total
-for the fishery fleet and and survey (see Table \@ref(tab:tab6selex)).
+for the fishery fleet and and survey (see Table 10.\@ref(tab:tab6selex)).
 
 The model also estimates a fishing mortality rate for each model year
 using the hybrid method. Details on the estimation method for the

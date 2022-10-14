@@ -35,7 +35,7 @@ data.frame(Source = c(rep("U.S. trawl fishery", 2),
 
 ### Catch
 
-The assessment included catch data from `r min(base_model$catch$Yr)` to `r date` (Figure \@ref(fig:removals)). Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years (Figure \@ref(fig:catchvsTAC)).  Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, (Table \@ref(tab:catchbyarea)). 
+The assessment included catch data from `r min(base_model$catch$Yr)` to `r date` (Figure 10.\@ref(fig:removals)). Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years (Figure 10.\@ref(fig:catchvsTAC)).  Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, (Table 10.\@ref(tab:catchbyarea)). 
 
 ### Age and Size Composition
 
@@ -45,12 +45,12 @@ Fishery length composition data were included in 2cm bins from `r paste0(range(b
 
 ### Biomass Estimates from Trawl Surveys
 
-Survey biomass estimates originate from a cooperative bottom trawl survey conducted by the U.S. and Japan in 1984 and 1987 and a U.S. bottom trawl survey conducted by the Alaska Fisheries Science Center Resource Assessment and Conservation Engineering (RACE) Division thereafter. Calculations for final survey biomass and variance estimates are fully described in Wakabayashi et al. (1985). Depths 0-500 meters were fully covered in each survey and occurrence of `r species` at depths greater than 500 meters is rare (Table \@ref(tab:tab4survbioareadepth)). The survey excluded the eastern region of the Gulf of Alaska (the Yakutat and Southeastern areas) in 2001. 
+Survey biomass estimates originate from a cooperative bottom trawl survey conducted by the U.S. and Japan in 1984 and 1987 and a U.S. bottom trawl survey conducted by the Alaska Fisheries Science Center Resource Assessment and Conservation Engineering (RACE) Division thereafter. Calculations for final survey biomass and variance estimates are fully described in Wakabayashi et al. (1985). Depths 0-500 meters were fully covered in each survey and occurrence of `r species` at depths greater than 500 meters is rare (Table 10.\@ref(tab:tab4survbioareadepth)). The survey excluded the eastern region of the Gulf of Alaska (the Yakutat and Southeastern areas) in 2001. 
 
 <!-- As for previous assessments, the availability of the survey biomass in 2001 was assumed to be 0.9 to account for the biomass in the eastern region of the Gulf.  -->
 
-The total survey biomass estimates and CVs that were used in the assessment are listed in Table \@ref(tab:tab5inputsurv).  Survey biomass decreased slightly from `r prettyNum(base_model$cpue$Obs[base_model$cpue$Yr==2019], big.mark = ',')` t in 2019 to `r prettyNum(base_model$cpue$Obs[base_model$cpue$Yr==2021], big.mark = ',')` t in 2021.
-Figure \@ref(fig:survmap) shows maps of survey CPUE in the GOA for the most recent two survey years; survey CPUE in both years was highest in the Central and Western GOA.
+The total survey biomass estimates and CVs that were used in the assessment are listed in Table 10.\@ref(tab:tab5inputsurv).  Survey biomass decreased slightly from `r prettyNum(base_model$cpue$Obs[base_model$cpue$Yr==2019], big.mark = ',')` t in 2019 to `r prettyNum(base_model$cpue$Obs[base_model$cpue$Yr==2021], big.mark = ',')` t in 2021.
+Figure 10.\@ref(fig:survmap) shows maps of survey CPUE in the GOA for the most recent two survey years; survey CPUE in both years was highest in the Central and Western GOA.
 
 
 ### Age and Size Composition 

@@ -28,7 +28,7 @@ The `r year+1` estimates of these reference points are shown below. Values are f
 | Quantity                      | Value |
 |-------------------------------|-------|
 | Stock Spawning Biomass (2023) |    `r safe[4,4]`   |
-|                 $B_{40\%,2023}$             |     `r safe[6,4]`    |
+|      $B_{40\%,2023}$             |     `r safe[6,4]`    |
 |                     $F_{40\%,2023}$           |  `r safe[10,4]`       |
 |                        $maxF_{ABC,2023}$        |  `r safe[9,4]`       |
 |                               $B_{35\%,2023}$ |     `r safe[7,4]`    |
@@ -97,7 +97,7 @@ These two scenarios are as follows (for Tier 3 stocks, the MSY level is defined 
 -   Scenario 7: In `r year` and `r year + 1`, *F* is set equal to max $F_{ABC}$, and in all subsequent years F is set equal to FOFL.
     (Rationale: This scenario determines whether a stock is approaching an overfished condition. If the stock is 1) above its MSY level in 2020 or 2) above 1/2 of its MSY level in 2020 and expected to be above its MSY level in 2030 under this scenario, then the stock is not approaching an overfished condition.)
 
-Spawning biomass, fishing mortality, and yield are tabulated for the seven standard projection scenarios (Table 10.16).
+Spawning biomass, fishing mortality, and yield are tabulated for each of the seven standard projection scenarios (Tables 10.\@ref(tab:projSB) through 10.\@ref(tab:projcatch)).
 The difference for this assessment for projections is in Scenario 2 (Author's *F*); we use pre-specified catches to increase accuracy of short-term projections in fisheries where the catch is usually less than the ABC.
 This was suggested to help management with setting preliminary ABCs and OFLs for two-year ahead specifications.
 
@@ -167,7 +167,7 @@ Overall, the model fits all the data sets very well. Both the survey index, and 
 
 #### Population dynamics considerations
 
-The spawning stock biomass has been above target for the entire time period for which there are data (Figure \@ref(fig:BFtrajectory)). The estimated age 3+ biomass has increased steadily since 2010, coincident with more positive than negative recruitment deviations in the last 10 years (Figure \@ref(fig:rects)). Since we have no increased concerns we set the concern level to 1.
+The spawning stock biomass has been above target for the entire time period for which there are data (Figure 10.\@ref(fig:BFtrajectory)). The estimated age 3+ biomass has increased steadily since 2010, coincident with more positive than negative recruitment deviations in the last 10 years (Figure 10.\@ref(fig:rects)). Since we have no increased concerns we set the concern level to 1.
 
 #### Ecosystem considerations
 
@@ -175,7 +175,7 @@ xx
 
 #### Fishery performance
 
-This fishery has consistently caught only a small fraction of the ABC for the last 10 years (Figure \@ref(fig:catchvsTAC)). We did not examine CPUE trends nor spatial patterns of fishing. There are no changes in the duration of fishing openings. Altogether, we see no cause for concern and give this consideration a level 1 as well. 
+This fishery has consistently caught only a small fraction of the ABC for the last 10 years (Figure 10.\@ref(fig:catchvsTAC)). We did not examine CPUE trends nor spatial patterns of fishing. There are no changes in the duration of fishing openings. Altogether, we see no cause for concern and give this consideration a level 1 as well. 
 
 #### Summary and ABC recommendation
 

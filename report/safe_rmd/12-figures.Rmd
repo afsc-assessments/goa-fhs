@@ -28,8 +28,13 @@ knitr::include_graphics(here("figs","ageerr_compare.png"))
 
 \newpage
 
-```{r biasramp, fig.cap="Estimated recruitment deviations (top panel) and bias adjustment ramp (bottom panel). The ramp corresponds to the ratio of the standard error in the estimated recruitment deviations to the overall variance in recruitment; during periods of data-richness, this ratio is reduced (as more data are available to inform the deviations) and therefore the ramp assigns the heaviest weight to those model years within the likelihood function. Very recent years are less certain as we have not yet seen these recruitment events in the compositional data, which is anticipated to happen at a roughly 3-year lag for GOA Flathead sole.",  eval = T}
+```{r recdevs, fig.cap="Estimated recruitment deviations.",  eval = T}
 knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','plots','recdevs1_points.png'))
+```
+
+\newpage
+
+```{r biasramp, fig.cap="Estimated recruitment bias adjustment ramp. The ramp corresponds to the ratio of the standard error in the estimated recruitment deviations to the overall variance in recruitment; during periods of data-richness, this ratio is reduced (as more data are available to inform the deviations) and therefore the ramp assigns the heaviest weight to those model years within the likelihood function. Very recent years are less certain as we have not yet seen these recruitment events in the compositional data, which is anticipated to happen at a roughly 3-year lag for GOA Flathead sole.",  eval = T}
 knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','plots','recruit_fit_bias_adjust.png'))
 ```
 
@@ -100,6 +105,8 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_len
 ```{r lencompfitFish2, fig.cap="(ref:lencompcap). Data shown for the Fishery (2 of 2).", eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','comp_lenfit_flt1mkt0_page2.png'))
 ```
+
+
 \newpage
 
 
@@ -191,7 +198,6 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age
 
 \newpage
 
-  
 
 ```{r NAA1, fig.cap=" Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time  (1 of 2).", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
@@ -226,7 +232,9 @@ knitr::include_graphics(here('figs','22_BFTrajectory.png'))
 
 
 ```{r retroSB, fig.cap="Spawning stock biomass (ref:retrocap) Points in upper left are virgin biomass.", out.height="25%", eval = T}
+
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','retrospectives','compare2_spawnbio_uncertainty.png'))
+
 ```
 
 ```{r retroR, fig.cap="Age-0 recruitment (ref:retrocap) The last three years of recruitments for each run were fixed at the mean.", out.height="25%", eval = T}
@@ -259,7 +267,7 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','profiles','profi
 ```
 
 ```{r profileqm, fig.cap="3-d visualization of simultaneous profile over natural mortality and survey catchability. Natural mortality was identical for both sexes in these runs. The white contours indicate a log-likelihood difference of 1.92 from Model 17.1a; models within these bounds are statistically indistinguishable. The minimum likelihood occurred at q = 1.64 and M = 0.27. Q is fixed to 1 and M is fixed to 0.2 in the base model.", eval = T}
-knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq','mq_3d.png'))
+knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_mq','qm_3d.png'))
 ```
 
 ```{r profileR0, fig.cap="Likelihood profiles by data component for the log of unfished recruitment (ln[R0]).  (ref:profilecap)", out.height="25%", eval = T}

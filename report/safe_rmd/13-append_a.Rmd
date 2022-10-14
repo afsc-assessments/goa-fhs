@@ -14,20 +14,12 @@ aa <- aa0 %>%
   dplyr::summarise(v =  round(sum(Weight),3)) %>%
   tidyr::pivot_wider(names_from = c(Collection.Agency,Collection.Name), values_from = v, id_cols = Collection.Year)  %>%
   janitor::clean_names() %>%
-  data.frame() 
-
-## for header rows
-# repnums <- aa0 %>%
-#    group_by(Collection.Agency) %>%
-#   summarise(n = length(unique(Collection.Name))) %>%
-#   arrange(Collection.Agency)
+  data.frame()  
 
 aa <-  aa %>% select(collection_year , order(colnames(aa)))
 aa[aa > 1 & !is.na(aa)] <- round(aa[aa > 1 & !is.na(aa)],0)
 aa[aa < 1 & !is.na(aa)] <- round(aa[aa < 1 & !is.na(aa)],2)
 aa$collection_year <- as.character(aa$collection_year)
-
-
 ```
 
 \newpage 
@@ -35,22 +27,22 @@ aa$collection_year <- as.character(aa$collection_year)
 ```{r appxAADFG, echo = FALSE, warning = FALSE, message = FALSE}
 flextable::regulartable(aa %>%
   select(collection_year ,grep('adfg',colnames(aa)))) %>% 
-  flextable::autofit(part = "all") %>%
-  flextable::align(align = "center", part = "all")%>% 
-  flextable::merge_h(part = "header") %>%
-  flextable::merge_v(part = "header")  %>%  
-  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from ADF&G; values in kg.") %>% flextable::autofit()
+  # flextable::autofit(part = "all") %>%
+  # flextable::align(align = "center", part = "all")%>% 
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from ADF&G; values in kg.") 
 # flextable::width( width = c(3,2,2))
 ```
 
 ```{r appxAIPHC, echo = FALSE, warning = FALSE, message = FALSE}
 flextable::regulartable(aa %>%
   select(collection_year , grep('iphc',colnames(aa)))) %>% 
-  flextable::autofit(part = "all") %>%
-  flextable::align(align = "center", part = "all")%>% 
-  flextable::merge_h(part = "header") %>%
-  flextable::merge_v(part = "header")  %>%  
-  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from the IPHC; values in kg.") %>% flextable::autofit()
+  # flextable::autofit(part = "all") %>%
+  # flextable::align(align = "center", part = "all")%>% 
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from the IPHC; values in kg.")  
 # flextable::width( width = c(3,2,2))
 ```
 
@@ -59,11 +51,11 @@ flextable::regulartable(aa %>%
 ```{r appxANFMS, echo = FALSE, warning = FALSE, message = FALSE}
 flextable::regulartable(aa %>%
   select(collection_year ,grep('nmfs',colnames(aa)))) %>% 
-  flextable::autofit(part = "all") %>%
-  flextable::align(align = "center", part = "all")%>% 
-  flextable::merge_h(part = "header") %>%
-  flextable::merge_v(part = "header")  %>%  
-  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from NMFS; values in kg.") %>% flextable::autofit()
+  # flextable::autofit(part = "all") %>%
+  # flextable::align(align = "center", part = "all")%>% 
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from NMFS; values in kg.") 
 # flextable::width( width = c(3,2,2))
 ```
  
