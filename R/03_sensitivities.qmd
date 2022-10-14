@@ -168,7 +168,7 @@ png(here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','r0_pro
     width = 10, height = 7, unit = 'in', res = 520)
 
 SSplotProfile(profile_R0_summary, # summary object
-              add_cutoff = T, ymax = 500, legendloc = 'right',
+              add_cutoff = T, ymax = 10, legendloc = 'right',
   profile.string = "SR_LN", # substring of profile parameter
   profile.label = "ln(R0)"
 )
