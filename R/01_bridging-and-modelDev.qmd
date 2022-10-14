@@ -424,7 +424,7 @@ Through this point I haven't touched the Ianelli data weights at the end of the 
 
 First I do a run with the data weights reverted to 1 for the composition & survey biomass data to compare.  This is `m0_8c`.The model weights make a HUGE difference:
 ```{r echo = F, warning = FALSE, message = FALSE }
-m0_8c <- SS_output(here('model_runs','m0_8c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m0_8c <- SS_output(here::here('model_runs','m0_8c'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
 SSplotComparisons(SSsummarize(list(m0_8,
                                    m0_8c)),
@@ -459,23 +459,24 @@ The new MI values are in line with what was done before. The Francis values, how
 I'm going to stick with the new M-I values for now. However, I think future models should use the Francis weights since they now play well with the CAALs, fit the survey better, and lead to a lower overall likelihood.
 
 ```{r echo = F, warning = FALSE, message = FALSE }
-m0_8newMI <- SS_output(here('model_runs','m0_8-newMI'), covar=TRUE, verbose=FALSE, printstats=FALSE)
-m0_8newFrancis <- SS_output(here('model_runs','m0_8-newFrancis'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m0_8newMI <- SS_output(here::here('model_runs','m0_8-newMI'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+m0_8newFrancis <- SS_output(here::here('model_runs','m0_8-newFrancis'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 
 SSplotComparisons(SSsummarize(list(m2017,
-                                   # base_model,
-                                   m0_8,
+                                   base_model,
+                                   # m0_8,
                                    # m0_8c,
-                                   m0_8newMI,
+                                   # m0_8newMI,
                                    m0_8newFrancis)),
                   print = T,
-                  plotdir =here('model_runs','m0_8-newFrancis'),
+                  plotdir =here::here('model_runs','m0_8-newFrancis'),
+                  col = c(m2017Col,baseCol,sensPal),
                   # subplots = c(2,4,11,13),
-                  legendlabels = c('m2017',
-                                   'm0_8',
+                  legendlabels = c('Model 17.0 (2017)',
+                                   'Model 17.1a (2022)',
                                    # 'm0_8c [no weights]',
-                                   'm0_8 new MI',
-                                   'm0_8 new Francis'))
+                                   # 'm0_8 new MI',
+                                   'Model 17.1a (2022), Francis Weights'))
 
 cbind(m0_8newMI$likelihoods_used,m0_8newFrancis$likelihoods_used)
 ```
