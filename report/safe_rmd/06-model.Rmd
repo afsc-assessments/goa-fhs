@@ -22,7 +22,7 @@ survey and fishery is constrained by fixing the descending limb
 parameter(s) to mimic a logistic shape, as previous assessments found no
 evidence for dome-shaped selectivity in either. Male selectivity curves
 for the fishery and survey are estimated as an offset from the
-respective female curves. The estimated and fixed double-normal
+respective female curves. The treatment of estimated and fixed double-normal
 selectivity parameters by fleet and sex are presented in Table 10.\@ref(tab:tab6selex).
 
 <!-- Length-based, sex-specific, logistic fishery and survey selectivity were -->
@@ -201,8 +201,7 @@ estimated inside the assessment model.
 ### Selectivity and fishing mortality
 
 Survey and fishery selectivity parameters were estimated using
-age-based, sex-specific, asymptotic curves that were time-invariant and
-are listed in the table below. The double-normal curve was used to
+age-based, sex-specific, time-invariant asymptotic curves. The double-normal curve was used to
 easily allow previous and future explorations of alternative survey
 selectivity forms. Here the double-normal curve is constrained to mimic
 a logistic shape because there was no evidence for dome-shaped survey

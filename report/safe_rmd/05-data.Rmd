@@ -1,3 +1,6 @@
+
+\newpage
+
 # Data
 
 The following table summarizes the data used in the stock assessment model for `r species`:
@@ -30,12 +33,12 @@ data.frame(Source = c(rep("U.S. trawl fishery", 2),
 
 ## Fishery
 
-(ref:ssfilesource) used in the assessment can be seen in the Stock Synthesis data file (`data.dat`) hosted here: https://github.com/mkapur-noaa/goa-fhs-2022/ModelFiles_PlanTeam.
+(ref:ssfilesource) used in the assessment can be seen in the Stock Synthesis data file (`data.ss`) hosted here: https://github.com/mkapur-noaa/goa-fhs-2022/ModelFiles_PlanTeam.
 
 
 ### Catch
 
-The assessment included catch data from `r min(base_model$catch$Yr)` to `r date` (Figure 10.\@ref(fig:removals)). Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years (Figure 10.\@ref(fig:catchvsTAC)).  Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively, (Table 10.\@ref(tab:catchbyarea)). 
+The assessment included catch data from `r min(base_model$catch$Yr)` to 2022 (Figure 10.\@ref(fig:removals)). 2022 catches were estimated by adding the observed catch as of `r date` to the average catch from Oct 14-Dec 31 from the previous 5 years, for a total estimate of 687 t. Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years (Figure 10.\@ref(fig:catchvsTAC)).  Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively (Table 10.\@ref(tab:catchbyarea))). 
 
 ### Age and Size Composition
 
