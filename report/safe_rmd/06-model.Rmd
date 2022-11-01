@@ -84,7 +84,7 @@ treatment of the reader identities, and found that the best model
 (lowest AIC) was obtained by a pooled-data model which assumed constant
 bias and sigma across readers (bias is the different-integer age read,
 and sigma is the variation in true age). A comparison of the previous
-and updated ageing error matrices is shown in Figure  \@ref(fig:ageerr). BSAI and GOA
+and updated ageing error matrices is shown in Figure  10.\@ref(fig:ageerr). BSAI and GOA
  `r species`  are aged by the same individuals using the same techniques
 and ageing error is expected to be very similar.
 
@@ -157,7 +157,7 @@ kilograms.
 
 The female maturity ogive was specified using an age-based logistic
 curve, with slope parameter
-`r subset(base_model$parameters, Label == "Mat_slope_Fem_GP_1")[,'Value']` and
+`r subset(base_model$parameters, Label == "Mat_slope_Fem_GP_1")[,'Value']` (corresponding to a 95% age-at-maturity of 12.54 years) and
 age at 50% maturity `r subset(base_model$parameters, Label =="Mat50%_Fem_GP_1")[,'Value']`. These were obtained by histological
 analysis of 180 samples of GOA `r species` ovaries collected in the
 central Gulf of Alaska from January 1999 [@Stark2004] and are the same
@@ -179,8 +179,8 @@ catchability was allowed to be calculated analytically or estimated, as well as 
 
 A total of `r nrow(subset(base_model$parameters, Phase >0))` parameters were estimated inside the assessment model.
 These included: 1) the log of unfished recruitment ($R_0$) 2) `r  length(grep('RecrDev',base_model$parameters$Label[base_model$parameters$Phase >0]))`
-log-scale recruitment deviations; 3) Sex-specific parameters corresponding to von-Bertalanffygrowth, maturity, and natural morality (`r length(grep('GP',base_model$parameters$Label[base_model$parameters$Phase >0]))`) and 4) `r length(grep('Sel|DblN',base_model$parameters$Label[base_model$parameters$Phase >0]))` selectivity parameters in total
-for the fishery fleet and and survey (see Table 10.\@ref(tab:tab6selex)).
+log-scale recruitment deviations; 3) Sex-specific parameters corresponding to von-Bertalanffy growth, maturity, and natural morality (`r length(grep('GP',base_model$parameters$Label[base_model$parameters$Phase >0]))`) and 4) `r length(grep('Sel|DblN',base_model$parameters$Label[base_model$parameters$Phase >0]))` selectivity parameters in total
+for the fishery fleet and  survey (see Table 10.\@ref(tab:tab6selex)).
 
 The model also estimates a fishing mortality rate for each model year
 using the hybrid method. Details on the estimation method for the
