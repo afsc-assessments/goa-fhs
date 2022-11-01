@@ -305,8 +305,40 @@ write.csv(rec_table, here::here('projection','rec_table.csv'), row.names=FALSE)
 #   select(YEAR = year, total_catch, WG=WGOA,CG=CGOA ,EG) %>% 
 #   rbind(t12020,.,) %>%
 #   write.csv(., file = here('data',paste0(Sys.Date(),"Table1Catch.csv")), row.names = FALSE)
+pdt <- data.frame(read.table(here::here('projection',"bigfile.out"), header=TRUE))
+pdt.long <- pivot_longer(pdt, cols=c(-Alternative, -Spp, -Yr), names_to='metric') %>%
+  mutate(Alternative=factor(Alternative)) %>% group_by(Yr, Alternative, metric) %>%
+  dplyr::summarize(med=median(value), lwr=quantile(value, .1), upr=quantile(value, .9), .groups='drop')
+g <- ggplot(pdt.long, aes(Yr,  med, ymin=lwr, ymax=upr, fill=Alternative, color=Alternative)) +
+  facet_wrap('metric', scales='free_y') + ylim(0,NA) +
+  geom_ribbon(alpha=.4) + theme_bw() +
+  labs(x='Year', y='Estimated 80% CI')
 
+## SB vs Year custom plot for ppt
 
+# proj_scenario0[,1:3] %>%
+#   filter(V4 == 'SSBMean') %>%
+pdt.long %>%
+  filter(metric == 'SSB' & Alternative %in% c(1,4)) %>%
+  ggplot(., aes(x = Yr, y = med, color = Alternative)) +
+  theme(legend.position = 'none') +
+  geom_point() +
+  geom_ribbon(aes(ymin = lwr, ymax = upr, fill = Alternative), color =NA, alpha = 0.2) +
+  scale_y_continuous(limits = c(0,100)) +
+   scale_x_continuous(limits = c(2022,2040), labels = seq(2022,2042,4),
+                     breaks =  seq(2022,2042,4)) +
+  scale_color_manual(values = c('dodgerblue','grey44')) +
+  scale_fill_manual(values = c('dodgerblue','grey44')) +
+  geom_hline(yintercept = 37.033, linetype = 'dotted') +
+  geom_hline(yintercept = 32.404) +
+  geom_text(x = 2035, y = 85, label = 'Alt. 4 (avg F)', color = 'grey44', size = 2) + 
+  geom_text(x = 2035, y = 45, label = 'Alt. 1 (maxABC)', color = 'dodgerblue', size = 2) + 
+  geom_text(x = 2023, y = 40, label = 'SB40', size = 2) + 
+  geom_text(x = 2023, y = 30, label = 'SB35', size = 2) + 
+ 
+  labs(y = 'SSB (1000 t)', x = 'Projection Year')
+
+ggsave(last_plot()  , file = here::here('figs','proejction_2Alt.png'), width = 10, height = 8, unit = 'in', dpi = 520)
 ```
 # Area apportionment 
 ## ADMB style
@@ -511,6 +543,18 @@ apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>
          Quantity = c("Area Apportionment %", 
                       "ABC (t)",
                       "ABC (t)")) %>% select(Quantity, Year, everything())
+
+## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
+
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+
+
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+
 write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
 
 
