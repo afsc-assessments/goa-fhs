@@ -345,7 +345,7 @@ The survey data, while questionable, starts in 1983. Later fishery length comps 
 Changed line 126 ("recdev early start") in control to 1983. This makes the early devs start at the same time as the survey biomass and length comps, instead of way back in 1955. (Made plots in 02_basemodel for aesthetic consistency).
 
 ## Survey data 1993
-Turned off survey data, CAALs and length comp before and including 1993 from the survey. (Made plots in 02_basemodel for aesthetic consistency).
+Turned off survey data, CAALs and length comp before 1990 from the survey. (Made plots in 02_basemodel for aesthetic consistency).
 
 ## Estimate Q
 Right now it's set up to estimated between -1 and 1, but the profiling exercise indicated that it wants q to be really high (i.e. 5). Going to do this two ways; one with a free estimation (just make the phase positive), allowing the bounds to vary from -15 to 15 (as in sablefish); and a separate time using analytical q. For the latter, change line 177 to `2 1 0 0 0 1`, leave the phase negative but expand the bounds. (Made plots in 02_basemodel for aesthetic consistency).

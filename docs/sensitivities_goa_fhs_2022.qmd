@@ -26,23 +26,23 @@ This document contains the sensitivity runs mentioned in the "responses to SSC..
 
 ## Sensitivity Runs indicated by SSC/CIE comments
 
-### Truncate survey data before 1993
+### Truncate survey data before 1990
 
 ::: panel-tabset
 ## Biomass
 
 ```{r, echo=FALSE, fig.cap="The SSB time series are basically identical during the period of shared data."}
-knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare2_spawnbio_uncertainty.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare2_spawnbio_uncertainty.png'))
 ```
 
 ## Rec Deviations
 ```{r echo=FALSE, fig.cap="The deviations take longer to be informed in the truncated model."}
-knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare11_recdevs.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare11_recdevs.png'))
 ```
 ## Survey Fits
 
 ```{r, echo=FALSE, fig.cap="The survey fits are basically identical during the period of shared data."}
-knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1993','compare13_indices.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare13_indices.png'))
 ```
 :::
 
