@@ -29,3 +29,16 @@ Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency
 -   Revisit treatment of $\sigma_R$. Right now it is fixed quite low.
 
 -   Survey biomass data: both in the 2017 model and 2022, the SSB time series seems to ignore the down years from the recent D-B survey. The VAST survey data shows an uptick, but even if I fit to that data instead, the survey fits are too high for the last two years. This tells me there's another data source which is driving the model upwards; **only introducing Francis weights (heavily down-weighting all comps) brought the estimated biomass within the CI of the observations**. Take a look at the profiles to see where the conflict & information lies in this model.
+
+# Comments from Chris for Next Time
+- "Fishery Performacne" section of risk table: This came up in MESA discussions last week – but, we all just did EFH effects of fishing – which resulted in a determiniation for each stock. This might be a good thing to add in the fishery performance section (I think that’s where I would put it)….not worth it here if you don’t have time this year but something for all of us to consider in the future…
+- 
+- Simplify appendix 10a table. From Chris: "This is fine for this year but I’d suggest simplifying your tables into one summary table in the fuutre….we don’t need info of every survey – maybe by gear type – or by agency - or top three surveys w everything else summed in a final column? Can have a header or paragraph denoting anything of interst…can look how we do it in sablefish maybe – but, for your sanity it’s just meant to provide an overall supplemental catch data estimate to see if it’s significant to what CAS has."
+
+-Consider a working group for flatfish with respect to 1) developing priors on M/q/etc, and 2) implementing one-step-ahead residuals (see  https://github.com/r4ss/r4ss/issues/748).
+
+-See if/where data for Table 10.14 (non target catch) can be updated.
+
+-Revisit table 10.15 (Prohibited Species) since the 2019 values are very high. These could be extrapolation estimates? "I’m not sure the bycatch issue has grown enough in the GOA but this number is huge compared to other years for chinook – likely an extrapolation estimate – it may be worth talking to mary furuness – or cindy –or Julie Bonney - or someone who has knowledge of these so you can respond if question….but the tanner and chinook numbers are huge for 2019?". Didn't have time to dig in.
+
+- Not needed now but some info on cause of these catch trends would be helpful. I assume it’s likely driven by halibut bycatch rather than flathead popluations trends – it sorta refers to that in next section but would be more informative having it here – such as…Historically, catch exibits decadal trends that are likely due to management actions to reduce halibut bycatch.
