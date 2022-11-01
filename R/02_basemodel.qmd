@@ -182,7 +182,7 @@ mgmt0 <- read.csv('C:/Users/maia.kapur/Work/assessments/2021/GOA-flathead/data/2
 mgmt1 <- rbind(mgmt0[1:2,],as.numeric(gsub(",", "", mgmt0[3,]))) ## make harvest specs numeric (remove comma)
 mgmt<- mgmt1%>%
   t() %>%  data.frame(.) %>%
-  pivot_wider(.,names_from = 'X2', values_from = 'X3') %>%
+  tidyr::pivot_wider(.,names_from = 'X2', values_from = 'X3') %>%
   mutate(Yr = X1) %>%
   select(Yr, TAC, ABC, OFL)
 
@@ -224,11 +224,16 @@ catchfull <- rbind(catch, cbind(yr = 2023, seas = 1, fleet =1, catch_mt = catchv
 
 ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
       # theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
-  ggsidekick::theme_sleek() +
+  ggsidekick::theme_sleek(base_size = 18) +
+scale_x_continuous(limits = c(1977,2022)) +
+  geom_line(data = catchfull, color = 'blue', lwd = 2) +
+  geom_line(data = subset(catchfull, yr > 2021), color = 'blue') +
+  labs(x = 'Year', y = 'Catch (t)', lwd = 2)
 
-  geom_point(data = catchfull, color = 'grey22', size = 5) +
-  geom_point(data = subset(catchfull, yr > 2021), color = 'dodgerblue2',size = 5) +
-  labs(x = 'Year', y = 'Catch (mt)')
+ggsave(last_plot(), file = here::here("figs","catch_correct_units.png"),
+       height = 7, width  = 12, unit = 'in', dpi = 520)
+
+
 ```
 
 
