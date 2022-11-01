@@ -33,3 +33,7 @@ Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency
 - Simplify appendix 10a table. From Chris: "This is fine for this year but I’d suggest simplifying your tables into one summary table in the fuutre….we don’t need info of every survey – maybe by gear type – or by agency - or top three surveys w everything else summed in a final column? Can have a header or paragraph denoting anything of interst…can look how we do it in sablefish maybe – but, for your sanity it’s just meant to provide an overall supplemental catch data estimate to see if it’s significant to what CAS has."
 
 -Consider a working group for flatfish with respect to 1) developing priors on M/q/etc, and 2) implementing one-step-ahead residuals (see  https://github.com/r4ss/r4ss/issues/748).
+
+-See if/where data for Table 10.14 (non target catch) can be updated.
+
+-Revisit table 10.15 (Prohibited Species) since the 2019 values are very high. These could be extrapolation estimates? Didn't have time to dig in.
