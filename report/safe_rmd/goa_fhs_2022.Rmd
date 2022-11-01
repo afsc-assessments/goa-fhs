@@ -13,8 +13,8 @@ output:
   bookdown::word_document2:
      reference_docx: "template.docx"
      toc: false
-     number_sections: true
-     global_numbering: true
+     number_sections: false
+     global_numbering: false
      crossref:
        fig-title: Figure
      css: "styles.css"
