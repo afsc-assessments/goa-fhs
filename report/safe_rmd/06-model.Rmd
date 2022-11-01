@@ -132,7 +132,7 @@ sources to reflect the current information provided by AKFIN.
 
 (ref:senslink) 
 
-We also present the previously accepted model in its original form (in Synthesis version 3.24) for comparison in Figures \@ref(fig:ssbcompare) to \@ref(fig:selexcompare). No new model structures are recommended this year.
+We also present the previously accepted model in its original form (in Synthesis version 3.24) for comparison in Figures 10.\@ref(fig:ssbcompare) to 10.\@ref(fig:selexcompare). No new model structures are recommended this year.
 
 ## Parameters Estimated Outside the Assessment Model
 
