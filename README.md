@@ -29,3 +29,7 @@ Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency
 -   Revisit treatment of $\sigma_R$. Right now it is fixed quite low.
 
 -   Survey biomass data: both in the 2017 model and 2022, the SSB time series seems to ignore the down years from the recent D-B survey. The VAST survey data shows an uptick, but even if I fit to that data instead, the survey fits are too high for the last two years. This tells me there's another data source which is driving the model upwards; **only introducing Francis weights (heavily down-weighting all comps) brought the estimated biomass within the CI of the observations**. Take a look at the profiles to see where the conflict & information lies in this model.
+
+- Simplify appendix 10a table. From Chris: "This is fine for this year but I’d suggest simplifying your tables into one summary table in the fuutre….we don’t need info of every survey – maybe by gear type – or by agency - or top three surveys w everything else summed in a final column? Can have a header or paragraph denoting anything of interst…can look how we do it in sablefish maybe – but, for your sanity it’s just meant to provide an overall supplemental catch data estimate to see if it’s significant to what CAS has."
+
+-Consider a working group for flatfish with respect to 1) developing priors on M/q/etc, and 2) implementing one-step-ahead residuals (see  https://github.com/r4ss/r4ss/issues/748).
