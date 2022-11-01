@@ -15,9 +15,9 @@ catch_area[catch_area < 1&!is.na(catch_area)] <- round(catch_area[catch_area < 1
 catch_area[catch_area > 1&!is.na(catch_area)] <- round(catch_area[catch_area > 1 & !is.na(catch_area)],0)
 catch_area$YEAR <- as.character(catch_area$YEAR) 
 
-names(catch_area) <- c('Year','Total Catch (mt)','Western Gulf','Central Gulf','Eastern Gulf')
+names(catch_area) <- c('Year','Total Catch (t)','Western Gulf','Central Gulf','Eastern Gulf')
 flextable::regulartable(catch_area) %>%  
-      flextable::set_caption("Total and regional observed annual catch (mt) of GOA Flathead sole through Oct 13,2022. Data are from NMFS Observer Program and Alaska Regional Office. Note that in the base model, a total catch of 687 mt was used as the 2022 full year estimate.") %>%
+      flextable::set_caption("Total and regional observed annual catch (t) of GOA Flathead sole through Oct 13,2022. Data are from NMFS Observer Program and Alaska Regional Office. Note that in the base model, a total catch of 687 mt was used as the 2022 full year estimate.") %>%
   flextable::colformat_num(big.mark = ",")
 ```
 
@@ -39,8 +39,8 @@ spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
           catchRet = 100*round(1-discT/Catch,2) )%>%
   select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)  
 spex2$Year <- as.character(spex2$Year)        
-spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
-  spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
+# spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
+#   spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
   
 flextable::regulartable(spex2) %>%  
       flextable::set_caption("Historical OFLs, ABCs, TACs, total catch (used in model) and percent retention through 13 Oct, 2022.") %>%
@@ -49,14 +49,6 @@ flextable::regulartable(spex2) %>%
 
 \pagebreak
 
-```{r tab3, echo = FALSE, warning = FALSE, message = FALSE}
-mgmtaction <- read.csv(here('tables','table3_closures.csv'))
-
-flextable::regulartable(mgmtaction) %>%  
-      flextable::set_caption("GOA Flathead sole fishery closures in 2015.")
-```
-
-\pagebreak
 
 
 ```{r tab4survbioareadepth, echo = FALSE, warning = FALSE, message = FALSE}
@@ -273,7 +265,7 @@ projsb <-read.csv(here::here('tables','proj_SSBMean.csv')) %>%
   filter(Year < 2036)
 projsb$Year <- as.character(projsb$Year)
 flextable::regulartable(projsb) %>%  
-  flextable::set_caption("Projected mean stock spawning biomass (mt) for the seven harvest scenarios listed in the Harvest Recommendations section.")  
+  flextable::set_caption("Projected mean stock spawning biomass (t) for the seven harvest scenarios listed in the Harvest Recommendations section.")  
 ```
 
 ```{r projF, echo = FALSE, warning = FALSE, message = FALSE}
