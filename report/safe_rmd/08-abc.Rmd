@@ -23,7 +23,7 @@ Tier 3 uses the following reference points: $B_{40\%}$, equal to 40% of the equi
 Estimation of the $B_{40\%}$ reference point requires an assumption regarding the equilibrium level of recruitment.
 In this assessment, it is assumed that the equilibrium level of recruitment is equal to the average of age-3 recruitments between 1984 and `r year`.
 Other useful biomass reference points which can be calculated using this assumption are $B_{100\%}$ and $B_{35\%}$, defined analogously to $B_{40\%}$.
-The `r year+1` estimates of these reference points are shown below. Values are from the projection model for `r base_model_name` and should not be compared directly to outputs from Stock Synthesis forecast outputs.
+The `r year+1` estimates of these reference points are shown below. Values are from the projection model for `r base_model_name` and should not be compared directly to outputs from Stock Synthesis.
 
 | Quantity                      | Value |
 |-------------------------------|-------|
@@ -82,7 +82,7 @@ These five scenarios, which are designed to provide a range of harvest alternati
 -   Scenario 3: In all future years, *F* is set equal to 50% of $max F_{ABC}$.
     (Rationale: This scenario provides a likely lower bound on FABC that still allows future harvest rates to be adjusted downward when stocks fall below reference levels.)
 
--   Scenario 4: In all future years, *F* is set equal to the 2013-2017 average *F*.
+-   Scenario 4: In all future years, *F* is set equal to the `r paste0(range(this_year-5,this_year),collapse = "-")` average *F*.
     (Rationale: For some stocks, TAC can be well below ABC, and recent average *F* may provide a better indicator of $F_{TAC}$ than $F_{ABC}$.)
 
 -   Scenario 5: In all future years, *F* is set equal to zero.
@@ -156,28 +156,28 @@ The table is applied by evaluating the severity of four types of considerations 
 These considerations are stock assessment considerations, population dynamics considerations, environmental/ecosystem considerations, and fishery performance.
 Examples of the types of concerns that might be relevant include the following:
 
-1.  "Assessment considerations---data-inputs: biased ages, skipped surveys, lack of fishery-independent trend data; model fits: poor fits to fits to fishery or survey data, inability to simultaneously fit multiple data inputs; model performance: poor model convergence, multiple minima in the likelihood surface, parameters hitting bounds; estimation uncertainty: poorly-estimated but influential year classes; retrospective bias in biomass estimates.
-2.  "Population dynamics considerations---decreasing biomass trend, poor recent recruitment, inability of the stock to rebuild, abrupt increase or decrease in stock abundance.
-3.  "Environmental/ecosystem considerations---adverse trends in environmental/ecosystem indicators, ecosystem model results, decreases in ecosystem productivity, decreases in prey abundance or availability, increases or increases in predator abundance or productivity.
+1.  "Assessment considerations---data-inputs: biased ages, skipped surveys, lack of fishery-independent trend data; model fits: poor fits to fits to fishery or survey data, inability to simultaneously fit multiple data inputs; model performance: poor model convergence, multiple minima in the likelihood surface, parameters hitting bounds; estimation uncertainty: poorly-estimated but influential year classes; retrospective bias in biomass estimates."
+2.  "Population dynamics considerations---decreasing biomass trend, poor recent recruitment, inability of the stock to rebuild, abrupt increase or decrease in stock abundance."
+3.  "Environmental/ecosystem considerations---adverse trends in environmental/ecosystem indicators, ecosystem model results, decreases in ecosystem productivity, decreases in prey abundance or availability, increases or increases in predator abundance or productivity."
 4.  "Fishery performance---fishery CPUE is showing a contrasting pattern from the stock biomass trend, unusual spatial pattern of fishing, changes in the percent of TAC taken, changes in the duration of fishery openings."
 
-#### Assessment considerations
+### Assessment considerations
 
 Overall, the model fits all the data sets very well. Both the survey index, and survey and fishery composition data show no concerning patterns. All parameters were well estimated, without any convergence issues. Adding the new data had a minimal impact on estimated parameters and management quantities, corroborating the general stability of the model found in previous assessments. We therefore conclude there are no increased concerns and set this consideration at level 1.  
 
-#### Population dynamics considerations
+### Population dynamics considerations
 
 The spawning stock biomass has been above target for the entire time period for which there are data (Figure 10.\@ref(fig:BFtrajectory)). The estimated age 3+ biomass has increased steadily since 2010, coincident with more positive than negative recruitment deviations in the last 10 years (Figure 10.\@ref(fig:rects)). Since we have no increased concerns we set the concern level to 1.
 
-#### Ecosystem considerations
+### Ecosystem considerations
 
-xx
+Overall, we scored this category as a level 1 (no increased concern) based on moderate thermal conditions at depth, some indications of increased prey availability (although prey data are limited), and no indications of increased predation or competition. This category is also attributed a level 1 due to unknown trends in abundance of most prey and a lack of a mechanistic understanding for the direct and indirect effects of environmental change on the survival and productivity of flathead sole. This is the first risk table produced for GOA flathead sole and, therefore, their potential responses to the period of marine heatwave years in the Gulf of Alaska (2014-2016 and 2019) have not been documented in previous SAFE reports. While direct (e.g., larval survival, growth and consumption rates) and indirect (e.g., forage conditions, predation pressure) mechanistic relationships of prolonged warm thermal conditions at surface and at depth are not well understood for flathead sole, it is reasonable to expect a signal in their population trends reflective of this time period.
 
-#### Fishery performance
+### Fishery performance
 
 This fishery has consistently caught only a small fraction of the ABC for the last 10 years (Figure 10.\@ref(fig:catchvsTAC)). We did not examine CPUE trends nor spatial patterns of fishing. There are no changes in the duration of fishing openings. Altogether, we see no cause for concern and give this consideration a level 1 as well. 
 
-#### Summary and ABC recommendation
+### Summary and ABC recommendation
 
 ```{r}
 l1 = "Level 1: No increased concerns"
