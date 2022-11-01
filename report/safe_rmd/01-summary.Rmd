@@ -2,7 +2,7 @@
 
 ## Summary of Changes in Assessment Inputs
 
-1. Added catch data: finalized catch (in mt) for 2017-2021, estimated catch biomass for 2022 using observed catches through  `r date` added to average catches thereafter;
+1. Added catch data: finalized catch for 2017-2021, estimated catch biomass for 2022 using observed catches through  `r date` added to average catches thereafter;
 2. Added design-based Gulf of Alaska Trawl Survey biomass data for 2019 and 2021; 
 3. Added Gulf of Alaska Trawl Survey length composition data for 2019 and 2021;
 4. Added Fishery length composition data from 2018-2022, current through `r date`.
