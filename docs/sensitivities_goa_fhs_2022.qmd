@@ -35,6 +35,10 @@ This document contains the sensitivity runs mentioned in the "responses to SSC..
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare2_spawnbio_uncertainty.png'))
 ```
 
+## Unfished Recruitment
+```{r echo=FALSE, fig.cap="Unfished receruitment is basically identical when survey data before 1990 is ignored."}
+knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj-srv1990','compare16_densities_SR_LN(R0).png'))
+```
 ## Rec Deviations
 ```{r echo=FALSE, fig.cap="The deviations take longer to be informed in the truncated model."}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare11_recdevs.png'))
