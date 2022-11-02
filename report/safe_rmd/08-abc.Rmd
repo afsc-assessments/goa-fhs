@@ -82,7 +82,7 @@ These five scenarios, which are designed to provide a range of harvest alternati
 -   Scenario 3: In all future years, *F* is set equal to 50% of $max F_{ABC}$.
     (Rationale: This scenario provides a likely lower bound on FABC that still allows future harvest rates to be adjusted downward when stocks fall below reference levels.)
 
--   Scenario 4: In all future years, *F* is set equal to the `r paste0(range(this_year-5,this_year),collapse = "-")` average *F*.
+-   Scenario 4: In all future years, *F* is set equal to the `r paste0(range(this_year-5,this_year-1),collapse = "-")` average *F*.
     (Rationale: For some stocks, TAC can be well below ABC, and recent average *F* may provide a better indicator of $F_{TAC}$ than $F_{ABC}$.)
 
 -   Scenario 5: In all future years, *F* is set equal to zero.

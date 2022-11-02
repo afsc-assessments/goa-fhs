@@ -1,0 +1,512 @@
+subtitle = 'Input Nsamps have been summed across bins')
+agecomp_hauls
+lencomp_hauls <- base_dat$lencomp %>% select(Yr, FltSvy, Nsamp) %>% mutate(src = '2017') %>%
+rbind(base_dat$lencomp %>% select(Yr,FltSvy, Nsamp) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -1) %>%
+mutate(FltSvy = ifelse(FltSvy == 1, 'Fishery','Survey'))
+head(base_dat$condbase)
+head(base_model$condbase)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Gender, FltSvy, Nsamp_in    ) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Gender,FltSvy, Nsamp_in    ) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2) %>% ## survey only
+mutate(FltSvy = ifelse(FltSvy == 1, 'Fishery','Survey')) %>%
+group_by(Yr, FltSvy, Gender, src) %>%
+dplyr::summarise(totNsamp = sum(Nsamp_in)) %>%
+arrange(Yr)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, FltSvy, Nsamp_in    ) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,FltSvy, Nsamp_in    ) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2) %>% ## survey only
+mutate(FltSvy = ifelse(FltSvy == 1, 'Fishery','Survey')) %>%
+group_by(Yr, FltSvy, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(Nsamp_in)) %>%
+arrange(Yr)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet , Nsamp_in    ) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , Nsamp_in    ) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2) %>% ## survey only
+mutate(FltSvy = ifelse(FltSvy == 1, 'Fishery','Survey')) %>%
+group_by(Yr, FltSvy, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(Nsamp_in)) %>%
+arrange(Yr)
+m2017$condbase %>% select(Yr,Sex, Fleet , Nsamp_in) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , Nsamp_in) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2)
+m2017$condbase
+m2017$condbase %>% head(
+)
+head(base_model$condbase)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2) %>% ## survey only
+mutate(FltSvy = ifelse(FltSvy == 1, 'Fishery','Survey')) %>%
+group_by(Yr, FltSvy, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(Nsamp_in)) %>%
+arrange(Yr)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2) %>% ## survey only
+mutate(FltSvy = ifelse(Fleet == 1, 'Fishery','Survey')) %>%
+group_by(Yr, Fleet, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(Nsamp_in)) %>%
+arrange(Yr)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN) %>% mutate(src = 'base')) %>%
+filter(FltSvy != -2) %>% ## survey only
+mutate(FltSvy = ifelse(Fleet == 1, 'Fishery','Survey')) %>%
+group_by(Yr, Fleet, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(effN)) %>%
+arrange(Yr)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN) %>% mutate(src = 'base')) %>%
+filter(Fleet != -2) %>% ## survey only
+mutate(Fleet = ifelse(Fleet == 1, 'Fishery','Survey')) %>%
+group_by(Yr, Fleet, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(effN)) %>%
+arrange(Yr)
+agecomp_hauls
+ggplot(agecomp_hauls, aes(x = Yr, y = totNsamp, color = src)) +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Gender, ncol = 2) +
+labs(title = 'Input Sample Sizes (nhauls) between assessments, age comps',
+subtitle = 'Input Nsamps have been summed across bins')
+ggplot(agecomp_hauls, aes(x = Yr, y = totNsamp, color = src)) +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Input Sample Sizes (nhauls) between assessments, age comps',
+subtitle = 'Input Nsamps have been summed across bins')
+ggplot(agecomp_hauls, aes(x = Yr, y = totNsamp, color = src)) +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Input Sample Sizes (nhauls) between assessments, CAAL comps',
+subtitle = 'Input Nsamps have been summed across bins')
+ggplot(subset(agecomp_hauls, src == 'base'), aes(x = Yr, y = totNsamp, color = src)) +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Input Sample Sizes (nhauls) between assessments, CAAL comps',
+subtitle = 'Input Nsamps have been summed across bins')
+ggsave(last_plot(),
+file = here::here('figs','Nsamp_in_age.png'),
+width = 6, height = 4, unit = 'in', dpi = 520)
+base_model$condbase
+head(base_model$condbase)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN = Nsamp_in    ) %>% mutate(src = 'base')) %>%
+filter(Fleet != -2) %>% ## survey only
+mutate(Fleet = ifelse(Fleet == 1, 'Fishery','Survey')) %>%
+group_by(Yr, Fleet, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(effN)) %>%
+arrange(Yr)
+ggplot(subset(agecomp_hauls, src == 'base'), aes(x = Yr, y = totNsamp, color = src)) +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Effective Sample Sizes (CAAL)',
+subtitle = 'Input Nsamps have been summed across bins')
+ggplot(subset(agecomp_hauls, src == 'base'), aes(x = Yr, y = totNsamp, color = src)) +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Input Sample Sizes (CAAL)',
+subtitle = 'Input Nsamps have been summed across bins')
+ggsave(last_plot(),
+file = here::here('figs','Nsamp_in_age.png'),
+width = 6, height = 4, unit = 'in', dpi = 520)
+ggplot(subset(agecomp_hauls, src == 'base'), aes(x = Yr, y = totNsamp, color = src)) +
+theme(legend.position = 'none') +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Input Sample Sizes (CAAL)',
+subtitle = 'Input Nsamps have been summed across bins')
+ggsave(last_plot(),
+file = here::here('figs','Nsamp_in_age.png'),
+width = 6, height = 4, unit = 'in', dpi = 520)
+ggplot(data=subset(lencomp_hauls, src == 'base'), aes(x = Yr, y = Nsamp, color = src)) +
+theme(legend.position = 'none', text= element_text(size = 8)) +
+geom_jitter() +
+# geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~FltSvy, ncol = 2) +
+labs(title = 'Input Sample Sizes (nhauls) by fleet, length comps, both sexes')
+ggsave(last_plot(),
+file = here::here('figs','Nsamp_in_length.png'),
+width = 6, height = 4, unit = 'in', dpi = 520)
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN = Nsamp_in    ) %>% mutate(src = 'base')) %>%
+filter(Fleet != -2) %>% ## survey only
+mutate(Fleet = ifelse(Fleet == 1, 'Fishery','Survey'),
+Sex = ifelse(Sex == 1, 'Female','Male')) %>%
+group_by(Yr, Fleet, Sex, src) %>%
+dplyr::summarise(totNsamp = sum(effN)) %>%
+arrange(Yr)
+ggplot(subset(agecomp_hauls, src == 'base'), aes(x = Yr, y = totNsamp, color = src)) +
+theme(legend.position = 'none') +
+geom_point() +
+geom_vline(xintercept = 2017) +
+scale_color_manual(values = fleetPal) +
+facet_wrap(~Sex, ncol = 2) +
+labs(title = 'Input Sample Sizes (CAAL)',
+subtitle = 'Input Nsamps have been summed across bins')
+ggsave(last_plot(),
+file = here::here('figs','Nsamp_in_age.png'),
+width = 6, height = 4, unit = 'in', dpi = 520)
+this_year
+paste0(range(this_year-5,this_year))
+paste0(range(this_year-5,this_year),sep = "-")
+paste0(range(this_year-5,this_year),collapse = "-")
+require(MetBrewer)
+require(ggtext)
+require(showtext)
+require(ggplot2)
+font_add_google("roboto condensed")
+showtext_opts(dpi = 520)
+showtext_auto(enable = TRUE)
+ggplot2::theme_set(ggsidekick::theme_sleek())
+theme_replace(text= element_text(family = "roboto condensed"), title=element_text(family = "roboto condensed"))
+## all colors to use in this document
+docPal <- c('grey22',met.brewer(name = 'Degas',n = 15))
+m2017Col <- docPal[1]
+baseCol <- "#3A7D6C"
+sensPal <- met.brewer(name = 'Demuth',n = 10)[6:10]
+fleetPal <- c(baseCol,'dodgerblue2')
+modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
+base_srv1990 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1990'))
+require(r4ss)
+base_srv1990 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1990'))
+require(r4ss)
+require(dplyr)
+require(here)
+base_srv1990 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1990'))
+modcomp <- SSsummarize(list(base_srv1990,base_model))
+SSplotComparisons(modcomp,
+plotdir = here('model_runs','m0_8-newMI-biasAdj-srv1990'),
+print  = T,
+col = c(sensPal[2],baseCol),
+legendloc = 'bottomright',
+# endyrvec = endyrvec,
+legendlabels = c('No Survey Data < 1990',modlabs[2]))
+require(here)
+require(r4ss)
+require(dplyr)
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+esth <- SS_output(here('model_runs','m0_8-newMI-biasadj-estH'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare2_spawnbio_uncertainty.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare11_recdevs.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare11_recdevs.png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare13_indices.png'))
+library(dplyr)
+library(here)
+library(lubridate)
+library(tidyr)
+library(ggplot2)
+library(TMB)
+library(Rmisc)
+date_use = "2022-04-18"
+this_year = lubridate::year(Sys.Date())
+last_yr = this_year-1
+## Summarise and plot catches by discard/retention/geartype
+gearpal = rev(c('grey22',
+alpha('grey22',0.65),
+'goldenrod',
+alpha('goldenrod',0.65),
+'seagreen4',
+alpha('seagreen4',0.65)) )
+theme_set(ggsidekick::theme_sleek())
+theme_update(legend.text = element_text(size = 12), legend.position = 'bottom',
+axis.text = element_text(size = 14),axis.title  = element_text(size = 14))
+load("~/assessments/2022/goa-fhs-2022/RE/2022-10-03-rema_output.rdata") ## output
+egfrac <- read.csv(here::here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
+props <- output$proportion_biomass_by_strata %>%
+filter(year == 2021) %>%
+mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+select(Western, Central, WestYakutat,Southeast)
+sum(props)==1
+props
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2])
+abc24 <- as.numeric( rec_table[10,3])
+apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,5) ,.)
+apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,5) ,.)
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,5) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+apportionment2
+rowSums(apportionment2[,3:6])
+props
+apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) ))
+apply(props, 2, FUN = function(x) x*c(abc23,abc24) ) %>%
+rbind( round(props*100,5) ,.)
+apportionment2 <- apply(props, 2, FUN = function(x) x*c(abc23,abc24) ) %>%
+rbind( round(props*100,5) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+apportionment2
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,2) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+apportionment2
+abc23 - rowSums(apportionment2[,3:6])
+rowSums(apportionment2[,3:6])
+apportionment2
+apportionment2
+apportionment2[,3:6]
+apportionment2[,3:6]
+sum(apportionment2[2,3:6])
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[2,4]+diff24
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2])
+abc24 <- as.numeric( rec_table[10,3])
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,2) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+apportionment2
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+# apportionment table example
+appo <- read.csv(here::here('re',paste0("2022-11-01-AreaAppportionment.csv")))
+appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
+appo$Year <- as.character(appo$Year)
+flextable::flextable(appo[,-1]) %>%
+flextable::hline_top(part='all') %>%
+flextable::hline_bottom() %>%
+flextable::colformat_num(big.mark = ',') %>%
+flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0)
+apportionment2
+abc23
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2])
+abc24 <- as.numeric( rec_table[10,3])
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,2) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+abc23
+abc23 - sum(apportionment2[2,3:6])
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,3) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+apportionment2
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+apportionment2
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+# apportionment table example
+appo <- read.csv(here::here('re',paste0("2022-11-01-AreaAppportionment.csv")))
+appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
+appo$Year <- as.character(appo$Year)
+flextable::flextable(appo[,-1]) %>%
+flextable::hline_top(part='all') %>%
+flextable::hline_bottom() %>%
+flextable::colformat_num(big.mark = ',') %>%
+flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0)
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2])
+abc24 <- as.numeric( rec_table[10,3])
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+rbind( round(props*100,2) ,.) %>%
+data.frame() %>%
+mutate(Total = c("",abc23,abc24),
+Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+Quantity = c("Area Apportionment %",
+"ABC (t)",
+"ABC (t)")) %>% select(Quantity, Year, everything())
+## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+# apportionment table example
+appo <- read.csv(here::here('re',paste0("2022-11-01-AreaAppportionment.csv")))
+appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
+appo$Year <- as.character(appo$Year)
+flextable::flextable(appo[,-1]) %>%
+flextable::hline_top(part='all') %>%
+flextable::hline_bottom() %>%
+flextable::colformat_num(big.mark = ',') %>%
+flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0)
+diff24
+SSplotData(m2017)
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare16_densities_SR_LN(R0).png'))
+knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj-srv1990','compare16_densities_SR_LN(R0).png'))
+knitr::include_graphics(here::here('model_runs','m0_8-newMI-biasAdj-srv1990','compare16_densities_SR_LN(R0).png'))
+with(subset(base_model$lendbase, Fleet == 1),(unique(Yr))
+)
+with(subset(base_model$lendbase, Fleet == 1),(unique(Yr))) %in% 1982:2022
+1982:2022 %in% with(subset(base_model$lendbase, Fleet == 1),(unique(Yr)))
+c(1982:2022)[!(1982:2022 %in% with(subset(base_model$lendbase, Fleet == 1),(unique(Yr))) )]
+paste0(c(1982:2022)[!(1982:2022 %in% with(subset(base_model$lendbase, Fleet == 1),(unique(Yr))) )], collapse = ", "))
+paste0(c(1982:2022)[!(1982:2022 %in% with(subset(base_model$lendbase, Fleet == 1),(unique(Yr))) )], collapse = ", ")
+subset(base_model$parameters, Label =="Mat50%_Fem_GP_1")[,'Value']
+subset(base_model$parameters, Label == "Mat_slope_Fem_GP_1")[,'Value']
+log(19)/ -0.773
+-3.809106+8.74
+12.54-8.74
+appo
+spex
+spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))) %>%
+tidyr::pivot_wider(., id_cols = 'Yr',names_from = variable, values_from = value) %>%
+filter(Yr > 1994)
+## manually reshape the raw catches for discard/retained percentage
+catch_discard <- read.csv(here::here('data','catch',paste0('2022-10-13-catch-raw.csv'))) %>%
+# merge(., spex, by.x = 'YEAR', by.y ='Yr') %>%
+filter(TYPE == 'D') %>%
+group_by(YEAR) %>%
+dplyr::summarise(discT = sum(TONS) )
+spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
+mutate( "Total Catch" = round(Catch,0),
+catchRet = 100*round(1-discT/Catch,2) )%>%
+select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)
+spex2$Year <- as.character(spex2$Year)
+spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
+spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
+flextable::regulartable(spex2) %>%
+flextable::set_caption("Historical OFLs, ABCs, TACs, total catch (used in model) and percent retention through 13 Oct, 2022.") %>%
+flextable::colformat_num(big.mark = ",")
+spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))) %>%
+tidyr::pivot_wider(., id_cols = 'Yr',names_from = variable, values_from = value) %>%
+filter(Yr > 1994)
+## manually reshape the raw catches for discard/retained percentage
+catch_discard <- read.csv(here::here('data','catch',paste0('2022-10-13-catch-raw.csv'))) %>%
+# merge(., spex, by.x = 'YEAR', by.y ='Yr') %>%
+filter(TYPE == 'D') %>%
+group_by(YEAR) %>%
+dplyr::summarise(discT = sum(TONS) )
+spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
+mutate( "Total Catch" = round(Catch,0),
+catchRet = 100*round(1-discT/Catch,2) )%>%
+select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)
+spex2$Year <- as.character(spex2$Year)
+# spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
+#   spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
+flextable::regulartable(spex2) %>%
+flextable::set_caption("Historical OFLs, ABCs, TACs, total catch (used in model) and percent retention through 13 Oct, 2022.") %>%
+flextable::colformat_num(big.mark = ",")
+spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))) %>%
+tidyr::pivot_wider(., id_cols = 'Yr',names_from = variable, values_from = value) %>%
+filter(Yr > 1994)
+## manually reshape the raw catches for discard/retained percentage
+catch_discard <- read.csv(here::here('data','catch',paste0('2022-10-13-catch-raw.csv'))) %>%
+# merge(., spex, by.x = 'YEAR', by.y ='Yr') %>%
+filter(TYPE == 'D') %>%
+group_by(YEAR) %>%
+dplyr::summarise(discT = sum(TONS) )
+spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
+mutate( "Total Catch" = round(Catch,0),
+catchRet = 100*round(1-discT/Catch,2) )%>%
+select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)
+spex2$Year <- as.character(spex2$Year)
+# spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
+#   spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
+flextable::regulartable(spex2) %>%
+flextable::set_caption("Historical OFLs, ABCs, TACs, total catch (used in model) and percent retention through 13 Oct, 2022.") %>%
+flextable::colformat_num(big.mark = ",")
+48069+15558+36057
+48069+	52496+	3315+15558+13170+1158+36057+10078+92+7
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+geom_line(data = catchfull, color = 'grey22', size = 5) +
+geom_line(data = subset(catchfull, yr > 2021), color = 'dodgerblue2',size = 5) +
+labs(x = 'Year', y = 'Catch (t)')
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+geom_line(data = catchfull, color = 'grey22', size = 5) +
+geom_line(data = subset(catchfull, yr > 2021), color = 'dodgerblue2',size = 5) +
+labs(x = 'Year', y = 'Catch (t)')
+catchfull
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+scale_x_continuous(limits = c(1977,2022)) +
+geom_line(data = catchfull, color = 'blue', size = 5) +
+geom_line(data = subset(catchfull, yr > 2021), color = 'blue',size = 5) +
+labs(x = 'Year', y = 'Catch (t)').
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+scale_x_continuous(limits = c(1977,2022)) +
+geom_line(data = catchfull, color = 'blue', size = 5) +
+geom_line(data = subset(catchfull, yr > 2021), color = 'blue',size = 5) +
+labs(x = 'Year', y = 'Catch (t)')
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+scale_x_continuous(limits = c(1977,2022)) +
+geom_line(data = catchfull, color = 'blue') +
+geom_line(data = subset(catchfull, yr > 2021), color = 'blue') +
+labs(x = 'Year', y = 'Catch (t)')
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+scale_x_continuous(limits = c(1977,2022)) +
+geom_line(data = catchfull, color = 'blue', lwd = 2) +
+geom_line(data = subset(catchfull, yr > 2021), color = 'blue') +
+labs(x = 'Year', y = 'Catch (t)', lwd = 2)
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) +
+# theme_void()+   theme(plot.background = element_rect(fill = "#212122"))+
+ggsidekick::theme_sleek() +
+scale_x_continuous(limits = c(1977,2022)) +
+geom_line(data = catchfull, color = 'blue', lwd = 2) +
+geom_line(data = subset(catchfull, yr > 2021), color = 'blue') +
+labs(x = 'Year', y = 'Catch (t)', lwd = 2)
+# knitr::include_graphics(here::here("model_runs","m0_8-newMI-biasAdj","plots","catch1 landings.png"))
+knitr::include_graphics(here::here("data","catch","catch_correct_units.png"))
