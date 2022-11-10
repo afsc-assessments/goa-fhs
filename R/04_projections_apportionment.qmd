@@ -338,7 +338,7 @@ pdt.long %>%
  
   labs(y = 'SSB (1000 t)', x = 'Projection Year')
 
-ggsave(last_plot()  , file = here::here('figs','proejction_2Alt.png'), width = 10, height = 8, unit = 'in', dpi = 520)
+ggsave(last_plot()  , file = here::here('figs','proejction_2Alt.png'), width = 6, height = 4, unit = 'in', dpi = 520)
 ```
 # Area apportionment 
 ## ADMB style
