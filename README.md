@@ -4,41 +4,27 @@ Gulf of Alaska flathead sole stock assessment, 2022. Maia Sosa Kapur [maia.kapur
 
 Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency on [safe](https://github.com/BenWilliams-NOAA/safe) and apportionments via [rema](https://github.com/afsc-assessments/rema) both v0.1.0.
 
-## Things to Consider for Future Cycles
+## How to Reproduce this Assessment
+The code in R/ should be self-contained & self-explanatory, with the exception that it depends upon "newsbss" code for SQL queries & data munging developed by C. McGilliard. The code used for these functions should be accessible at M:\Monnahan\newsbss; this hasn't been updated since 15 Sep 2021.
 
--   The mean length and age is declining for the last few years, along with the survey biomass. All three of these aren't well captured in the fits from the base model. Possible that survey timing could fix this, as well as revisiting selex especially for the fishery (the residuals are huge for those length comps but see below).
+### 00_getData.R
+This script will allow you to download, or provide instructions for manually downloading, input data for the assessment (or miscellaneous figures). It also has code to reformat inputs and save CSVs ready to copy into SS. These code are pretty self-explanatory; the main hiccups here were 1) needing to ask the RACE group (Megsie Siple, margaret.siple@noaa.gov) for a CSV of the survey observations by depth, and 2) downloading weekly catches from https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish for extrapolation purposes. For the former, Megsie was able to pull data for me within a few days.
+As of 2022 this model does not use the design-based index, but I have requested that the GAP group continue producing that index for sensitivity purposes during "on" years, using their formal request process in ~Jan of each year.
 
--   Pearson residuals are wrong. Cole pointed us to a package that can correct these; need to check it out especially for length comp residuals, which don't look great.
+### 01_bridging-and-modelDev.qmd
+You do not need to re-run this script; rather it is a notebook-style archive of the steps taken to bridge the 2017 model into the latest version of SS3, add in the data, and check some outstanding sensitivities.
 
--   In the data-prep scripts I inherited, catches are summed across all gears even though the document mentions Trawl only. Either change text to state that they were summed, or remove the HKL/POT gears from the data (it's a very small fraction).
+### 02_basemodel.qmd
+This script assumes you have the executed model files; these are saved both on MSK's local computer under `m0_8-newMI-biasAdj`, or in this repo under `ModelFiles_PlanTeam`. This can be used to re-create many figures in the document, including the cool maps of survey abundance using `akgfmaps`.
 
--   Not exactly clear why the VAST index is so much higher than the DB.
+### 03_sensitivities.qmd
+Has code for automating the retrospective analysis, likelihood profiles, and a notebook-style walkthrough of the sensitivities ran for this assessment. There were many as this hadn't been assessed since 2017 and had undergone a CIE.
 
--   Late in the game I read that "as for previous assessments, the availability of the survey biomass in 2001 was assumed to be 0.9 to account for the biomass in the eastern region of the Gulf" -- which might explain why the 2001 value was inflated? Too late for me to go back, and bridging indicated this wasn't a huge deal. Instead going to use what's on AKFIN. Sure enough 153594/0.9 = 170660.
+### 04_projections_apportionment.qmd
+This shows the steps used to extrapolate the catches for the rest of 2022, automatically write the proj input file using code modified from CCM, and extract and build the SAFE table from the projection outputs. (You can actually run the proj model right from R using the call to `shell` on line 167).
 
--   Make all surveys & associated comps midyear. They're from the same survey and indeed occur midyear, we just didn't touch it this time to encourage continuity with last year. See Bridging for more details.
+### 05_notes.qmd
+Dump of notes and to-dos for next time, not well organized.
 
--   Change to Francis tuning. Suggested weights (for a pre-GPT model) are in `m0_8-newFrancis` and do a slightly better job fitting the survey data. They also down weight all comp data.
-
--   explore M estimated as offset with males/females.
-
--   Consider modeling discards explicitly.
-
--   In tandem with above, revisit Dirichlet or some alternative for the nhauls on the comps data (this is an ongoing area of research, see Pete Hulson).
-
--   Revisit treatment of $\sigma_R$. Right now it is fixed quite low.
-
--   Survey biomass data: both in the 2017 model and 2022, the SSB time series seems to ignore the down years from the recent D-B survey. The VAST survey data shows an uptick, but even if I fit to that data instead, the survey fits are too high for the last two years. This tells me there's another data source which is driving the model upwards; **only introducing Francis weights (heavily down-weighting all comps) brought the estimated biomass within the CI of the observations**. Take a look at the profiles to see where the conflict & information lies in this model.
-
-# Comments from Chris for Next Time
-- "Fishery Performacne" section of risk table: This came up in MESA discussions last week – but, we all just did EFH effects of fishing – which resulted in a determiniation for each stock. This might be a good thing to add in the fishery performance section (I think that’s where I would put it)….not worth it here if you don’t have time this year but something for all of us to consider in the future…
-- 
-- Simplify appendix 10a table. From Chris: "This is fine for this year but I’d suggest simplifying your tables into one summary table in the fuutre….we don’t need info of every survey – maybe by gear type – or by agency - or top three surveys w everything else summed in a final column? Can have a header or paragraph denoting anything of interst…can look how we do it in sablefish maybe – but, for your sanity it’s just meant to provide an overall supplemental catch data estimate to see if it’s significant to what CAS has."
-
--Consider a working group for flatfish with respect to 1) developing priors on M/q/etc, and 2) implementing one-step-ahead residuals (see  https://github.com/r4ss/r4ss/issues/748).
-
--See if/where data for Table 10.14 (non target catch) can be updated.
-
--Revisit table 10.15 (Prohibited Species) since the 2019 values are very high. These could be extrapolation estimates? "I’m not sure the bycatch issue has grown enough in the GOA but this number is huge compared to other years for chinook – likely an extrapolation estimate – it may be worth talking to mary furuness – or cindy –or Julie Bonney - or someone who has knowledge of these so you can respond if question….but the tanner and chinook numbers are huge for 2019?". Didn't have time to dig in.
-
-- Not needed now but some info on cause of these catch trends would be helpful. I assume it’s likely driven by halibut bycatch rather than flathead popluations trends – it sorta refers to that in next section but would be more informative having it here – such as…Historically, catch exibits decadal trends that are likely due to management actions to reduce halibut bycatch.
+# Docs/
+This is the deploy hub for the static web pages I provided with the sensitivities/add'l analyses presented in 2022. Because I didn't want to confuse reviewers thinking these were proposed model alternates, I instead wrote up these .qmds (using figures made in 03_sensitivities.qmd) and deployed them with some explanatory text online, providing links in the document. These are for archival and reference purposes only.
