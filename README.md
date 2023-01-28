@@ -5,7 +5,7 @@ Gulf of Alaska flathead sole stock assessment, 2022. Maia Sosa Kapur [maia.kapur
 Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency on [safe](https://github.com/BenWilliams-NOAA/safe) and apportionments via [rema](https://github.com/afsc-assessments/rema) both v0.1.0.
 
 ## How to Reproduce this Assessment
-The code in R/ should be self-contained & self-explanatory, with the exception that it depends upon "newsbss" code for SQL queries & data munging developed by C. McGilliard. The code used for these functions should be accessible at M:\Monnahan\newsbss; this hasn't been updated since 15 Sep 2021.
+The code in `R/` should be self-contained & self-explanatory, with the exception that it depends upon "newsbss" code for SQL queries & data munging developed by C. McGilliard. The code used for these functions should be accessible on the shared drive via `M:\Monnahan\newsbss`; this hasn't been updated since 15 Sep 2021.
 
 ### 00_getData.R
 This script will allow you to download, or provide instructions for manually downloading, input data for the assessment (or miscellaneous figures). It also has code to reformat inputs and save CSVs ready to copy into SS. These code are pretty self-explanatory; the main hiccups here were 1) needing to ask the RACE group (Megsie Siple, margaret.siple@noaa.gov) for a CSV of the survey observations by depth, and 2) downloading weekly catches from https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish for extrapolation purposes. For the former, Megsie was able to pull data for me within a few days.
