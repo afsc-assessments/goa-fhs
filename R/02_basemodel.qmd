@@ -363,29 +363,31 @@ survdat <- m2017$cpue %>%
   dplyr::select(Yr, Obs, Exp,SE) %>%
   mutate(SRC = '2022') %>%
   reshape2::melt(id = c('Yr','SRC','SE'))  ) %>%
-  mutate(value2 = value/1000,
+  mutate(value2 = value,
          lwr =value2-value2*SE,
          upr = value2+value2*SE)
 
 p3 <- ggplot(data = NULL, aes(x = Yr, y = value2, color = SRC, fill = SRC)) +
-  geom_point(data = subset(survdat, variable == 'Obs' & !(Yr %in% c(2019,2021))), color = m2017Col) +
-  geom_errorbar(data = subset(survdat, variable == 'Obs' & !(Yr %in% c(2019,2021))), aes(ymin = lwr, ymax = upr), color = m2017Col, width = 0) +
-  # theme(legend.position = 'bottomleft')+
-    theme_void()+ theme(plot.background = element_rect(fill = "#212122"))+
-      geom_errorbar(data = subset(survdat, variable == 'Obs' & SRC == 2022), aes(ymin = lwr, ymax = upr), width =0, color = 'grey77') +
-  geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022), color = 'grey77', cex = 5) +
+    ggsidekick::theme_sleek(base_size = 15)+
+  theme(legend.position = 'bottomleft')+
+    # theme_void()+ theme(plot.background = element_rect(fill = "#212122"))+
+  # geom_point(data = subset(survdat, variable == 'Obs' & !(Yr %in% c(2019,2021))), color = m2017Col) +
+  # geom_errorbar(data = subset(survdat, variable == 'Obs' & !(Yr %in% c(2019,2021))), aes(ymin = lwr, ymax = upr), color = 'grey33', width = 0) +
+
+      geom_errorbar(data = subset(survdat, variable == 'Obs' & SRC == 2022), aes(ymin = lwr, ymax = upr), width =0, color = 'grey33') +
+  geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022), color = 'grey33', cex = 2) +
   
-    geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022 & Yr > 2017), color = 'dodgerblue2', cex = 5) +
+    # geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022 & Yr > 2017), color = 'dodgerblue2', cex = 5) +
 
   # geom_point(data = subset(survdat, variable == 'Obs' & (Yr %in% c(2019,2021))), color = 'grey77') +
   # geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022 & Yr == 2001), color = 'grey77') +
-  # # geom_line(data = subset(survdat, variable == 'Exp'), lwd = 0.75) +
+  geom_line(data = subset(survdat, variable == 'Exp' & SRC == 2022), lwd = 0.75) +
   # geom_errorbar(data = subset(survdat, variable == 'Obs' & (Yr %in% c(2001,2019,2021))), aes(ymin = lwr, ymax = upr), width =0) +
-  # geom_ribbon(data = subset(survdat, variable == 'Exp'), aes(ymin = lwr, ymax = upr), color = NA, alpha = 0.2) +  
-  # scale_color_manual(values = c(m2017Col, baseCol)) +
-  # scale_fill_manual(values = c(m2017Col, baseCol),) +
-  # scale_y_continuous(limits = c(0,4e2)) +guides(fill="none") +
-  labs(x = 'Year', y = 'Biomass (mt)', color = 'Model & Data Year')
+  geom_ribbon(data = subset(survdat, variable == 'Exp'& SRC == 2022), aes(ymin = lwr, ymax = upr), color = NA, alpha = 0.2) +
+  scale_color_manual(values = c(baseCol)) +
+  scale_fill_manual(values = c( baseCol)) +
+  scale_y_continuous(limits = c(0,3.5e5)) +guides(fill="none") +
+  labs(x = 'Year', y = 'Biomass (t)', color = 'Model & Data Year')
 
 ggsave(p3,
        file = here('figs','3_cpue_compare.png'),
