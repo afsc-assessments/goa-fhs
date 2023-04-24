@@ -325,15 +325,15 @@ ggsave(last_plot(),
 vast <- read.csv(here('data','survey','hippoglossoides_elassodon',
                       'table_for_ss3.csv')) %>%
   mutate(src = 'Model-Based (VAST)',
-         value=Estimate_metric_tons/1000,
-         lci = (Estimate_metric_tons -SD_log*Estimate_metric_tons)/1000 ,
-         uci =  (Estimate_metric_tons +SD_log*Estimate_metric_tons)/1000 ) %>%
+         value=Estimate_metric_tons,
+         lci = (Estimate_metric_tons -SD_log*Estimate_metric_tons) ,
+         uci =  (Estimate_metric_tons +SD_log*Estimate_metric_tons) ) %>%
   select(Year, value, lci, uci, src) %>%
   rbind(., index %>% 
           mutate(src = 'Design-Based',
-                 value = obs/1000,
-                 lci = (obs-sterr*obs)/1000,
-                 uci = (obs+sterr*obs)/1000) %>%   
+                 value = obs,
+                 lci = (obs-sterr*obs),
+                 uci = (obs+sterr*obs)) %>%   
           select(Year=yr, value  , lci, uci, src)) %>%
   filter(value > 0)
 
@@ -347,7 +347,7 @@ ggplot(vast, aes(x = Year, y = value, color = src, fill = src, group = src)) +
   scale_color_manual(values = c('#015b58','goldenrod'))+
   scale_fill_manual(values = c('#015b58','goldenrod'))+
   scale_x_continuous(labels = seq(1980,2025,5),breaks = seq(1980,2025,5))+
-  scale_y_continuous(limits = c(0,350) ) +
+  scale_y_continuous(limits = c(0,350*1000) ) +
   labs(x = 'Year', y = 'Survey Biomass (t)', color = '',fill = '')+
   geom_ribbon(aes(ymin = lci, ymax = uci), color = NA, alpha = 0.2)
 
