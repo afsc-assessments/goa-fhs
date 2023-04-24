@@ -1,13 +1,13 @@
 {
     "sortOrder": [
         {
-            "columnIndex": 2,
-            "ascending": true
-        },
-        {
             "columnIndex": 4,
             "ascending": false
+        },
+        {
+            "columnIndex": 2,
+            "ascending": true
         }
     ],
-    "path": "~/assessments/2022/goa-fhs-2022/R"
+    "path": "~/assessments/2022/goa-fhs-2022/RE"
 }
