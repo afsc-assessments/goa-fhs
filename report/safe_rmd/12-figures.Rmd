@@ -200,11 +200,11 @@ knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','ts11_Age
 \newpage
 
 
-```{r NAA1, fig.cap=" Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time  (1 of 2).", out.width = "50%",  eval = T}
+```{r NAA1, fig.cap=" Numbers at age (grey bubbles) by year for females . Red line indicates mean age through time  (1 of 2).", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex1_beg.png'))
 ```
 
-```{r NAA2, fig.cap="Numbers at age (grey bubbles) by year for females (left) and males (right). Red line indicates mean age through time  (2 of 2).", out.width = "50%",  eval = T}
+```{r NAA2, fig.cap="Numbers at age (grey bubbles) by year for males. Red line indicates mean age through time  (2 of 2).", out.width = "50%",  eval = T}
 knitr::include_graphics(here('model_runs','m0_8-newMI-biasAdj','plots','numbers1_sex2_beg.png'))
 ```
 
