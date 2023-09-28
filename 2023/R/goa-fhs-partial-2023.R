@@ -12,20 +12,20 @@ require(reshape2)
 require(afscassess)
 require(afscdata)
  
-year <- 2023
+this_year <- 2023
 species <- 10130
 
-# afscdata::setup_folders(year) ## run one time
+# afscdata::setup_folders(this_year) ## run one time
 ggplot2::theme_set(afscassess::theme_report()) 
 pull_date <- lubridate::as_date('2023-09-28')
 
 ## Data pull ----
 ## only run this once or when you want to update data
-# afscdata::goa_fhs(year,off_yr = TRUE)
+# afscdata::goa_fhs(this_year,off_yr = TRUE)
 
 ## separately, dwnld survey obs by area (for apportionment)
 akfin <- afscdata::connect(db = 'akfin')
-afscdata::q_bts_biomass(year, 
+afscdata::q_bts_biomass(this_year, 
                            area='GOA',
                            species=species, 
                            type='area', db=akfin) 
@@ -55,7 +55,7 @@ write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.c
 ## Projections ----
 ### Estimate Catches----
 ## checked by eye that these matched, though EGOA values are off for many
-catches_area <- read.csv(here::here(year,'data','raw','fsh_catch_data.csv')) %>% 
+catches_area <- read.csv(here::here(this_year,'data','raw','fsh_catch_data.csv')) %>% 
   dplyr::group_by(year,fmp_subarea) %>%
   dplyr::summarise(total = sum(weight_posted)) %>%
   select(year, fmp_subarea, total) %>% 
@@ -64,12 +64,12 @@ catches_area <- read.csv(here::here(year,'data','raw','fsh_catch_data.csv')) %>%
          total = sum(WG,CG,EGOA, na.rm=TRUE)) %>%
   select(year, total, WGOA = WG, CGOA=CG, EGOA) 
 
-write.csv(catches_area,file = here::here(year,'data','output','catches_by_area.csv'),row.names = FALSE)
+write.csv(catches_area,file = here::here(this_year,'data','output','catches_by_area.csv'),row.names = FALSE)
 
 ## manually downloaded this and last year's weekly catches from AKFIN
 # https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish
 
-files <- list.files(here::here(year,'data','raw','weekly_catches'), full.names=TRUE)
+files <- list.files(here::here(this_year,'data','raw','weekly_catches'), full.names=TRUE)
 test <- lapply(1:length(files), function(i){
   skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
   data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
@@ -83,73 +83,76 @@ weekly_catches <- do.call(rbind, test) %>%
          week=lubridate::week(date),  
          year=lubridate::year(date)) 
 
-write.csv(weekly_catches,file = here::here(year,'data','raw','weekly_catches','weekly_catches.csv'),row.names = FALSE)
+write.csv(weekly_catches,file = here::here(this_year,'data','raw','weekly_catches','weekly_catches.csv'),row.names = FALSE)
 
-weekly_catches <- read.csv(here::here(year,'data','raw','weekly_catches','weekly_catches.csv'))
+weekly_catches <- read.csv(here::here(this_year,'data','raw','weekly_catches','weekly_catches.csv'))
 ## true catch observed this year so far. The current catch
 ## is not consistent with what was pulled above; likely the weekly tables are lagging
 ## therefore use these data to get the estimated expansion factor and add to the TRUE
 ## observed catch from akfin, above
 
 catch_this_year <- catches_area %>% 
-  filter(year==2023) %>%
+  filter(year==this_year) %>%
   pull(total) 
 
 weekly_catches %>%
   group_by(year) %>% summarise(sum(catch))
 
 ## calculate in-year expansion (mean catch for previous complete years)
-catch_to_add <- weekly_catches %>% filter(year>=year-5 & week > lubridate::week(lubridate::today())) %>%
-  group_by(year) %>% summarize(catch=sum(catch), .groups='drop') %>%
-  pull(catch) %>% mean
+catch_to_add <- weekly_catches %>% 
+  filter(year>=year-5 & week > lubridate::week(lubridate::today())) %>%
+  group_by(year) %>% 
+  summarize(catch=sum(catch), .groups='drop') %>%
+  pull(catch) %>% 
+  mean
 
-message("Precited ", year, " catch = ", round(catch_this_year + catch_to_add,0))
+message("Precited ", this_year, " catch = ", round(catch_this_year + catch_to_add,0))
 message("Expansion Factor = ", round((catch_this_year+catch_to_add)/catch_this_year,2))
 
 ## calculate catch for next two projection years
 projc <- catches_area %>% 
-  filter(year  < 2023 & year  > (2023-6)) %>% 
+  filter(year  < this_year & year  > (this_year-6)) %>% 
   ungroup()%>%
   summarise(mean(total)) %>% 
   as.numeric
 
-yrs_spcat <- 2022:(year+2) ## years to infill catches (since lass full assessment)
+yrs_spcat <- 2022:(this_year+2) ## years to infill catches (since lass full assessment)
 catchvec <- data.frame('year' = yrs_spcat, 'catches' = NA) 
 ## fill in known catches (complete years)
-catchvec$catches[catchvec$year < year] <- catches_area$total[catches_area$year < year & catches_area$year %in% yrs_spcat]
+catchvec$catches[catchvec$year < this_year] <- catches_area$total[catches_area$year < this_year & catches_area$year %in% yrs_spcat]
 ## fill in estimated & projected catches
-catchvec$catches[catchvec$year == year] <- catch_this_year + catch_to_add
-catchvec$catches[catchvec$year > year] <- projc
+catchvec$catches[catchvec$year == this_year] <- catch_this_year + catch_to_add
+catchvec$catches[catchvec$year > this_year] <- projc
 catchvec <- as.matrix(catchvec)
 
-writeLines(as.character(catchvec), con =  here::here(year,'data','output','catches_for_proj.txt'))
-save(catchvec,file = here::here(year,'data','output','catches_for_proj.rdata'))
+writeLines(as.character(catchvec), con =  here::here(this_year,'data','output','catches_for_proj.txt'))
+save(catchvec,file = here::here(this_year,'data','output','catches_for_proj.rdata'))
 
 ### Populate & Run Proj ----
 ## load the functions (stored globally)
 ## since the model hasn't changed, simply copy everything over from last year
 
 file.copy(list.files(here::here(2022,'projection'), full.names = TRUE),
-          here::here(year,'projection'),overwrite = TRUE)
+          here::here(this_year,'projection'),overwrite = TRUE)
  
 ## load catchvec
-load(here::here(year,'data','output','catches_for_proj.rdata'))
+load(here::here(this_year,'data','output','catches_for_proj.rdata'))
 
 ## load sppcatch
-sppcatch <- readLines(here::here(year,'projection','spp_catch.dat'))
+sppcatch <- readLines(here::here(this_year,'projection','spp_catch.dat'))
 sppcatch[3] <- as.numeric(sppcatch[3])+1 ## increment year up one
 sppcatch<-sppcatch[-c((grep('future\tyear',sppcatch)+1):length(sppcatch))] ## delete old values
 ## overwite with new years
-write(sppcatch,file=here::here(year,'projection','spp_catch.dat'),append=FALSE)
+write(sppcatch,file=here::here(this_year,'projection','spp_catch.dat'),append=FALSE)
 ## overwrite with new catches
-write.table(catchvec, file=here::here(year,'projection','spp_catch.dat'), 
+write.table(catchvec, file=here::here(this_year,'projection','spp_catch.dat'), 
             row.names=FALSE, col.names=FALSE, append = TRUE)
 
 ## make sure that the newest spp_catch is also in the /data folder
-file.copy(here::here(year,'projection','spp_catch.dat'),
-          here::here(year,'projection','data','spp_catch.dat'),overwrite = TRUE)
+file.copy(here::here(this_year,'projection','spp_catch.dat'),
+          here::here(this_year,'projection','data','spp_catch.dat'),overwrite = TRUE)
 ## run projection
-setwd(here::here(year,'projection'))
+setwd(here::here(this_year,'projection'))
 shell('main')
 
 ## Run Appportionment with REMA ----
@@ -160,9 +163,9 @@ shell('main')
 ## Fit all three areas at at once (defaults to univariate structure, no info leakage among them)
 library(rema)
 
+### run rema model ----
 ## biomass, cv, strata, year
-
-biomass_dat <- read.csv(here::here(year,'data','raw','goa_area_bts_biomass_data.csv')) %>% 
+biomass_dat <- read.csv(here::here(this_year,'data','raw','goa_area_bts_biomass_data.csv')) %>% 
   group_by(year, regulatory_area_name) %>% 
   summarise(biomass = area_biomass,  
             cv=sqrt(biomass_var)/area_biomass ) %>%
@@ -173,13 +176,16 @@ rema_input <- rema::prepare_rema_input(model_name = paste0("TMB: GOA FHS MULTIVA
                              biomass_dat  = biomass_dat)
 rema_fit_raw <- fit_rema(rema_input) ##save each M separately
 output <- tidy_rema(rema_model = rema_fit_raw)
-save(output, here::here(year,'apportionment','rema_output.rdata'))
+save(output, here::here(this_year,'apportionment','rema_output.rdata'))
+load(here::here(this_year,'apportionment','rema_output.rdata')) ## output
 
-load(here::here(year,'apportionment','rema_output.rdata')) ## output
-
-egfrac <- read.csv(here::here(year,'apportionment','biomass_fractions_egoa.csv'))
+### get biomass fractions ----
+egfrac <- read.csv(here::here(this_year,'apportionment','biomass_fractions_egoa.csv'))
 props <- output$proportion_biomass_by_strata %>% 
-  filter(year == 2021) %>% 
+  dplyr::rename(Eastern = 'EASTERN GOA',
+                Western = 'WESTERN GOA', 
+                Central = 'CENTRAL GOA') %>%
+  filter(year == this_year) %>% 
   mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
          Southeast = Eastern*egfrac$Eastern.Fraction) %>%
   select(Western, Central, WestYakutat,Southeast)
@@ -218,7 +224,7 @@ write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppporti
 ## Tables ----
 ### Main SAFE Table ----
 rec_table1 <-
-  read.table(here::here(year,'projection','percentdb.out')) %>%
+  read.table(here::here(this_year,'projection','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
   transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
             value=as.numeric(V5)) %>%
@@ -228,7 +234,7 @@ rec_table1 <-
   tidyr::pivot_wider(names_from=year, values_from=value)
 
 rec_table2 <-
-  read.table(here::here(year,'projection','alt2_proj.out'), header=TRUE) %>%
+  read.table(here::here(this_year,'projection','alt2_proj.out'), header=TRUE) %>%
   filter(Year %in% c(2024,2025)) %>%
   tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
   tidyr::pivot_wider(names_from=Year, values_from=value)
@@ -287,9 +293,9 @@ c2 = round(as.numeric(catchvec[3,2]))
 c3 = round(as.numeric(catchvec[4,2]))
 
 safe::main_table(data = safe, year = 2023, tier = '3', c1,c2,c3)
-save(safe,file = here::here(year,'tables',paste0(Sys.Date(),'-safe_table.rdata')) )
-write.csv(safe, file = here::here(year,'tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
-write.csv(rec_table, here::here(year, 'projection','rec_table.csv'), row.names=FALSE)
+save(safe,file = here::here(this_year,'tables',paste0(Sys.Date(),'-safe_table.rdata')) )
+write.csv(safe, file = here::here(this_year,'tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
+write.csv(rec_table, here::here(this_year, 'projection','rec_table.csv'), row.names=FALSE)
 
 
 ## Figures ----
