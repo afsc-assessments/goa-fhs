@@ -24,10 +24,17 @@ pull_date <- lubridate::as_date('2023-09-28')
 # afscdata::goa_fhs(year,off_yr = TRUE)
 
 ## separately, dwnld survey obs by area (for apportionment)
+akfin <- afscdata::connect(db = 'akfin')
+afscdata::q_bts_biomass(year, 
+                           area='GOA',
+                           species=species, 
+                           type='area', db=akfin) 
+
 message("Querying survey biomass data...")
 username_AFSC <- rstudioapi::showPrompt(title="Username", message="Enter your AFSC username:", default="")
 password_AFSC <- rstudioapi::askForPassword(prompt="Enter your AFSC password:")
-AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
+AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC, believeNRows = FALSE)
+
 test <- paste0("SELECT GOA.BIOMASS_AREA.YEAR as YEAR,\n ",
                "GOA.BIOMASS_AREA.REGULATORY_AREA_NAME as AREA,\n",
                "GOA.BIOMASS_AREA.AREA_BIOMASS as BIOM,\n ",
@@ -39,7 +46,7 @@ test <- paste0("SELECT GOA.BIOMASS_AREA.YEAR as YEAR,\n ",
                "FROM GOA.BIOMASS_AREA\n ",
                "WHERE GOA.BIOMASS_AREA.SPECIES_CODE in (",species,")\n ",
                "ORDER BY GOA.BIOMASS_AREA.YEAR")
-index_by_area <- RODBC::sqlQuery(af, test)
+index_by_area <- RODBC::sqlQuery(AFSC, test)
 if(!is.data.frame(index_by_area))
   stop("Failed to query GOA survey data by area")
 write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
@@ -155,16 +162,20 @@ library(rema)
 
 ## biomass, cv, strata, year
 
-read.csv(here::here(year,'data','raw','goa_total_bts_biomass_data.csv')) %>%
-  group_by()
+biomass_dat <- read.csv(here::here(year,'data','raw','goa_area_bts_biomass_data.csv')) %>% 
+  group_by(year, regulatory_area_name) %>% 
+  summarise(biomass = area_biomass,  
+            cv=sqrt(biomass_var)/area_biomass ) %>%
+  select(biomass, cv, strata = regulatory_area_name, year) %>%
+  data.frame() ## otherwise will throw "list" error upon prepare_rema_input
 
-input <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS MULTIVAR"),
-                             biomass_dat  = bind_rows(biomass_dat))
-m2 <- fit_rema(input2) ##save each M separately
-output <- tidy_rema(rema_model = m2)
+rema_input <- rema::prepare_rema_input(model_name = paste0("TMB: GOA FHS MULTIVAR"),
+                             biomass_dat  = biomass_dat)
+rema_fit_raw <- fit_rema(rema_input) ##save each M separately
+output <- tidy_rema(rema_model = rema_fit_raw)
+save(output, here::here(year,'apportionment','rema_output.rdata'))
 
-
-load("~/assessments/2022/goa-fhs-2022/RE/2022-10-03-rema_output.rdata") ## output
+load(here::here(year,'apportionment','rema_output.rdata')) ## output
 
 egfrac <- read.csv(here::here(year,'apportionment','biomass_fractions_egoa.csv'))
 props <- output$proportion_biomass_by_strata %>% 
