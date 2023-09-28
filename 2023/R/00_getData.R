@@ -1,18 +1,11 @@
 ## M Sosa Kapur building upon C McGilliard and C Monnahan
 # maia.kapur@noaa.gov
-# Spring 2022
+# Fall 2023
 
 ## NOTES ##
-## This script is to extract and clean data for 2022 GOA FHS Update assessment.
-## Since this is my first time doing this assessment any extraneous data sources
-## will be used as sensitivities only.
-## Includes relevant visualizations for SAFE report.
-## All extractions are saved as a "raw" format (what comes out of the SQLquery, dated)
-## as well as in the finalized SS3v3.30+ format, which is made using code [suffix '_forSS'].
-## Using newsbss package from M:\Monnahan\newsbss; this hasn't been updated since 15 Sep 2021
-## Guidance from the GOA_Flathead_readme.md provided by Carey. She indicates which newsbss function
-## applies for each data component. I did not find those functions to be standalone (they've been modified for dover/rex sole) 
-## so I largely copied and pasted into here, and streamlined where applicable.
+## B Williams Indicated that GOA FHS is now in the gfdatapull package.
+## We will pull these data for use in this partial assessment; recommend comparison
+## with 2022 values at next full assessment.
 
 # Packages and RODBC setup ----
 require(RODBC)
@@ -20,29 +13,35 @@ require(dplyr)
 require(tidyverse)
 require(here)
 require(ggplot2); require(ggsidekick)
-require(r4ss); require(lubridate)
+# require(r4ss); require(lubridate)
 require(reshape2)
-require(rstudioapi) ## enables masking of RODBC name, password
+# require(rstudioapi) ## enables masking of RODBC name, password
+require(afscassess)
+require(afscdata)
 
-newsbssdir <- "C:/Users/maia.kapur/Work/assessments/newsbss/"
+year <- 2023
+# afscdata::setup_folders(year) ## run one time
+afscdata::goa_fhs(year,off_yr = TRUE)
 
-username_AFSC <- showPrompt(title="Username", message="Enter your AFSC username:", default="")
-password_AFSC <- askForPassword(prompt="Enter your AFSC password:")
-AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
+# newsbssdir <- "C:/Users/maia.kapur/Work/assessments/newsbss/"
 
-username_AKFIN <- showPrompt(title="Username", message="Enter your AKFIN username:", default="")
-password_AKFIN <- askForPassword(prompt="Enter your AKFIN password:")
-AKFIN <- odbcConnect("AKFIN",username_AKFIN,password_AKFIN,  believeNRows = FALSE)
-
-species <- 10130 #throughout make sure the SpeciesCode = 10130 for the survey, 103 for observer data
-sp_area <- "'GOA'"
-fyear <- 2022
+# username_AFSC <- showPrompt(title="Username", message="Enter your AFSC username:", default="")
+# password_AFSC <- askForPassword(prompt="Enter your AFSC password:")
+# AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
+# 
+# username_AKFIN <- showPrompt(title="Username", message="Enter your AKFIN username:", default="")
+# password_AKFIN <- askForPassword(prompt="Enter your AKFIN password:")
+# AKFIN <- odbcConnect("AKFIN",username_AKFIN,password_AKFIN,  believeNRows = FALSE)
+# 
+# species <- 10130 #throughout make sure the SpeciesCode = 10130 for the survey, 103 for observer data
+# sp_area <- "'GOA'"
+# fyear <- 2022
 
 ## load last model, converted version
 # mod17 <-  SS_output(here('model_runs','2017-mod'))
 
-mod17 <-  SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'))
-SSplotData(mod17) ## we need one fishery of catches, one survey, 2x Lcomps, and 1x CAALS
+# mod17 <-  SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'))
+# SSplotData(mod17) ## we need one fishery of catches, one survey, 2x Lcomps, and 1x CAALS
 
 # Catches ---- 
 ## manually download any needed years of weekly catches from 
@@ -54,10 +53,10 @@ fsh_sp_area <- "'CG','SE','WG','WY','EY'"
 message("Querying AKFIN to get catch..")
 catch0 <- GET_CATCH(fsh_sp_area=fsh_sp_area,
                     fsh_sp_label="'FSOL'",
-                    final_year=fyear,
+                    final_year=2023,
                     ADD_OLD_FILE=FALSE)$CATCH
 catch0 <- arrange(catch0, YEAR, ZONE, GEAR1)
-write.csv(catch0, file=here('data','catch',paste0(Sys.Date(),'-catch-raw.csv') ), row.names=FALSE)
+write.csv(catch0, file=here(year,'data','raw',paste0(Sys.Date(),'-catch-raw.csv') ), row.names=FALSE)
 
 #* non-commercial catch (for table only) ----
 ## downloaded fom AKFIN, manually deleted rows and saved as CSV
