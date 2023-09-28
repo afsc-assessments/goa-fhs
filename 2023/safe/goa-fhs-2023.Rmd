@@ -57,30 +57,21 @@ title: `r title`
 library(safe)
 # globals
 species = params$species
-year = 2022
-date = 'October 22, 2022'
+this_year = 2023
+date = 'October 22, 2023'
 model = "base"
 end_proj = year + 15
 best_f = 0.0641 # from the best_f function in groundfishr package
 ofl = 8000 # placeholder while i figure things out
 
-# todo: read from proj output
-c1 = 2842 # estimated catch in current year
-c2 = 3489 # proj catch year + 1
-c3 = 2884 # proj catch year + 2
-# todo: build a function/switch to auto run the tier(a/b) - also for overfishing/overfished
+load(here::here(this_year,'data', 'output','catches_for_proj.rdata'))
+c1 <- round(as.numeric(catchvec[2,2]),0) # estimated catch in current year
+c2 <- round(as.numeric(catchvec[3,2]),0)# proj catch year + 1
+c3 <- round(as.numeric(catchvec[4,2]),0) # proj catch year + 2
 ```
 
 ```{r, child="01-summary.Rmd", eval = T}
 ```
-
-```{r, child="02-responses.Rmd", eval = T}
-```
-
-\pagebreak
-\allsectionsfont{\centering}
-# References
-<div id="refs"></div>
 
 ```{r, child="11-tables.Rmd", eval = T}
 ```
@@ -88,8 +79,4 @@ c3 = 2884 # proj catch year + 2
 ```{r, child="12-figures.Rmd", eval = T}
 ```
 
-```{r, child="13-append_a.Rmd", eval = F}
-```
 
-```{r, child="14-append_vast.Rmd", eval = F}
-```
