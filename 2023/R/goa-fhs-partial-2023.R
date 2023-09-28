@@ -123,9 +123,10 @@ catchvec$catches[catchvec$year < this_year] <- catches_area$total[catches_area$y
 ## fill in estimated & projected catches
 catchvec$catches[catchvec$year == this_year] <- catch_this_year + catch_to_add
 catchvec$catches[catchvec$year > this_year] <- projc
-catchvec <- as.matrix(catchvec)
+# catchvec <- as.matrix(catchvec)
 
 writeLines(as.character(catchvec), con =  here::here(this_year,'data','output','catches_for_proj.txt'))
+# catchvec = as.data.frame(catchvec)
 save(catchvec,file = here::here(this_year,'data','output','catches_for_proj.rdata'))
 
 ### Populate & Run Proj ----
@@ -178,7 +179,7 @@ rema_fit_raw <- fit_rema(rema_input) ##save each M separately
 output <- tidy_rema(rema_model = rema_fit_raw)
 
 rema::plot_rema(output, save = TRUE, path = here::here( this_year,'apportionment'))
-save(output, here::here(this_year,'apportionment','rema_output.rdata'))
+save(output, file = here::here(this_year,'apportionment','rema_output.rdata'))
 load(here::here(this_year,'apportionment','rema_output.rdata')) ## output
 
 ### get biomass fractions ----
@@ -302,5 +303,54 @@ write.csv(safe, file = here::here(this_year,'tables',paste0(Sys.Date(),'-safe_ta
 
 
 ## Figures ----
+## The catch vs biomass series necessarily stitches together 
+## the values from the assessment model and those from the projection
 
+## load 2022 base model
+mod_22 <- r4ss::SS_output(here::here(2022,'model_runs','m0_8-newMI-biasAdj'))
+## load pdt
+pdt <- data.frame(read.table(here::here(this_year,'projection',"bigfile.out"), header=TRUE))
+pdt.long <- tidyr::pivot_longer(pdt, 
+                                cols=c(-Alternative, -Spp, -Yr), 
+                                names_to='metric') %>%
+  mutate(Alternative=factor(Alternative)) %>% 
+  group_by(Yr, Alternative, metric) %>%
+  summarize(med=median(value), 
+            lwr=quantile(value, .1), 
+            upr=quantile(value, .9), 
+            .groups='drop')
+
+fig1a <- mod_22$timeseries %>% select(Yr, Bio_smry) %>%
+  merge(.,mod_22$catch %>% select(Yr, Obs), by = 'Yr') %>%
+  filter(Yr != 2020) %>%
+  mutate(catch_over_biomass  = Obs/Bio_smry)
+
+fig1b <- data.frame(Yr = catchvec[,1],
+                    Bio_smry = pdt %>% 
+                      filter(Yr < max(catchvec[,1])+1) %>% 
+                      group_by(Yr) %>%
+                      summarise(Bio_smry = 1000*round(mean(Tot_biom),2)) %>% 
+                      select(Bio_smry) ,
+                    Obs = catchvec[,2]) %>%
+  mutate(catch_over_biomass  = Obs/Bio_smry)
+fig1 <- rbind(fig1a, fig1b)
+
+
+## plot with diff colors for extrapolated and forecasted catches
+ggplot(subset(fig1), 
+       aes(x = Yr, y = catch_over_biomass)) +
+  geom_line(lwd = 1, col = 'grey77') + 
+  geom_point(data = subset(fig1, Yr > 2022),
+             lwd = 1,  col = 'blue', pch = 1) +
+  geom_point(data = subset(fig1, Yr %in% c(2020,2021,2022)),
+             lwd = 1,  col = 'blue', pch = 16) +
+  scale_x_continuous(labels = seq(1960,2025,5), 
+                     breaks = seq(1960,2025,5))+
+  scale_y_continuous(limits = c(0,0.02),
+                     breaks = seq(0,0.02,0.01), 
+                     labels = seq(0,0.02,0.01))+
+  labs(x = 'Year', y = 'Catch/Summary Biomass (age 3+)')
+
+ggsave(last_plot(), height = 5, width = 8, dpi = 520,
+       file = here('figs',paste0(Sys.Date(),'-Fig1_catchvsbio.png')))
 
