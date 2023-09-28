@@ -192,32 +192,32 @@ props <- output$proportion_biomass_by_strata %>%
 
 sum(props)==1
 
-
-
-rec_table <- read.csv(here::here('projection','rec_table.csv'))
-abc23 <- as.numeric( rec_table[10,2]) 
-abc24 <- as.numeric( rec_table[10,3]) 
-apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+### get abcs and apportionment ---
+rec_table <- read.csv(here::here(this_year,'projection','rec_table.csv'))
+abc24 <- as.numeric( rec_table[10,2]) 
+abc25 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc24,abc25) )) %>%
   rbind( round(props*100,2) ,.) %>%
   data.frame() %>%
-  mutate(Total = c("",abc23,abc24),
-         Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+  mutate(Total = c("",abc24,abc25),
+         Year = noquote(c("",lubridate::year(Sys.Date())+1,lubridate::year(Sys.Date())+2)),
          Quantity = c("Area Apportionment %", 
                       "ABC (t)",
                       "ABC (t)")) %>% select(Quantity, Year, everything())
 
-## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
+## because the rounded totals don't perfectly sum to the ABC, 
+## locate the discrepancy and add to the highest area (per Chris)
+diff24 <- abc24 - sum(apportionment2[2,3:6])
+diff25 <- abc25 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff24
+apportionment2[3,4] <- apportionment2[3,4]+diff25
+abc24 - sum(apportionment2[2,3:6]) == 0
+abc25 - sum(apportionment2[3,3:6]) == 0
 
-diff23 <- abc23 - sum(apportionment2[2,3:6])
-diff24 <- abc24 - sum(apportionment2[3,3:6])
-apportionment2[2,4] <- apportionment2[2,4]+diff23
-apportionment2[3,4] <- apportionment2[3,4]+diff24
 
-
-abc23 - sum(apportionment2[2,3:6])==0
-abc24 - sum(apportionment2[3,3:6]) ==0
-
-write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+write.csv(apportionment2,
+          file = here::here(this_year,'apportionment',paste0(Sys.Date(),
+                                        "-AreaApportionment.csv")))
 
 
 
@@ -244,6 +244,8 @@ rec_table <- bind_rows(rec_table1, rec_table2)
 rec_table <- rec_table[c(11,6,3,4,5,2,1,1,9,8,8),] 
 rec_table[c(6:8),2:3] <- round(rec_table[c(6:8),2:3],2)
 rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
+## save this; need it to get apportionment
+write.csv(rec_table, here::here(this_year, 'projection','rec_table.csv'), row.names=FALSE)
 
 
 previous_rec_table <- read.csv(here::here(2022,'projection',"REC_TABLE.CSV"))
@@ -295,7 +297,6 @@ c3 = round(as.numeric(catchvec[4,2]))
 safe::main_table(data = safe, year = 2023, tier = '3', c1,c2,c3)
 save(safe,file = here::here(this_year,'tables',paste0(Sys.Date(),'-safe_table.rdata')) )
 write.csv(safe, file = here::here(this_year,'tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
-write.csv(rec_table, here::here(this_year, 'projection','rec_table.csv'), row.names=FALSE)
 
 
 ## Figures ----
