@@ -1,69 +1,18 @@
 ## Area Allocation of Harvest
 
-The following table shows the recommended ABC apportionment for `r year` and `r year +1`. 
-The apportionment percentages are the same as in the last full assessment. 
-Please refer to the 2020 full stock assessment report [@Fenske2020] for information regarding the apportionment rationale for GOA dusky rockfish.
+Area apportionment for ABC of `r species` is currently based on the proportion of survey biomass projected for each area using the new survey averaging random effects model "REMA" developed by the survey averaging working group (see https://github.com/afsc-assessments/rema for more information).  A bridging exercise confirmed that this package, written in Template Model Builder, produces the same results as the ADMB-RE package used for this stock in previous years when fitting the three geographic strata simultaneously. Please refer to the 2017 full stock assessment report [@Turnock2017] for information regarding the apportionment rationale for GOA `r species`.
+
+The following table shows the recommended ABC apportionment for `r year+1` and `r year+2`. The author notes that in previous projections of the `r species` model (including those done in 2021), the time series of recruitment and spawning biomass used for projections began in 1984 (the start of the main period for recruitment deviations), not 1977 as requested by a 1999 memo by R. Marasco. For consistency between previous assessments and the current assessment (`r base_model_name`), inputs to the projection model continue to use the time series of recruitment and SSB beginning in 1984, which corresponds to the onset of most survey data. Projections assume recruitment at age 3.
+
 
 ```{r}
-# apportionment table example
-appo <- safe::apportion
-
-flextable::flextable(appo[-1,]) %>% 
-    flextable::add_header_row(values = paste0(appo[1,], "%"), top=FALSE) %>%
-    flextable::border_remove() %>% 
-    flextable::compose(i=1, j=1:2, part='header', 
-                       value=flextable::as_paragraph('')) %>%
-    flextable::compose(i=2, j=1:2, part='header', 
-                        value=flextable::as_paragraph('Area Apportionment')) %>% 
-    flextable::merge_h(i=1:2, part = "header") %>% 
-    flextable::font(fontname = "Times New Roman", part = "all") %>%
-    flextable::fontsize(size = 11, part = "all") %>% 
-    flextable::align(j = 1, part = "all", align="left") %>% 
-     flextable::compose(i = 1:2, j = 1, 
-                       value = flextable::as_paragraph(as.character(year)), 
-                       part = "body") %>% 
-    flextable::compose(i = 3:4, j = 1, 
-                       value = flextable::as_paragraph(as.character(year+1)), 
-                       part = "body")  %>% 
-    flextable::compose(i = 1:4, j = 2, 
-                       value = flextable::as_paragraph(rep(c('ABC (t)', 'OFL (t)'), 2)), 
-                       part = "body") %>% 
-    # flextable::height(height = 0.2, part='body') %>% 
-    # flextable::hrule(rule = "exact") %>% 
-    flextable::hline_top(part='all') %>% 
-    flextable::hline_bottom() 
-  
-```
-
-Amendment 41 prohibited trawling in the Eastern area east of 140° W longitude. 
-The ratio of biomass still obtainable in the W. Yakutat area (between 147° W and 140° W) is 0.75. 
-This results in the following apportionment to the W. Yakutat area:
-
-```{r}
-apportion2 <- safe::apportion2
-flextable::flextable(apportion2) %>% 
-  flextable::border_remove() %>% 
-  flextable::font(fontname = "Times New Roman", part = "all") %>%
-  flextable::fontsize(size = 11, part = "all") %>%
-  flextable::compose(i = 1, j = 1, 
-                       value = flextable::as_paragraph(as.character(year)), 
-                       part = "body") %>% 
-  flextable::compose(i = 2, j = 1, 
-                       value = flextable::as_paragraph(as.character(year+1)), 
-                       part = "body") %>% 
-  flextable::compose(i = 1:2, j = 2, 
-                       value = flextable::as_paragraph(rep('ABC (t)', 2)), 
-                       part = "body") %>% 
-  flextable::compose(j=1:2, part='header', 
-                      value=flextable::as_paragraph('')) %>% 
-  flextable::compose(j=3, part='header', 
-                      value=flextable::as_paragraph('W. Yakutat')) %>% 
-    flextable::compose(j=4, part='header', 
-                      value=flextable::as_paragraph('E. Yakutat/Southeast')) %>% 
-  flextable::width(j = 3, width = 1) %>% 
-  flextable::width(j = 4, width = 1.5) %>% 
-          flextable::hline_top(part='all') %>% 
-    flextable::hline_bottom() %>% 
-  flextable::align(j = 1, part = "body", align="left")
-  
+appo <- read.csv(here::here('2023','apportionment','2023-09-28-AreaApportionment.csv'))
+appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
+appo$Year <- as.character(appo$Year)
+flextable::flextable(appo[,-1]) %>%
+  flextable::hline_top(part='all') %>% 
+  flextable::hline_bottom() %>%
+  flextable::colformat_num(big.mark = ',') %>%
+  flextable::colformat_double(i = c(1), j = c(3:7), digits = 2) %>%
+  flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0)
 ```
