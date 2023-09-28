@@ -176,6 +176,8 @@ rema_input <- rema::prepare_rema_input(model_name = paste0("TMB: GOA FHS MULTIVA
                              biomass_dat  = biomass_dat)
 rema_fit_raw <- fit_rema(rema_input) ##save each M separately
 output <- tidy_rema(rema_model = rema_fit_raw)
+
+rema::plot_rema(output, save = TRUE, path = here::here( this_year,'apportionment'))
 save(output, here::here(this_year,'apportionment','rema_output.rdata'))
 load(here::here(this_year,'apportionment','rema_output.rdata')) ## output
 
