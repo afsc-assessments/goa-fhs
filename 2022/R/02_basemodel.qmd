@@ -1,0 +1,652 @@
+---
+title: "GOA FHS Assessment Base Model (plots & tables)"
+author: M Sosa Kapur maia.kapur@noaa.gov
+date: November 2022
+format: html
+toc: true
+always_allow_html: true
+editor: source
+---
+
+Here I make all tables & plots relevant to the report. It is assumed that projections (separate Rmd) have been run. There are some extra plots here used for presentation purposes as well as notes-to-self in case questions arise in review. I roughly tried to generate these in the same order as the document, but there's also a few back-pocket illustrations.
+
+# SETUP
+
+```{r custom plot settings, echo = FALSE}
+require(MetBrewer)
+require(ggtext)
+require(showtext)
+require(ggplot2)
+
+require(r4ss)
+require(dplyr)
+require(here)
+# font_add_google("roboto condensed")
+showtext_opts(dpi = 520)
+showtext_auto(enable = TRUE)
+ggplot2::theme_set(ggsidekick::theme_sleek())
+# theme_replace(text= element_text(family = "roboto condensed"), title=element_text(family = "roboto condensed")) 
+
+
+
+
+
+## all colors to use in this document
+docPal <- c('grey22',met.brewer(name = 'Degas',n = 15))
+m2017Col <- docPal[1]
+baseCol <- "#3A7D6C"
+sensPal <- met.brewer(name = 'Demuth',n = 10)[6:10]
+fleetPal <- c(baseCol,'dodgerblue2')
+
+modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
+
+
+```
+
+## base vs 2017
+```{r compare base and 2017, echo = FALSE}
+
+m2017 <- SS_output(here::here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+m2017_dat <- SS_readdat_3.24(file = here::here('model_runs','2017-mod','GOA_Flathead_17_dat.dat'))
+base_dat <-  SS_readdat(file = here::here('model_runs','m0_8-newMI-biasAdj','data.ss'))
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+# base_thru17 <- SS_output(here('model_runs','m0_8-thru17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+modcomp <- SSsummarize(list(m2017,base_model))
+
+SSplotComparisons(modcomp,   legendlabels = modlabs, col = c(m2017Col,baseCol),
+                  png = T, plotdir = here('model_runs','m0_8-newMI-biasAdj'))
+```
+
+## base vs recdevstart 1983
+
+```{r}
+base_earlydevs <- SS_output( here('model_runs','m0_8-newMI-biasAdj-devs1983'))
+modcomp <- SSsummarize(list(base_earlydevs,base_model))
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-devs1983'),
+                  print  = T,
+                  col = c(sensPal[1],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Dev Ramp start 1983',modlabs[2]))
+
+
+```
+ 
+## base vs survey data truncated before 1990
+ 
+```{r}
+base_srv1990 <- SS_output( here('model_runs','m0_8-newMI-biasAdj-srv1990'))
+modcomp <- SSsummarize(list(base_srv1990,base_model))
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-srv1990'),
+                  print  = T,
+                  col = c(sensPal[2],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('No Survey Data < 1990',modlabs[2]))
+
+
+# SSplotData(base_srv1993)
+```
+
+## base and q estimated/analytical
+
+```{r}
+base_analQ <- SS_output( here('model_runs','m0_8-newMI-biasAdj-analQ'))
+base_estQ <- SS_output( here('model_runs','m0_8-newMI-biasAdj-estQ'))
+
+modcomp <- SSsummarize(list(base_analQ,base_estQ,base_model))
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-estQ'),
+                  print  = T,
+                  col = c(sensPal[3:4],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Analytical q','Estimate ln(q) [-15,15]',modlabs[2]))
+
+
+modcomp$pars[modcomp$pars$Label=="LnQ_base_Survey(2)" ,] ## both est and analytical landed at 1.65
+
+
+base_NoWeight  <- SS_output( here('model_runs','m0_8c'))
+modcomp <- SSsummarize(list(base_NoWeight,base_estQ,base_model))
+
+## the q estimator looks a lot like the unweighted model. 
+## by
+
+SSplotComparisons(modcomp,
+                  # plotdir = here('model_runs','m0_8-newMI-biasAdj-estQ'),
+                  print  = F,
+                  col = c(sensPal[5], sensPal[4],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Base q/ Francis Weights','Estimate ln(q) [-15,15]',modlabs[2]))
+
+```
+
+
+## base vs old ageerror
+
+```{r}
+## manually check it used the right values
+base_olderr <-  SS_output( here('model_runs','m0_8-newMI-biasAdj-oldAgeErr'))
+base_olderr$age_error_mean; base_model$age_error_mean
+base_olderr$age_error_sd; base_model$age_error_sd
+
+modcomp <- SSsummarize(list(base_olderr,base_model))
+
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-oldAgeErr'),
+                  print  = T,
+                  col = c(sensPal[1],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Base w/ old ageing error matrix',modlabs[2]))
+
+```
+
+## base with h estimated
+
+```{r}
+## manually check it used the right values
+
+base_esth <-  SS_output( here('model_runs','m0_8-newMI-biasAdj-esth'))
+ 
+
+modcomp <- SSsummarize(list(base_esth,base_model))
+
+SSplotComparisons(modcomp,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj-esth'),
+                  print  = T,
+                  col = c(sensPal[2],baseCol),
+                  legendloc = 'bottomright',
+                  # endyrvec = endyrvec,
+                  legendlabels = c('Base w/ h estimated',modlabs[2]))
+
+```
+## All sensitivities on one plot
+
+```{r}
+
+```
+
+
+## catch vs TAC
+
+```{r}
+
+catch <- read.csv(here::here('data','catch','2022-10-13-catch_forSS.csv'))
+mgmt0 <- read.csv('C:/Users/maia.kapur/Work/assessments/2021/GOA-flathead/data/2021-09-20-GOA_flathead_harvest_reformat.csv', header = F)[,-1]
+
+mgmt1 <- rbind(mgmt0[1:2,],as.numeric(gsub(",", "", mgmt0[3,]))) ## make harvest specs numeric (remove comma)
+mgmt<- mgmt1%>%
+  t() %>%  data.frame(.) %>%
+  tidyr::pivot_wider(.,names_from = 'X2', values_from = 'X3') %>%
+  mutate(Yr = X1) %>%
+  select(Yr, TAC, ABC, OFL)
+
+## extrapolated catches
+xtrayrs <- data.frame(xtrayrs)
+names(xtrayrs) = c('Yr','Catch')
+pp <- sample(docPal,3)
+pp = c('grey66','grey77','dodgerblue2')
+merge(mgmt, base_model$catch %>% 
+        select(Yr, Catch = Obs),
+      by ='Yr', all.y = TRUE)  %>% 
+  data.frame(.) %>% 
+  reshape2::melt(., id = 'Yr') %>%
+  mutate(value = as.numeric(value), Yr = as.numeric(Yr)) %>%
+  filter(variable != 'OFL') %>%
+  ggplot(., aes(x = Yr,y = value, color = variable, linetype = variable, group = variable)) +
+  geom_line(lwd = 1.1) + 
+  # ggsidekick::theme_sleek(base_size = 13) +
+  theme_void()+ theme(plot.background = element_rect(fill = "#212122"))+
+  theme(legend.position = 'none')+ 
+  scale_x_continuous(limits = c(1990,2025), 
+                     breaks =  seq(1990,2025,5),
+                     labels = seq(1990,2025,5)) + 
+  scale_color_manual(values =  pp,
+                     labels = c('TAC','ABC',"Catches in Base Model", "Catches used in Projections" ))+
+  annotate('text', x = rep(2020.5,3), y = c(30000,40000, 4500),
+           label = c('TAC','ABC','Catches'),
+           color = pp, size = 6)+
+  labs(x = 'Year', y = 'Catch or Harvest Spex (t)', color = '')
+
+ggsave(last_plot(), file = here::here("figs","harvest_spex_vs_catch.png"),
+       height = 7, width  = 12, unit = 'in', dpi = 520)
+
+
+
+catchfull <- rbind(catch, cbind(yr = 2023, seas = 1, fleet =1, catch_mt = catchvec[4,2], catch_se = 0.01),
+      cbind(yr = 2024, seas = 1, fleet =1, catch_mt = catchvec[5,2], catch_se = 0.01))
+
+
+ggplot(data = NULL, aes(x = yr, y = catch_mt)) + 
+  ggsidekick::theme_sleek(base_size = 18) +
+  # scale_x_continuous(limits = c(1977,2022)) +
+  geom_line(data = catchfull, color = 'grey66', lwd = 1) +
+  geom_point(data = subset(catchfull, yr > 2021), color = 'blue') +
+  labs(x = 'Year', y = 'Catch (t)', lwd = 2)
+
+ggsave(last_plot(), file = here::here("figs","catch_correct_units.png"),
+       height = 4, width  = 6, unit = 'in', dpi = 520)
+
+
+```
+
+
+
+## manual timeseries for issue
+```{r}
+b0 <- base_model$derived_quants %>% filter(Label == 'SSB_Virgin') %>% select(Value) %>% as.numeric()
+b35 <- 0.35*b0
+ssb <- base_model$derived_quants[grep('SSB_|Bratio_',
+                                      base_model$derived_quants$Label),] %>%
+  tidyr::separate(Label,c('Lab', 'Yr'), sep = "_") %>%
+  filter(!(Yr) %in% c('Virgin','Initial') & Yr < 2022) %>%
+  select(Yr,Lab, Value, StdDev) %>%
+  mutate(lci = Value - StdDev, uci = Value+StdDev, Yr = as.numeric(Yr),
+         Bratio_new =  Value/b35)
+ssb$Bratio_new[ssb$Lab=='Bratio'] <- NA
+
+ggplot(subset(ssb, Lab == 'SSB'), aes(x = Yr) ) +
+  geom_point(aes(y= Value), color = baseCol) +
+  geom_ribbon(aes(ymin = lci, ymax = uci), alpha = 0.2, fill = baseCol ) +
+  labs(x = 'Yr', y = 'values in derived quantities')
+
+
+ggplot( data=NULL,aes(x = Yr) ) +
+  geom_point(data = subset(ssb, Lab == 'Bratio'), aes(y= Value), color = 'blue') +
+    geom_point(data = ssb, aes(y= Bratio_new), color = 'black') +
+  # geom_ribbon(aes(ymin = lci, ymax = uci), alpha = 0.2, fill = baseCol ) +
+  labs(x = 'Yr', y = 'Bratio in derived quantities')
+
+
+```
+
+
+# Generate tables and figures 
+Anything not auto-generated by SS_plots needed for doc/presentation. Save in respective folders here.
+
+## comps plots custom dims
+
+```{r}
+require(r4ss)
+## comps without fits
+SSplotComps(base_model,subplots = 1, kind = 'LEN',datonly = TRUE, maxcols = 6, fleets = 1)
+
+SSplotComps(base_model, subplots = 1, kind = 'LEN',datonly = TRUE, maxcols = 3, fleets = 2)
+
+
+SSplotComps(base_model, subplots =3, kind = 'cond',datonly = TRUE, maxcols2 = 6, maxrows2 = 5, fleets = 2,cex.main = 2)
+
+
+## comps with fits
+
+SSplotComps(base_model,subplots = 1, kind = 'LEN',datonly = F, maxcols = 6, fleets = 1)
+
+SSplotComps(base_model, subplots = 1, kind = 'LEN',datonly = F, maxcols = 3, fleets = 2)
+
+SSplotComps(base_model, subplots =3, kind = 'cond',datonly = F, maxcols2 = 6, maxrows2 = 5, fleets = 2,cex.main = 2)
+
+```
+
+
+## Custom survey plots
+```{r}
+library(akgfmaps)
+SEBS <- akgfmaps::get_base_layers(select.region = "bs.south", set.crs = "auto")
+
+## format this based on  https://github.com/afsc-gap-products/akgfmaps/blob/master/R/make_idw_map.R
+raw_surv <- readRDS(here('data', 'survey','hippoglossoides_elassodon','Data_Geostat_Hippoglossoides_elassodon.rds')) 
+
+s2021 <- raw_surv%>% 
+  mutate( COMMON_NAME = 'Flathead Sole') %>%
+  dplyr::select(Year,COMMON_NAME, CPUE_KGHA  = Catch_KG, LATITUDE = Lat, LONGITUDE = Lon) %>%
+  dplyr::filter(Year == 2021) %>%
+  make_idw_map(region = "goa",
+               # set.breaks = "jenks", ## auto
+                set.breaks = c(0, 500, 2000, 5000, 7500, 16000), ## standardized breaks
+               in.crs = "+proj=longlat",
+              
+               out.crs = "EPSG:3338", # Set output coordinate reference system
+               use.survey.bathymetry = FALSE, ## for GOA
+               grid.cell = c(20000, 20000)) %>% # 20x20km grid
+  add_map_labels() %>% 
+  change_fill_color(new.scheme = "green2", show.plot = TRUE) #%>%
+  # create_map_file(file.prefix = NA, 
+  #                           file.path = NA, 
+  #                           try.change_text_size = TRUE, # 12x9 is a pre-defined size
+  #                           width = 12, 
+  #                           height = 9, 
+  #                           units = "in", 
+  #                           res = 300, 
+  #                           bg = "transparent")
+
+s2019 <- raw_surv%>% 
+  mutate( COMMON_NAME = 'Flathead Sole') %>%
+  dplyr::select(Year,COMMON_NAME, CPUE_KGHA  = Catch_KG, LATITUDE = Lat, LONGITUDE = Lon) %>%
+  dplyr::filter(Year == 2019) %>%
+  make_idw_map(region = "goa",
+                     # set.breaks = "jenks", ## auto
+                set.breaks = c(0, 500, 2000, 5000, 7500, 16000), ## standardized breaks
+               in.crs = "+proj=longlat",
+               out.crs = "EPSG:3338", # Set output coordinate reference system
+               use.survey.bathymetry = FALSE, ## for GOA
+               grid.cell = c(20000, 20000)) %>% # 20x20km grid
+  add_map_labels() %>% 
+  change_fill_color(new.scheme = "green2", show.plot = TRUE) #%>%
+  # create_map_file(file.prefix = NA,
+  #                           file.path = NA,
+  #                           try.change_text_size = TRUE, # 12x9 is a pre-defined size
+  #                           width = 12,
+  #                           height = 9,
+  #                           units = "in",
+  #                           res = 300,
+  #                           bg = "transparent")
+
+
+p1 <- s2019$plot+theme(legend.position = 'right') 
+p2 <- s2021$plot+theme(legend.position = 'right') 
+
+ggsave(Rmisc::multiplot(plotlist = list(p1,p2), cols = 1),
+       file = here('figs','2_cpue_maps.png'),
+       height = 10, width = 8, dpi = 520)
+ 
+
+survdat <- m2017$cpue %>%
+  dplyr::select(Yr, Obs, Exp,SE) %>%
+  mutate(SRC = '2017') %>%
+  reshape2::melt(id = c('Yr','SRC','SE')) %>%
+  rbind( .,base_model$cpue %>%
+  dplyr::select(Yr, Obs, Exp,SE) %>%
+  mutate(SRC = '2022') %>%
+  reshape2::melt(id = c('Yr','SRC','SE'))  ) %>%
+  mutate(value2 = value,
+         lwr =value2-value2*SE,
+         upr = value2+value2*SE)
+
+p3 <- ggplot(data = NULL, aes(x = Yr, y = value2, color = SRC, fill = SRC)) +
+    ggsidekick::theme_sleek(base_size = 15)+
+  theme(legend.position = 'bottomleft')+
+    # theme_void()+ theme(plot.background = element_rect(fill = "#212122"))+
+  # geom_point(data = subset(survdat, variable == 'Obs' & !(Yr %in% c(2019,2021))), color = m2017Col) +
+  # geom_errorbar(data = subset(survdat, variable == 'Obs' & !(Yr %in% c(2019,2021))), aes(ymin = lwr, ymax = upr), color = 'grey33', width = 0) +
+
+      geom_errorbar(data = subset(survdat, variable == 'Obs' & SRC == 2022), aes(ymin = lwr, ymax = upr), width =0, color = 'grey33') +
+  geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022), color = 'grey33', cex = 2) +
+  
+    # geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022 & Yr > 2017), color = 'dodgerblue2', cex = 5) +
+
+  # geom_point(data = subset(survdat, variable == 'Obs' & (Yr %in% c(2019,2021))), color = 'grey77') +
+  # geom_point(data = subset(survdat, variable == 'Obs' & SRC == 2022 & Yr == 2001), color = 'grey77') +
+  geom_line(data = subset(survdat, variable == 'Exp' & SRC == 2022), lwd = 0.75) +
+  # geom_errorbar(data = subset(survdat, variable == 'Obs' & (Yr %in% c(2001,2019,2021))), aes(ymin = lwr, ymax = upr), width =0) +
+  geom_ribbon(data = subset(survdat, variable == 'Exp'& SRC == 2022), aes(ymin = lwr, ymax = upr), color = NA, alpha = 0.2) +
+  scale_color_manual(values = c(baseCol)) +
+  scale_fill_manual(values = c( baseCol)) +
+  scale_y_continuous(limits = c(0,3.5e5)) +guides(fill="none") +
+  labs(x = 'Year', y = 'Biomass (t)', color = 'Model & Data Year')
+
+ggsave(p3,
+       file = here('figs','3_cpue_compare.png'),
+       width = 6, height = 4, dpi = 520)
+ 
+```
+
+## Misc comparisons
+
+### selex comparison by fleet, sex, mod
+```{r}
+selexplt <- mod17$ageselex %>% filter(Factor == 'Asel2' & Yr == 2018) %>%
+  dplyr::select(-Factor, -Yr, -Seas, -Morph, -Label) %>%
+  reshape2::melt(id = c('Fleet','Sex')) %>%
+  mutate(SRC = '2017') %>%
+  rbind(.,
+        base_model$ageselex %>% filter(Factor == 'Asel2' & Yr == 2023) %>%
+          # filter(row_number() %in% c(1,3)) %>%
+  dplyr::select(-Factor, -Yr, -Seas, -Morph, -Label) %>%
+  reshape2::melt(id = c('Fleet','Sex')) %>%
+  mutate(SRC = '2022')) %>%
+  mutate(Fleet = ifelse(Fleet == 1,'Fishery','Survey') , 
+         Sex = ifelse(Sex == 1, 'Females','Males'),
+         age= as.numeric(variable)) %>%
+  dplyr::select(Fleet, Sex, age, value, SRC) %>%
+  mutate(colme = paste(Sex, SRC, sep = " "))
+
+ggplot(selexplt, aes(x = age, y = value,color = colme, linetype = colme))+
+  geom_line(alpha = 0.75)+
+  theme(legend.position = 'right') +
+  scale_color_manual(values = rep(c(m2017Col,baseCol),2))+
+  scale_linetype_manual(values = c('solid','solid','dashed','dashed')) +
+  facet_grid(~  Fleet) +
+  labs(x = 'Age (yrs)',y='Selectivity', col = 'Sex, Year', linetype = 'Sex, Year')
+
+ggsave(last_plot(),
+       file = here("figs","7_slx_compare.png"), width = 6, height = 3, dpi = 520)
+
+
+SSplotSelex(base_model, fleets = 1, pch = 19, lty = 1, sexes = 1, col1 = baseCol, col2 = baseCol, subplot =14, agefactors = 'Asel',legendloc  = NA)
+SSplotSelex(base_model, fleets = 1, add = T, sexes = 2, col1 = baseCol, col2 = baseCol, subplot =14, agefactors = 'Asel',legendloc  = NA)
+
+SSplotSelex(m2017, add = TRUE, fleets = 1, col1 = 'black', subplot = 2, agefactors = 'Asel',legendloc  = NA)
+
+SSplotSelex(base_model, fleets = 2, subplot = 2, agefactors = 'Asel',legendloc  = NA)
+
+
+```
+
+## SB vs F plot
+
+This was Fig 22 in the 2017 model with this caption: Spawning stock biomass relative to B35% and fishing mortality (F) relative to F35% from 1978-2019 (solid black line), the OFL control rule (dotted red line), the maxABC control rule (solid red line), B35% (vertical grey line), and F35% (horizontal grey line). The 2018 and 2019 spawning biomass and fishing mortality rates are as predicted by Alternatives 1 and 2 in the harvest projections.
+
+Need to read 2023/2024 sb, F from alternatives 1 and 2 in proj.
+
+```{r}
+## take all reference values from Proj, noting that refs to "ofl" correspond to "b35" therein
+rec_table1 <-
+  read.table(here::here('projection','percentdb.out')) %>%
+  as.data.frame(stringsAsFactors=FALSE) %>%
+  transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+            value=as.numeric(V5)) %>%
+  filter(year %in% (this_year:(this_year+2)) & scenario==1 
+         &  metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc', 'F_Mean')
+         ) %>%
+  arrange(year, metric) %>%
+  tidyr::pivot_wider(names_from=year, values_from=value)
+# rec_table2 <-
+#   read.table(here::here('projection','alt2_proj.out'), header=TRUE) %>%
+#   filter(Year %in% (this_year+1:2)) %>%
+#    tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+#    tidyr::pivot_wider(names_from=Year, values_from=value)
+
+## use these as denominators
+b35 <- as.numeric(subset(rec_table1, metric == 'SSBFofl')[,'2023']) ## in mt
+f35 <- as.numeric(subset(rec_table1, metric == 'Fofl')[,'2023'] )
+b100 <- as.numeric(subset(rec_table1, metric == 'SSBF100')[,'2023']) ## in mt
+
+fig22 <- base_model$timeseries %>% dplyr::select(Yr, SpawnBio, Fy = `F:_1`) %>%
+  filter(Yr > 1977  ) %>%
+  mutate(SB_B35 = SpawnBio/(1000*b35), F_F35 = Fy/f35, type = 'aa') %>%
+  arrange(., Yr)
+
+## fill in yr, spawnbio, fy, b/b35, f/f35, type for proj yeras
+
+fig22[fig22$Yr == 2022,] <- c(2022, 
+                              as.numeric(1000*subset(rec_table1, metric == 'SSBMean')[,'2022']),
+                            as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2022']),
+                             as.numeric(subset(rec_table1, metric == 'SSBMean')[,'2022']/b35),
+                               as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2022']/f35),
+                            'aa')
+
+fig22[fig22$Yr == 2023,] <- c(2023, 
+                              as.numeric(1000*subset(rec_table1, metric == 'SSBMean')[,'2023']),
+                            as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2023']),
+                             as.numeric(subset(rec_table1, metric == 'SSBMean')[,'2023']/b35),
+                               as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2023']/f35),
+                            'aa')
+
+fig22 <- bind_rows(fig22, c('Yr' = 2024, 
+                             "SpawnBio" = as.numeric(1000*subset(rec_table1, metric == 'SSBMean')[,'2024']),
+                            'Fy' = as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2024']),
+                             "SB_B35"= as.numeric(subset(rec_table1, metric == 'SSBMean')[,'2024']/b35),
+                               "F_F35"= as.numeric(subset(rec_table1, metric == 'F_Mean')[,'2024']/f35),
+                           'type'= 'aa'))
+# fig22$type[fig22$Yr > 1978] <- 'BB'
+# fig22$type[fig22$Yr == 1978] <- NA
+# fig22[,1:5] <- as.numeric(fig22[,1:5])
+## showing the OFL and ABC control rules. These are actually relative to B100
+  
+ggplot(data = fig22, aes(x = as.numeric(SB_B35), y = as.numeric(F_F35))) +
+  geom_path(color = baseCol, lwd = 0.75, aes(group = type)) +
+  geom_point(data = subset(fig22, Yr > 2021), color = 'seagreen4') +
+  scale_x_continuous(limits = c(0,3.5)) +
+  scale_y_continuous(limits = c(0,1.5)) +
+  geom_hline(yintercept = 1, col = 'grey88') +  geom_vline(xintercept = 1, col = 'grey88') +
+  geom_segment(data = NULL, aes(x =0.4/0.35,  y = 1,xend =3.5, yend = 1), color = 'red') + ## OFL plateau
+  geom_segment(data = NULL, aes(x =0.05,  y = 0,xend =0.4/0.35, yend = 1), color = 'red') + ## OFL ramp
+  geom_segment(data = NULL, aes(x = 0.4/0.35,  y = 0.8,xend =3.5, yend = 0.8), color = 'red', linetype = 'dotted') + ## ABC  plateau
+  geom_segment(data = NULL, aes(x = 0.05,  y = 0,xend =0.4/0.35, yend = 0.8), color = 'red', linetype = 'dotted') + ## ABC  ramp
+  labs(x = expression('Spawning Biomass/B'[35]*"%"),y = expression('F/F'[35]*"%"))
+
+ggsave(last_plot(),
+       file = here::here('figs','22_BFTrajectory.png'),
+       width = 5, height = 5, dpi = 400)
+
+
+
+```
+
+# Par table (old vs new) 
+Copied this code from 2021 sablefish update.
+
+```{r}
+
+#names of quantities to table, add descending limb parameters
+growthPars <- c("NatM_p_1_Fem_GP_1",
+"L_at_Amin_Fem_GP_1",
+"L_at_Amax_Fem_GP_1",
+"VonBert_K_Fem_GP_1",
+"CV_young_Fem_GP_1",
+"CV_old_Fem_GP_1",
+"NatM_p_1_Mal_GP_1",
+"L_at_Amin_Mal_GP_1",
+"L_at_Amax_Mal_GP_1",
+"VonBert_K_Mal_GP_1",
+"CV_young_Mal_GP_1",
+"CV_old_Mal_GP_1",
+"SR_LN(R0)",
+"SR_BH_steep", 
+"Recr_Virgin")
+
+selexPars <- c(m2017$parameters[grepl('Sel|DblN',m2017$parameters$Label),'Label'],base_model$parameters[grepl('Sel|DblN',base_model$parameters$Label),'Label'])
+
+#likelihoods to table, you could add the individual survey likelihoods here
+like <- c("	TOTAL	",
+"	Survey	",
+"	Discard	",
+"	Length_comp	",
+"	Age_comp	",
+"	Parm_priors	") #,
+
+legend.labels <-
+summaryoutput <- r4ss::SSsummarize(list(base_model, m2017))
+partab<- SStableComparisons(summaryoutput,likenames=like, names=growthPars)[c(1:6,8:12,15),]
+names(partab)[2:3] <-  c(base_model_name, old_model_name)
+partab[c(1,7),2] <- 0.2 ## manual fill natM since label changed
+partab[,2:3] <- round(partab[,2:3],3)
+partab$Label <- c("Natural Mortality (both sexes)",
+                  "Length at age 2 (females, cm)",
+                  "Linf (females, cm)",
+                  "von Bertalanffy k (females, cm/yr)",
+                  "CV in length-at-age 2 (females)",
+                  "CV in length-at-age 59 (females)",
+                  "Length at age 2 (males, cm)",
+                  "Linf (males, cm)",
+                  "von Bertalanffy k (males, cm/yr)",
+                  "CV in length-at-age 2 (males)",
+                  "CV in length-at-age 59 (males)",
+                  "Unfished Recruitment (millions)")
+ 
+write.csv(partab, here::here('tables','parcompare_growth.csv'), row.names = FALSE)
+
+parSelex <-  SStableComparisons(summaryoutput,likenames=like, names=selexPars, modelnames=c(base_model_name, old_model_name))
+
+## manually move stuff around
+parSelex[1:6,1:2] <- parSelex[23:28,1:2]; parSelex[23:28,] <- NA
+parSelex[12:17,1:2] <- parSelex[34:39,1:2] ; parSelex[34:39,] <- NA
+parSelex<-parSelex[!is.na(parSelex)] ## drop NAs
+write.csv(parSelex[grep('Fishery', parSelex$Label),],
+          file = here::here('tables','parcompare_selexfishery.csv'), row.names = FALSE)
+write.csv(parSelex[grep('Survey', parSelex$Label),],
+          file = here::here('tables','parcompare_selexsurvey.csv'), row.names = FALSE)
+```
+
+# Comparing nhauls
+In `01_bridging.qmd` we landed on `m0_8-newMI-biasAdj` as the base model. This has all the new data, corrects the historical survey datapoint, and updates the aging error matrix. The parameter hitting bounds is InitialF and we decided to leave that as-is.
+
+The 2017 assessment used the M-I weighting method for weighting individual data sources, and reverted to the number of hauls for the length comps. This was before updates to the Francis weighting method were revisited by Punt for CAAL data.
+
+There are some slight differences in the Nhauls, namely years 2015-2017 were all fixed at 112 in the previous assessment whereas they vary in my dataset. 
+
+The CAAL sample sizes are literally the raw #s across rows. I'd initially thought these were inconsistent because I was including the ghosted marginal ages in the Nsamp summation; when I remove Fleet -2 they're very much in line.Per the SS manual, it's best to present CAAL data sex-separated because then we aren't assuming rigid sex ratios each year.
+```{r echo = FALSE}
+lencomp_hauls <- base_dat$lencomp %>% select(Yr, FltSvy, Nsamp) %>% mutate(src = '2017') %>%
+  rbind(base_dat$lencomp %>% select(Yr,FltSvy, Nsamp) %>% mutate(src = 'base')) %>%
+  filter(FltSvy != -1) %>%
+  mutate(FltSvy = ifelse(FltSvy == 1, 'Fishery','Survey'))
+  # tidyr::pivot_wider(., id_cols = c(Yr, FltSvy), names_from = src, values_from = Nsamp)
+
+
+## note that 17 mod presented males and females yesterday
+
+agecomp_hauls <- m2017$condbase %>% select(Yr,Sex, Fleet, effN) %>% mutate(src = '2017') %>%
+  rbind(base_model$condbase %>% select(Yr,Sex,Fleet , effN = Nsamp_in    ) %>% mutate(src = 'base')) %>%
+  filter(Fleet != -2) %>% ## survey only
+  mutate(Fleet = ifelse(Fleet == 1, 'Fishery','Survey'), 
+         Sex = ifelse(Sex == 1, 'Female','Male')) %>%
+  group_by(Yr, Fleet, Sex, src) %>%
+  dplyr::summarise(totNsamp = sum(effN)) %>% 
+  arrange(Yr)
+  # tidyr::pivot_wider(., id_cols = c(Yr, FltSvy), names_from = src, values_from = Nsamp)
+
+
+
+
+ggplot(data=subset(lencomp_hauls, src == 'base'), aes(x = Yr, y = Nsamp, color = src)) +
+  theme(legend.position = 'none', text= element_text(size = 8)) +
+  geom_jitter() +
+  # geom_vline(xintercept = 2017) +
+  scale_color_manual(values = fleetPal) +
+  facet_wrap(~FltSvy, ncol = 2) +
+  labs(x = 'Year', y = 'Input Sample Size (nhauls), length comp')
+
+ggsave(last_plot(),
+       file = here::here('figs','Nsamp_in_length.png'),
+       width = 6, height = 4, unit = 'in', dpi = 520)
+
+ggplot(subset(agecomp_hauls, src == 'base'), 
+       aes(x = Yr, y = totNsamp, color = Sex)) +
+  theme(legend.position = 'none') +
+  geom_point() +
+  # geom_vline(xintercept = 2017) +
+  scale_color_manual(values = fleetPal) +
+  # facet_wrap(~Sex, ncol = 2) +
+  labs(x='Year', y = 'Input Sample Size (nhauls), CAAL')
+
+ggsave(last_plot(),
+       file = here::here('figs','Nsamp_in_age.png'),
+       width = 6, height = 4, unit = 'in', dpi = 520)
+
+```
+
+
+# NOT RUN ---
+# Numbering convention
+Per instructions here, I need to calculate the "ADSB" (comparing biomass between previous and current models, run only with data thru 2017). The ADSB is , so the name of the model I'm presenting follows the minor change template and is called Model 17.0a.
+
+The instructions were a little vague as to whether I was to compare the new model through 2021 with *data* only thru 2017, or the new model with *data & dynamics* thru 2017 only. I assume the latter, but do note that the 2004 survey value has changed. This is model `m0_8-thru17`. In `data.ss`  I changed the endyr to 2017 and commented out any data > 2017. *Perhaps revisit or wait to do this until weights, etc. have been revisited*.
+
+
+

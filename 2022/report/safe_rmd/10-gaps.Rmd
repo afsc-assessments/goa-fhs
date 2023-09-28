@@ -1,0 +1,15 @@
+# Data Gaps and Research Priorities
+
+Future assessments of this stock should consider the following:
+
+1) Investigating, and possibly improving, fits to the survey biomass index and mean-length data from the survey for recent years, which both appear to be declining. This might be achieved by revisiting the selectivity curve for both sexes and fleets, which presently suggests that males are selected at a younger age than females, and results in large Pearson residuals for the fishery length compositions (but see point 2). In 2017, authors stated that simultaneous survey likelihood profiles over $M$ and $q$ indicated instability in the fishery selectivity parameters, which needs to be investigated for the interpretation of the likelihood profiles to be meaningful. We also encourage a consistent application of the survey month, which was selected for this cycle to maintain consistency with the previous benchmark assessment but should probably be made uniform.When re-examining selectivity, consider the truncation and/or separation of early survey data due to changes in survey design, and the start year for recruitment deviates, as discussed in the CIE review.
+
+2) Replacing the Pearson residual for compositional data with a more statistically sound method, such as one-step-ahead regression (@trijoulet2023). This might indicate that fishery compositional fits are not as poor as they currently seem.
+
+3) Reviewing the interaction of the data weighting paradigm, the fixing of catchability at 1, and the input sample sizes for the compositional data. Using the McAllister-Ianelli weights (as was done here) or switching back to the Francis weights did not have a major effect on derived quantities, however, a sensitivity run (not shown) with no data weighting produced a much lower biomass time series and was unable to fit the survey (with fixed catchability). This suggests that there is conflict between the dynamics indicated by the conditional age-at-length data, which was consistently down-weighted, and the length composition data (consistent with the results of our likelihood profile analysis). The specification of the input sample sizes for AFSC groundfish assessments is an active area of research.
+
+4) Continue exploring the relationship between overall uncertainty, natural mortality and catchability in the model, potentially including the development of a prior; consider using some of the new methods presented in the FishLife package by J. Thorson (AFSC). As above, explore the effects of these parameters on estimation of selectivity and other parameters. 
+
+5) Examining the genetic stock structure of Flathead sole throughout its range and within the Gulf of Alaska and the Bering Sea is important for understanding whether spatial management units are properly allocated.
+
+

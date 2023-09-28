@@ -1,0 +1,65 @@
+
+\newpage
+
+# Data
+
+The following table summarizes the data used in the stock assessment model for `r species`:
+
+```{r}
+
+data.frame(Source = c(rep("U.S. trawl fishery", 2),
+                      rep("GOA bottom trawl survey", 3)),
+           Data = c("Catch biomass",
+                    "Catch length composition",
+                    "Survey biomass",
+                    "Survey length composition", 
+                    "Survey age composition, conditioned on length" ),
+           Years = c(paste0(range(base_model$catch$Yr),collapse  = "-"),
+                     with(subset(base_model$lendbase, Fleet == 1),paste0(unique(Yr), collapse = ", ")),
+                    "1984-1999 (triennial), 2001-2021 (biennial)",
+                    "1984-1999 (triennial), 2001-2021 (biennial)", 
+                    with(subset(base_model$condbase, Fleet == 2),paste0(unique(Yr), collapse = ", "))))  %>% 
+  flextable::flextable() %>% 
+    flextable::width(j = ~ Source, width = 1) %>% 
+    flextable::width(j = ~ Data, width = 1.5) %>% 
+   flextable::width(j = ~ Years, width = 4) %>% 
+   flextable::merge_v(j = 1) %>% 
+  flextable::font(fontname = "Times", part = "all") %>% 
+  flextable::fontsize(size = 10) %>% 
+  flextable::theme_vanilla() %>% 
+  flextable::fix_border_issues() 
+
+```
+
+## Fishery
+
+(ref:ssfilesource) used in the assessment can be seen in the Stock Synthesis data file (`data.ss`) hosted here: https://github.com/mkapur-noaa/goa-fhs-2022/ModelFiles_PlanTeam.
+
+
+### Catch
+
+The assessment included catch data from `r min(base_model$catch$Yr)` to 2022 (Figure 10.\@ref(fig:removals)). 2022 catches were estimated by adding the observed catch as of `r date` to the average catch from Oct 14-Dec 31 from the previous 5 years, for a total estimate of 687 t. Historically, catches have been well below the management specifications, on the order of 10% of Total Allowable Catch over the last 10 years (Figure 10.\@ref(fig:catchvsTAC)).  Catches of flathead sole occur almost entirely in the Western and Central management areas in the GOA (statistical areas 610 and 620 + 630, respectively (Table 10.\@ref(tab:catchbyarea))). 
+
+### Age and Size Composition
+
+Fishery length composition data were included in 2cm bins from `r paste0(range(base_model$lbins), collapse = "-")` cm.  Compositional data were omitted in years where there were less than 15 hauls that included measured flathead sole: `r paste0(c(1982:2022)[which(!(1982:2022 %in%  unique(base_model$lendbase$Yr)))], collapse =", ")`. The effective sample size for fishery length composition data were the annual number of hauls [@Pennington1994]. These data were current on AKFIN as of  `r date`. Fishery length composition observations (ref:ssfilesource)
+
+## Survey
+
+### Biomass Estimates from Trawl Surveys
+
+Survey biomass estimates originate from a cooperative bottom trawl survey conducted by the U.S. and Japan in 1984 and 1987 and a U.S. bottom trawl survey conducted by the Alaska Fisheries Science Center Resource Assessment and Conservation Engineering (RACE) Division thereafter. Calculations for final survey biomass and variance estimates are fully described in Wakabayashi et al. (1985). Depths 0-500 meters were fully covered in each survey and occurrence of `r species` at depths greater than 500 meters is rare (Table 10.\@ref(tab:tab4survbioareadepth)). The survey excluded the eastern region of the Gulf of Alaska (the Yakutat and Southeastern areas) in 2001. As discussed above, GOA trawl surveys in 1984 and 1987 were done in cooperation with Japanese fleets and had gear-area combinations distinct from later years, in addition to 30-minute tows. In 1993, the GOA trawl survey design changed from 30-minute to 15-minute tows. These changes are not reflected in the current model structure, but were examined via a sensitivity run and are discussed further in the Data Gaps and Research Recommendations section.  
+
+<!-- As for previous assessments, the availability of the survey biomass in 2001 was assumed to be 0.9 to account for the biomass in the eastern region of the Gulf.  -->
+
+The total survey biomass estimates and CVs that were used in the assessment are listed in Table 10.\@ref(tab:tab5inputsurv).  Survey biomass decreased slightly from `r prettyNum(base_model$cpue$Obs[base_model$cpue$Yr==2019], big.mark = ',')` t in 2019 to `r prettyNum(base_model$cpue$Obs[base_model$cpue$Yr==2021], big.mark = ',')` t in 2021.
+Figure 10.\@ref(fig:survmap) shows maps of survey CPUE in the GOA for the most recent two survey years; survey CPUE in both years was highest in the Central and Western GOA.
+
+
+### Age and Size Composition 
+This assessment includes sex-specific length compositions from the trawl survey, as well as age frequencies of fish by length (conditional age-at-length, CAAL). For both compositional data types, the effective sample size was the number of hauls [@Pennington1994]; see section on data weighting for further discussion. CAAL data before 1990 was not included for consistency with previous models.
+Marginal survey age composition data is also included in the data input file, but is "ghosted" and therefore does not contribute to the joint negative log likelihood. 
+
+We use conditional age-at-length data for the following reasons: 1) The approach preserves information on the relationship between length and age and provides information on variability in length-at-age such that growth parameters and variability in growth can be estimated within the model. 2) The approach resolves the issue of double-counting individual fish when using both length- and age-composition data (as length-composition data are used to calculate the marginal age compositions). See Stewart (2005) for further discussion of the use of conditional age-at-length data in fishery stock assessments.  
+
+Input survey length composition and CAAL data, and the corresponding sample sizes (ref:ssfilesource)

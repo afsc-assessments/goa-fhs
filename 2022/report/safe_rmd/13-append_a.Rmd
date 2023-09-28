@@ -1,0 +1,82 @@
+
+# Appendix 10a. Supplemental catch data 
+
+In order to comply with the Annual Catch Limit (ACL) requirements, a dataset has been generated to help estimate total catch and removals from NMFS stocks in Alaska. 
+This dataset estimates total removals that occur during non-directed groundfish fishing activities. 
+This includes removals incurred during research, subsistence, personal use, recreational, and exempted fishing permit activities, but does not include removals taken in fisheries other than those managed under the groundfish FMP. These estimates represent additional sources of removals to the existing Catch Accounting System estimates.  
+
+
+```{r appxAcatch, echo = FALSE, warning = FALSE, message = FALSE}
+## these are in kg; convert to tons and pick the top 3-5 sources, then list other
+aa0 <- read.csv(here::here('data','catch','10112022-noncommercialfisherycatch.csv'))
+## adfg table to onerous; collapse
+top_surv <- aa0 %>% filter(Collection.Agency == 'ADFG') %>%
+  group_by(Collection.Name) %>% summarise(mean(Weight)) %>% top_n(3) %>% select(Collection.Name) %>% as.matrix()
+aa0[ aa0$Collection.Agency=='ADFG'& !(aa0$Collection.Name %in% c(top_surv)),'Collection.Name'] <- 'Other ADF&G Sources'
+aa1 <- aa0 %>%
+  filter(FMP.Area == 'GOA') %>%
+  group_by(Collection.Year,Collection.Agency,Collection.Name) %>%
+  dplyr::summarise(v =  round(sum(Weight)/1000,3)) ## convert to t
+
+
+# aa1$Collection.Agency <- factor(aa1$Collection.Agency)
+# aa1$Collection.Name <- factor(aa1$Collection.Name)
+ 
+ aa <-data.frame(aa1) %>% 
+   distinct() %>%
+     group_by(Collection.Agency,Collection.Name) %>%
+     mutate(row = row_number()) %>%
+   tidyr::pivot_wider(names_from = c(Collection.Agency,Collection.Name),
+                                  values_from = v, 
+                      id_cols = Collection.Year)  %>%
+  janitor::clean_names() %>%
+  data.frame()  
+
+aa <-  aa %>% select(collection_year , order(colnames(aa)))
+aa[aa > 1 & !is.na(aa)] <- round(aa[aa > 1 & !is.na(aa)],0)
+aa[aa < 1 & !is.na(aa)] <- round(aa[aa < 1 & !is.na(aa)],2)
+aa$collection_year <- as.character(aa$collection_year)
+```
+
+\newpage 
+
+```{r appxAADFG, echo = FALSE, warning = FALSE, message = FALSE}
+# aa %>%
+#   select(collection_year ,grep('adfg',colnames(aa))) %>% 
+#   write.csv(here('tables','adfg_appendixA.csv'),row.names = FALSE)
+
+
+flextable::regulartable(aa %>%
+  select(collection_year ,grep('adfg',colnames(aa)))) %>% 
+  # flextable::autofit(part = "all") %>%
+  # flextable::align(align = "center", part = "all")%>% 
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from ADF&G; values in t.") 
+# flextable::width( width = c(3,2,2))
+```
+
+```{r appxAIPHC, echo = FALSE, warning = FALSE, message = FALSE}
+flextable::regulartable(aa %>%
+  select(collection_year , grep('iphc',colnames(aa)))) %>% 
+  # flextable::autofit(part = "all") %>%
+  # flextable::align(align = "center", part = "all")%>% 
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from the IPHC; values in kg.")  
+# flextable::width( width = c(3,2,2))
+```
+
+\newpage
+
+```{r appxANFMS, echo = FALSE, warning = FALSE, message = FALSE}
+flextable::regulartable(aa %>%
+  select(collection_year ,grep('nmfs',colnames(aa)))) %>% 
+  # flextable::autofit(part = "all") %>%
+  # flextable::align(align = "center", part = "all")%>% 
+  # flextable::merge_h(part = "header") %>%
+  # flextable::merge_v(part = "header")  %>%  
+  flextable::set_caption("Non-Commercial Catches of GOA Flathead Sole from NMFS; values in kg.") 
+# flextable::width( width = c(3,2,2))
+```
+ 

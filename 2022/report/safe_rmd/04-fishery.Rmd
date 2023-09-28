@@ -1,0 +1,21 @@
+# Fishery 
+
+## Description of the Directed Fishery
+Flathead sole in the Gulf of Alaska are caught in a directed fishery using bottom trawl gear. Typically 25 or fewer shore-based catcher vessels from 58-125’ participate in this fishery, as do 5 catcher-processor vessels (90-130’). Fishing seasons are driven by seasonal halibut prohibited species catch (PSC) apportionments, with approximately 7 months of fishing occurring between January and November. Catches of flathead sole occur almost entirely in the Western and Central management areas in the gulf (statistical areas 610 and 620 + 630, respectively, Table 10.\@ref(tab:catchbyarea)). Recruitment to the fishery begins at about age 3.
+
+
+### Catch Patterns
+Historically, catches of flathead sole have exhibited decadal-scale trends that are likely due to management actions to reduce halibut bycatch.(Figure 10.\@ref(fig:removals)). From a high of ~2000 t in 1980, annual catches declined steadily to a low of ~150 t in 1986 but then increased steadily, reaching a high of ~3100 t in 1996. Catches subsequently declined over the next three years, reaching a low of ~900 t in 1999, followed by an increasing trend through 2010, when the catch reached its highest level ever (3,854 t). Catch then declined to 2,000 t in 2015 and was 2,421 t in 2016, and has fallen below 1000 t in recent years.  Catches are largely driven by bycatch caps for the flathead sole fishery. 
+Based on observer data, the majority of the flathead sole catch in the Gulf of Alaska is taken in the Shelikof Strait and on the Albatross Bank near Kodiak Island, as well as near Unimak Island  [@Stockhausen2011]. Previously, most of the catch is taken in the first and second quarters of the year  [@Stockhausen2011].
+
+## Management Measures 
+Annual catches of `r species` have been well below TACs in recent years (Figure 10.\@ref(fig:catchvsTAC)), although the population appears to be capable of supporting higher exploitation rates. Limits on `r species` catches are driven by restrictions on halibut PSC, not by attainment of the TAC [@Stockhausen2011]. 
+The stock within the GOA is managed as a unit stock but with area-specific ABC and TAC apportionments to avoid the potential for localized depletion.  Little is known on the stock structure of this species.  See Stockhausen (2011) for a description of the management history of `r species`.
+Non-commercial catch of GOA `r species` are in shown in [Appendix 10a. Supplemental catch data].
+
+
+
+
+
+
+

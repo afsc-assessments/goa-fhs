@@ -1,0 +1,356 @@
+---
+title: "GOA FHS Assessment Sensitivity Runs"
+author: M Sosa Kapur maia.kapur@noaa.gov
+date: November 2022
+format: html
+toc: true
+always_allow_html: true
+editor: source
+---
+```{r setup, echo = FALSE}
+require(r4ss)
+require(here)
+require(tidyverse)
+# base_model <- SS_output("C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj", covar=TRUE, verbose=FALSE, printstats=FALSE) 
+
+base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+```
+
+Here I run and discuss model comparisons, sensitivity runs, and extra analyses included in the base report.
+
+# Comparison among models
+
+For document: comparison of 2017 benchmark with the proposed base. Comment on findings.
+
+# Retrospectives
+
+Conduct retrospectives, make and save general comparison plots.
+2017 assessment showes SSB, age-0 Recruits and survey fits.
+
+```{r retrospectives}
+retro(dir =  here('model_runs','m0_8-newMI-biasAdj'),
+           oldsubdir = "", 
+           years = 0:-10)
+retroModels <- SSgetoutput(dirvec = file.path( here('model_runs','m0_8-newMI-biasAdj'), "retrospectives", paste("retro", 0:-10, sep = "")))
+retroSummary <- SSsummarize(retroModels)
+endyrvec <- retroSummary[["endyrs"]] + 0:-10
+SSplotComparisons(retroSummary,
+                  plotdir = here('model_runs','m0_8-newMI-biasAdj','retrospectives'),
+                  print  = T,
+                  legendloc = 'bottomright',
+                  endyrvec = endyrvec,
+                  col = docPal, shadecol = alpha(docPal,0.1),
+                  legendlabels = paste("Data", 0:-10, "years"))
+
+mr <- SSmohnsrho(retroSummary, endyrvec)
+
+save(mr, file = here("model_runs", "m0_8-newMI-biasAdj", "retrospectives","mohns_rho.rdata"))
+```
+
+
+# Issues from CIE/SSC
+
+For reference I looked at the 2019 CIE Review PPts, as well as the original 2017 SAFE. In the former, the following concerns were highlighted for FHS or in general: 
++ Survey catchability estimation (right now it's fixed at exp(0) = 1) 
++ Early rec-dev estimation - right now these *are* estimated, but perhaps we should ignore them/reduce the number. 
++ 1980s trawl survey data as well as 1990 and 1993 values. Recommend dropping 1980s, and running without 1990, 1993 data as sensitivity (since they occurred later in the year).
+
+The other recommendations from the SSC included: 
++ Revisit FHS aging error using Punt et al approach (done) 
++ Explore relationship between M and q, and the effect of these parameters on selex. 
++ Better account for scientific uncertainty.
+
+Note that we also did a proto-sensitvity during the data weighting in `01` where we ran the model with no weights and Francis weights (that figure isn't currently saved but generated at bottom of that doc).
+
+# Sensitivities & Analyses for 2022 benchmark
+
+Synthesizing these comments, I elected to conduct the following sensitivities and explorations: 
+
++ Do a likelihood profile for `q` and `M`, as they are in the present assessment. In 2017, we found the likelihood minimized when `q` > 1.5; the best combo was at M=0.28 and 1.4.
+
+++ I repeated this exercise and found that q was best over 1.5, so increased the upper bound to ln(5). Similarly, the R0 bounds are fairly broad (tested 10-15).
+
+I repeat this exercise and share results; if q is still high in this manner, worth discussing with RACE about encounter probabilities etc. I will also do a profile on $R_0$ for completeness.
+
+- Allow `q` to be estimated, with an upper bound of 5
+- Relatedly, see if there's a way to better fit survey data (I am concerned it's ignoring that information); perhaps analytical q?
+
+- Retain the estimation of early rec-devs, but begin the ramp at the onset of catch data (1978) instead of 1955.
+
+- Turn off survey abundances, CAALs and lengths from 1993 and before.
+
+- See what happens if steepness is estimated
+
+## Likelihood Profiles
+Make a copy of this in case it busts.Starter changed to control_modified.ss, and prior like to 1.
+Establish vectors and run the profiles.
+```{r likelihood profiles}
+## note that in 2017 they did these vectors and combinations thereof for 2d plots
+q.vec <- log(seq(0.6, 10, length.out = 10)) ## from 2017
+m.vec <- seq(0.1,0.3, length.out = 10) ## from 2017; these apply to both males and females at the same time
+baser0 <- base_model$parameters[base_model$parameters$Label=='SR_LN(R0)','Value']
+r0.vec <- seq(baser0-3,baser0+3,0.2)
+
+## 
+```
+
+Extract, summarize and plot the profiles. These are saved under the base model in sub-folders within `profiles/`
+
+
+
+
+
+```{r profile M both sexes at once}
+r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/PROFILES/profile_m/",
+          string = "NatM",
+          profilevec = m.vec)
+## because w use the general string it changes both sexes at once
+# r4ss::profile(dir =  here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'),
+#           string = "NatM",
+#           profilevec = m.vec)
+
+profiles_m <- SSgetoutput(dirvec = here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m'), keyvec = 1:length(m.vec))
+profile_m_summary <- SSsummarize(profiles_m)
+
+save(profile_m_summary,
+     file =here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m','profile_m_summary.rdata') )
+
+png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_m','m_profile_piner.png'),
+    width = 10, height = 7, unit = 'in', res = 520)
+# par(mfrow = c(1,2),mar = c(4,4,4,1))
+SSplotProfile(profile_m_summary, # summary object
+              add_cutoff = T, ymax = 25, legendloc = 'topleft',
+  profile.string = "NatM_uniform_Fem_GP_1", # substring of profile parameter
+  profile.label = "Natural Mortality (M), both sexes"
+)
+# par(mar = c(4,1,4,1))
+# SSplotProfile(profile_m_summary, # summary object
+#                    add_cutoff = T, ymax = 50,
+#               cex.main = 2, ylab = "",  
+#   profile.string = "NatM_uniform_Mal_GP_1", # substring of profile parameter
+#   profile.label = "Male Natural Mortality (M)"
+# )
+dev.off()
+
+## values for report
+which(mm.df.plotmeZ == min(mm.df.plotmeZ), arr.ind = TRUE)
+
+
+profile_m_summary$likelihoods %>%
+  reshape2::melt(id = 'Label') %>%
+  
+  group_by(Label) %>%
+    filter(value == min(value))
+ 
+apply(profile_m_summary,1,which.min( likelihoods))
+
+m.vec[which.min(profile_m_summary$likelihoods[1,1:length(m.vec)])]
+
+mvecuse <- profile_m_summary$pars[profile_m_summary$pars$Label == 'NatM_uniform_Fem_GP_1',]
+mvecuse[3] ## mle for length
+mvecuse[7] ## index
+mvecuse[9] ## rec, total
+mvecuse[10] # age
+```
+
+```{r profile r0}
+r4ss::profile(dir = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/PROFILES/profile_r0",
+          string = "SR_LN(R0)",
+          profilevec = r0.vec)
+
+profiles_R0 <- SSgetoutput(dirvec = here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0'), keyvec = 1:length(r0.vec))
+profile_R0_summary <- SSsummarize(profiles_R0)
+
+save(profile_R0_summary,
+     file =here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','profile_R0_summary.rdata') )
+
+png(here::here('model_runs','m0_8-newMI-biasAdj','profiles','profile_r0','r0_profile_piner.png'),
+    width = 10, height = 7, unit = 'in', res = 520)
+
+SSplotProfile(profile_R0_summary, # summary object
+              add_cutoff = T, ymax = 10, legendloc = 'right',
+  profile.string = "SR_LN", # substring of profile parameter
+  profile.label = "ln(R0)"
+)
+
+dev.off()
+```
+
+```{r profile q}
+r4ss::profile(dir = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/PROFILES/profile_q",
+          string = "LnQ_base_Survey",
+          profilevec = q.vec)
+profiles_q <- SSgetoutput(dirvec = here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q'), keyvec = 1:length(q.vec))
+profile_q_summary <- SSsummarize(profiles_q)
+
+save(profile_q_summary,
+     file =here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q','profile_q_summary.rdata') )
+q.vec[which.min(profile_q_summary$likelihoods[1,1:length(q.vec)])]
+png(here('model_runs','m0_8-newMI-biasAdj','profiles','profile_q','q_profile_piner.png'),
+    width = 10, height = 7, unit = 'in', res = 520)
+
+SSplotProfile(profile_q_summary, # summary object
+              add_cutoff = T, 
+              ymax = 5, 
+              legendloc = 'topleft',
+  profile.string = "LnQ_base_Survey", # substring of profile parameter
+  profile.label = "ln(q)"
+)
+
+dev.off()
+```
+
+
+```{r profile M sex separately}
+## this was not done last year; given growth regimes vary, explore 2d profile of various M values for males and females
+  mm.df <- expand.grid("NatM_uniform_Mal_GP_1" = m.vec,
+            "NatM_uniform_Fem_GP_1" = m.vec)
+
+# r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm",
+#                  string = c("NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+#                  profilevec = mm.df)
+
+mm.df$variable <- paste0('replist',1:nrow(mm.df))
+
+profiles_mm <- SSgetoutput(dirvec = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm", keyvec = 1:nrow(mm.df))
+profile_mm_summary <- SSsummarize(profiles_mm)
+
+save(profile_mm_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mm/profile_mm.rdata" )
+
+
+mm.df.plotme0 <- reshape2::melt(profile_mm_summary$likelihoods, id = 'Label') %>%
+  merge(., mm.df, by = 'variable') %>%
+  filter( Label == 'TOTAL'   ) %>%
+  select(value,
+         NatM_uniform_Mal_GP_1 ,
+         NatM_uniform_Fem_GP_1 ) %>%
+  arrange(NatM_uniform_Fem_GP_1,NatM_uniform_Mal_GP_1 ) %>%
+  mutate(value = value-min(value)) %>% ## rescale
+  tidyr::pivot_wider(names_from = NatM_uniform_Fem_GP_1, 
+                     values_from = value)  
+mm.df.plotmeX <- sort(as.numeric(mm.df.plotme0$NatM_uniform_Mal_GP_1 ))
+mm.df.plotmeY <- sort(as.numeric(colnames(mm.df.plotme0)[2:11]))
+mm.df.plotmeZ <- as.matrix(mm.df.plotme0 %>% select(-NatM_uniform_Mal_GP_1 ))
+
+require(plotly)
+axx <- list(
+  title = "Male Natural Mortality"#,
+  # range = c(0,log(5))
+)
+
+axy <- list(
+  title = "Female Natural Mortality"
+  # range = c(0.1,0.3)
+)
+
+axz <- list(
+  title = "Total Likelihood (rescaled)"
+)
+
+which(mm.df.plotmeZ == min(mm.df.plotmeZ), arr.ind = TRUE)
+mm.df.plotmeX[8];mm.df.plotmeY[8] ## q, m
+## manually save from rstudio console
+
+
+plot_ly(x = ~mm.df.plotmeY,
+        y = ~mm.df.plotmeX, 
+        z = ~mm.df.plotmeZ, 
+        type = "surface",
+        contours = 
+          list(z = list(show = TRUE, color = 'white', start = 0, 
+                        end = qchisq(0.95,1)/2, size =1.92))) %>%
+  add_surface() %>%
+  layout( scene = list(xaxis = axy,
+                       yaxis = axx,
+                       zaxis = axz)) %>%
+  hide_colorbar()
+
+
+```
+
+```{r profile q and m concurrently}
+## need to hard specify male and female Ms
+## make grid of all combinations of q and M. M is always the same between male and females.
+qm.df <- expand.grid("LnQ_base_Survey" = q.vec,
+                     "NatM_uniform_Fem_GP_1" = m.vec)%>%
+  mutate(NatM_uniform_Mal_GP_1 = NatM_uniform_Fem_GP_1)
+
+
+r4ss::profile(dir =  "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq",
+                 string = c("LnQ_base_Survey","NatM_uniform_Fem_GP_1","NatM_uniform_Mal_GP_1"),
+                 profilevec = qm.df)
+qm.df$variable <- paste0('replist',1:100)
+
+profiles_mq <- SSgetoutput(dirvec = "C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq", keyvec = 1:nrow(qm.df))
+profile_mq_summary <- SSsummarize(profiles_mq)
+
+save(profile_mq_summary, file ="C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/model_runs/m0_8-newMI-biasAdj/profiles/profile_mq/profile_mq_summary.rdata" )
+ 
+## object for 3d plotting
+qm.df.plotme0 <- reshape2::melt(profile_mq_summary$likelihoods, id = 'Label') %>%
+  merge(., qm.df, by = 'variable') %>%
+  filter( Label == 'TOTAL'   ) %>%
+  select(value,
+         LnQ_base_Survey,
+         NatM_uniform_Fem_GP_1 ) %>%
+  arrange(NatM_uniform_Fem_GP_1,LnQ_base_Survey) %>%
+  mutate(value = value-min(value)) %>% ## rescale
+  tidyr::pivot_wider(names_from = NatM_uniform_Fem_GP_1, 
+                     values_from = value)  
+qm.df.plotmeX <- sort(as.numeric(qm.df.plotme0$LnQ_base_Survey))
+qm.df.plotmeY <- sort(as.numeric(colnames(qm.df.plotme0)[2:11]))
+qm.df.plotmeZ <- as.matrix(qm.df.plotme0 %>% select(-LnQ_base_Survey))
+
+require(plotly)
+axx <- list(
+  title = "Survey  Q"#,
+  # range = c(0,log(5))
+)
+
+axy <- list(
+  title = "Natural Mortality (both sexes)"
+  # range = c(0.1,0.3)
+)
+
+axz <- list(
+  title = "Change in log-likelihood"
+)
+
+which(qm.df.plotmeZ == min(qm.df.plotmeZ), arr.ind = TRUE)
+exp(qm.df.plotmeX[2]);qm.df.plotmeY[9] ## q = 1.64, m = 0.27
+## manually save from rstudio console
+
+
+plot_ly(x = ~qm.df.plotmeY,
+        y = ~exp(qm.df.plotmeX), 
+        z = ~qm.df.plotmeZ, 
+        type = "surface",
+        contours = 
+          list(z = list(show = TRUE, color = 'white', start = 0, 
+                         end = qchisq(0.95,1)/2, size =1.92))) %>%
+  add_surface() %>%
+  layout( scene = list(xaxis = axy,
+                       yaxis = axx,
+                       zaxis = axz)) %>%
+  hide_colorbar()
+
+
+```
+
+
+## Push up recdevstart to 1983
+
+The survey data, while questionable, starts in 1983. Later fishery length comps start in 1985.
+
+Changed line 126 ("recdev early start") in control to 1983. This makes the early devs start at the same time as the survey biomass and length comps, instead of way back in 1955. (Made plots in 02_basemodel for aesthetic consistency).
+
+## Survey data 1993
+Turned off survey data, CAALs and length comp before 1990 from the survey. (Made plots in 02_basemodel for aesthetic consistency).
+
+## Estimate Q
+Right now it's set up to estimated between -1 and 1, but the profiling exercise indicated that it wants q to be really high (i.e. 5). Going to do this two ways; one with a free estimation (just make the phase positive), allowing the bounds to vary from -15 to 15 (as in sablefish); and a separate time using analytical q. For the latter, change line 177 to `2 1 0 0 0 1`, leave the phase negative but expand the bounds. (Made plots in 02_basemodel for aesthetic consistency).
+
+ 
+## Use old aging error matrix in new model
+Pasted in the section from the translated 2017 model into the 2022 base. 
+

@@ -1,0 +1,109 @@
+
+# Notes on the 2021 GOA flathead sole partial update assessment # 
+
+Maia Sosa Kapur maia.kapur@noaa.gov
+
+## Background ##
+This assessment was triaged to a partial update in 2021. It was last fully 
+updated in 2017 by C. McGilliard and underwent a partial update by C. Monnohan 
+in 2020. He attempted to transition that model from SS v3.24 to SS v3.30, but 
+found he was unable to recover the same MLEs/derived quantities as the 2017
+model (e.g. terminal SSB varied by 10% between versions). Discussion with
+R. Methot found that this was an issue with the way the age-length key is dealt 
+with, and highlighted that the setup of the input survey data is less than ideal
+(in the 2017 model). We recommend that during the next full benchmark assessment,
+care is taken to fully bridge this model into v3.30+, with the understanding that 
+it may induce changes in estimates.
+Due the 4-year cycle lag for this stock, the council elected to IGNORE the 
+survey-based estimated indices of abundance for intervening years (2019, 2021).
+ The survey generally shows an stable trend below the peak (but within 1SE) during those years; 
+ we don't yet know if/how including these data effect reference points. Importantly, the random 
+effects model (both partials from 2020 and 2021) been updated with these intervening survey years 
+for the purpose of calculating apportionment; the table in 2021 shows both random-effects model results
+applied to the estimated ABCs for 2022, 2023.
+
+Do note that this model has been historically stable at biomass levels well 
+above the management target, and TACs are generally set to a fraction of ABCs.
+
+
+## To Dos ##
+Download relevant TOTAL catches (including landings, discards, CDQs from AKFIN)
+
+spp_catch.dat
+generate extrapolated catch for 2021 
+generate projected (average) catch for 2022, 2023
+input projected catch into spp_catch and increment No. years with specified catch
+
+setup.dat
+increment no. of projection years fwd by 1
+if using survey data will need to change begin_yr to last year of model
+
+forprojections_recage3.dat
+doesn't need to change UNLESS you've modified the base model, in which case
+all of these values will need to be overwritten with stuff from the new base model's report file;
+it will have longer dims. There is code to automate the creation of this file in
+M:\Monnahan\BSAI_flathead\2020_BSAI_Flathead\projection
+
+Note that at the end of Projections.R is code to reproduce the values for the final table
+which goes in the word doc.
+
+
+## How to reproduce the assessment ##
+
+The steps are to get the data, process the model inputs, run the 
+model, and generate outputs.
+
+### Data generation ###
+The script `data.R` creates a static copy of often dynamic data
+sources like the AFSC and AKFIN databases. These are stored in
+the data folder with no processing or cleaning. They are the
+initial raw data files.
+
+All that should be needed is to create database connections to
+AFSC and AKFIN, and then source the file. See file for some small
+exceptions like weekly catches.
+
+### Processing inputs ###
+Sourcing the `input.R` file will read in the static raw data from
+the data folder, process it, make some exploratory plots and
+checks and write SS model input files. This assessment only had
+one model version so it is quite simple. I didn't quite break
+dependence on Carey's "newsbss" package so there are a few links
+to a modified version "colesbss." This script will write the SS
+data file. 
+
+### Running the model ###
+After regenerating the inputs, the script
+`model_runs/compare_models.R` has some code to run models, made
+comparisons and plots and such via `r4ss`. Proj needs to be done
+manually, as does the SIS calculation and SARA outputs, although
+the latter has a script I got from Steve. 
+
+### Creating Report ###
+Run the script `report.R` to generate figures and tables in the
+report directory. Final calculations and table formatting are
+done in the 'report' spreadsheet which is copied into Word, in
+addition to 'tables_results' spreadsheet which is for the model
+output. Most figures are made by either running the
+`make_figures.R` script or copying appropriate r4ss files over. 
+
+## To do for next time
+Things to do for next time:
+  
+  * Add ghost age comps for survey back in, since used in figures
+* Add ghost len comps for fishery
+* Explore the recdevs being turned off last three years
+* Why age 3+ biomass?
+  * That recr dist warning in SS
+* Impact of the bias adjustment.. should I even use it?
+  * There are some lingering Carey calculations that I'd like to
+remove, particularly in processing the fishery data. It seems
+like she pulls the data multiple times for different uses to
+process it.
+
+
+-------------------------------------------------------------------------------
+  
+  
+  
+  

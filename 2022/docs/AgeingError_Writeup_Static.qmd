@@ -1,0 +1,339 @@
+---
+title: "Revisiting Ageing Error for the 2022 GOA FHS Assessment"
+author: Cole Monnohan, Maia Sosa Kapur
+format:
+  html:
+    self-contained: true
+toc: true
+code-fold: true
+code-overflow: wrap
+execute: 
+  warning: false 
+theme: yeti
+editor: source
+---
+
+------------------------------------------------------------------------
+
+## Background
+
+This document provides the methodology, rationale and script to reproduce the analysis that generated the new ageing error matrix passed to Stock Synthesis for the 2022 assessment, which was requested by the SSC. This effort was started by C. Monnohan in Summer 2021 and continued by M S Kapur the following year.
+
+The 2017 GOA aging error matrix actually comes from the BSAI assessment, and basically says that error increases linearly to a maximum at age 16. We do have read-replicate data for GOA FHS. Version details of relevant packages are below:
+
+```{r setup, echo= FALSE, warning = FALSE, message = FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(here)
+library(janitor)
+library(nwfscAgeingError)
+ggplot2::theme_set(ggsidekick::theme_sleek( base_size = 15))
+theme_replace(text= element_text(family = "roboto condensed", size = 15),
+              title = element_text(size = 15)) 
+
+require(MetBrewer)
+require(ggtext)
+require(showtext)
+
+font_add_google("Signika")
+font_add_google("Roboto Condensed", "roboto condensed")
+showtext_opts(dpi = 320)
+showtext_auto(enable = TRUE)
+
+## all colors to use in this document
+docPal <- c('grey22',met.brewer(name = 'Degas',n = 15))
+m2017Col <- docPal[1]
+baseCol <- "#3A7D6C"
+sensPal <- met.brewer(name = 'Demuth',n = 10)[6:10]
+fleetPal <- c(baseCol,'dodgerblue2')
+
+modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
+sessionInfo(package = "nwfscAgeingError") 
+
+```
+
+The data used are a matrix of GOA FHS double-reads from the AFSC Age & Growth lab, provided to C. Monnohan by D. Anderl summer of 2021. Here is what those data look like. We remove rows which have no test-reader, and a single outlier case:
+
+```{r,  warning = FALSE, message = FALSE}
+## Read in and prep the data
+dat <- read.csv("C:/Users/maia.kapur/Work/assessments/2022/goa-fhs-2022/data/ageing_error/all goa flathead sole.csv") %>%
+  select(fish_id, year=collection_year,
+         type=collection_type,
+         length, weight, sex,
+         read_age, test_age, reader_name, tester_name)
+
+## Some basic filtering of missing (no tester) and one outlier
+dat <- filter(dat, !is.na(test_age) & !is.na(read_age))
+dat <- filter(dat, fish_id!=551023)
+
+head(dat)
+```
+
+::: panel-tabset
+## Length vs. Read Age
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+## Quick plots for QA.
+ggplot(dat, aes(read_age, length)) + 
+  geom_point(col = docPal[1]) + 
+  stat_smooth(col = docPal[5], fill = docPal[5]) + 
+  labs(x = 'Read Age (yr)', y = 'Length (mm)')
+```
+
+## Weight vs. Read Age
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+ggplot(dat, aes(read_age, weight)) +   geom_point(col = docPal[1]) + 
+  stat_smooth(col = docPal[5], fill = docPal[5]) + labs(x = 'Read Age (yr)', y = 'Weight (g)')
+
+```
+
+## Age offsets by tester
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+ggplot(dat, aes(read_age, read_age-test_age )) +
+  theme(text = element_text(size = 3)) +
+  geom_jitter(alpha = 0.5, aes(col = reader_name)) +
+  geom_smooth(aes(fill = tester_name, color = tester_name), show.legend = FALSE) +
+  scale_color_manual(values = docPal) +
+  scale_fill_manual(values = docPal) +
+facet_wrap(~reader_name , drop = T) 
+```
+
+## Number of reads by reader
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+dat %>% group_by(reader_name) %>% summarize(reads=n()) %>%
+  arrange(desc(reads))
+```
+
+## Number of tests by tester
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+
+
+dat %>% group_by(tester_name) %>% summarize(reads=n())
+table(dat$reader_name, dat$tester_name)
+
+```
+:::
+
+## Analytical Approach
+
+We use the Punt et. al. (2008) approach as implemented in the `nwfscAgeingError` package.
+
+We created several candidate models that either treated the individual readers separately (there are \~10 of them) or pooled the data (meaning the difference between a read by Delsa & Jon is equivalent to the difference between Tom & Mary). We use AIC to select among candidate models.
+
+For all candidate models, the knot ages were 2, 8, 15, and 25 years; spanning the range of GOA FHS recruitment, selectivity into the fishery, maturity, and an age at which an individual of either sex should have obtained its maximum size. Each used our entire, cleaned dataset, with a minimum age of 1, maximum age of 29, and a plus group age of 21. A reference age of 10 was arbitrarily chosen from which the true fixed effects are calculated as an offset. We did not ask the model to calculate effective sample size as there were missing values in our dataset.
+
+The `nwfscAgeingError::RunFn()` function (used to execute the analysis) is passed a vector of values for $\sigma$ and bias corresponding to one each of the 10 unique readers in our dataset.
+
+Below is a qualitative description of the models examined here:
+
+```{r,  warning = FALSE, message = FALSE}
+
+```
+
+| Model Name | Qualitative Description                                                                                                                        |
+|-------------|-----------------------------------------------------------|
+| aic1       | Curvilinear $\sigma$ estimated individually for all readers; curvilinear bias estimated individually for all readers                           |
+| aic2       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias estimated individually for all readers                                         |
+| aic3       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias estimated individually for all readers                                         |
+| aic4       | Curvilinear $\sigma$ mirrored for all readers; curvilinear bias mirrored for all readers (e.g., single bias and sigma for the entire data set) |
+| aic5       | As above, but using a spline for $\sigma$ and estimating the setting the overall bias to zero                                                  |
+| aic6       | Curvilinear $\sigma$ mirrored for all readers; estimating the setting the overall bias to zero                                                 |
+| aic1p      | All data pooled: curvilinear \sigma and bias                                                                                                   |
+| aic2p      | All data pooled: curvilinear \sigma and bias set to zero                                                                                       |
+| aic3p      | All data pooled: constant \sigma as CV and bias set to zero                                                                                    |
+| aic4p      | All data pooled: \sigma estimated with spline and bias set to zero                                                                             |
+
+The best AIC was obtained by a pooled-data model which assumed constant bias and sigma across readers (bias is the different-integer age read, and sigma is the variation in true age) (`aic2p` in the table above). The bias is otherwise identical between approaches.
+
+```{r,eval = FALSE, echo = TRUE,  warning = FALSE, message = FALSE}
+
+## function to calculate AIC}  
+calc.aic <- function(RunFile, dat){ 
+  Df <- as.numeric(scan(file.path(RunFile, "agemat.par"), comment.char = "%", what = "character",                         quiet = TRUE)[6])   
+  Nll <- as.numeric(scan(file.path(RunFile, "agemat.par"), comment.char = "%", what = "character",                          quiet = TRUE)[11])   
+  n <- sum(ifelse(dat[, -1] == -999, 0, 1))  
+  Aic <- 2 * Nll + 2 * Df   
+  Aicc <- Aic + 2 * Df * (Df + 1)/(n - Df - 1)  
+  return(Aicc) 
+}
+
+## Wrangle this into wide format needed for the model
+## input. First drop and rename some columns to make this a bit
+## easier
+dat.long <- select(dat, -length, -weight, -type, -sex, -year,
+                   age_reader1=read_age, age_reader2=test_age,
+                   name_reader1=reader_name, name_reader2=tester_name)
+## Then combine the two reads into long format
+dat.long <- dat.long %>%
+  pivot_longer(!fish_id,
+               names_to=c(".value", "reader"),
+               names_sep="_")
+## Now cast it wider again, where -999 is the ADMB code for no
+## read. This is now a row for each fish, with columns for each
+## potential reader, and values are the ages.
+dat.wide <- pivot_wider(dat.long, fish_id, names_from='name',
+                        values_from='age',
+                        values_fill=-999) %>% clean_names
+## Sum duplicate rows b/c that's needed by model. Drop fish_id now.
+dat.mat <- dat.wide[,-1] %>% janitor::get_dupes(everything()) %>%
+  ## Rearrange columns.
+  select(dupe_count, everything())
+## Drop duplicates and convert to matrix. This is final data set
+dat.mat <- dat.mat[!duplicated(dat.mat),] %>% as.matrix
+
+### ------------------------------------------------------------
+### Repeat this but collapse down into two readers, essentially
+### assuming that all readers are equivalent and unbiased
+dat2.wide <- pivot_wider(dat.long, fish_id, names_from='reader',
+                        values_from='age')
+## Sum duplicate rows b/c that's needed by model. Drop fish_id now.
+dat2.mat <- dat2.wide[,-1] %>% janitor::get_dupes(everything()) %>%
+  ## Rearrange columns.
+  select(dupe_count, everything())
+## Drop duplicates and convert to matrix. This is final dat2a set
+dat2.mat <- dat2.mat[!duplicated(dat2.mat),] %>% as.matrix
+
+n.readers <- ncol(dat.mat)-1
+
+## To simplify code a bit write a quick wrapper fn
+run_model <- function(sig, bias, knotages=NULL, dat=dat.mat, modname = 'mod1'){
+  ## Dummy values when not using feature
+  if(is.null(knotages)) knotages <- rep(list(c(2,8, 15,25)), times=length(sig))
+  # savehere = here("data", "ageing_error","real_data", modname)
+  dir.create(savehere)
+  nwfscAgeingError::RunFn(Data=dat,
+        SigOpt=sig, BiasOpt=bias, KnotAges=knotages,
+        NDataSets=1, MinAge=1, MaxAge=29, RefAge=10,
+        MinusAge=1, PlusAge=21,
+        # SaveFile='real_data',
+        SaveFile=savehere,
+        AdmbFile= here("data", "ageing_error"),
+        # AdmbFile=system.file("executables", package="nwfscAgeingError"), 
+        EffSampleSize=0)
+  # setwd("c:/Users/cole.monnahan/Work/assessments/GOA_flathead/2021_GOA_flathead/ageing_error")
+  aic <- calc.aic(savehere, dat)
+  PlotOutputFn(Data = dat2.mat, MaxAge = 29,
+               SaveFile = savehere,  PlotType = "PNG")
+  aic
+}
+
+# if(!exists(dir(here("data","ageing_error",'real_data'))) dir.create("real_data", showWarnings=FALSE)
+## Full bias and sigma terms
+aic1 <- run_model(sig=rep(2, n.readers), bias=rep(2, n.readers),modname = 'aic1')
+## Single sigma term, full bias
+aic2 <- run_model(sig=c(2,-1,-2,-3,-4,-5,-6,-7,-8,-9),
+                  bias=rep(2, n.readers),modname = 'aic2')
+## Single bias term, full sigma
+aic3 <- run_model(sig=c(2,-1,-2,-3,-4,-5,-6,-7,-8,-9),
+                  bias=rep(2, n.readers),modname = 'aic3')
+## Single sigma and bias term
+aic4 <- run_model(sig=c(2,-1,-2,-3,-4,-5,-6,-7,-8,-9),
+                  bias=c(2,-1,-2,-3,-4,-5,-6,-7,-8,-9),modname = 'aic4')
+## Single sigma and no bias term but with spline
+aic5 <- run_model(sig=c(5,-1,-2,-3,-4,-5,-6,-7,-8,-9),
+                  bias=c(0,-1,-2,-3,-4,-5,-6,-7,-8,-9),
+                  knotages=rep(list(c(1,4,8,12,16)),10),modname = 'aic5')
+## Ian S recommends no bias and pooled readers
+## Single sigma and bias term
+aic6 <- run_model(sig=c(2,-1,-2,-3,-4,-5,-6,-7,-8,-9),
+                  bias=c(0,-1,-2,-3,-4,-5,-6,-7,-8,-9),modname = 'aic6')
+aics <- c(aic1, aic2, aic3, aic4, aic5, aic6)
+aics-min(aics)
+which.min(aics) ## this is the single sigma and bias term
+
+# PlotOutputFn(Data = dat.mat, MaxAge = 29,
+#              SaveFile = 'real_data', PlotType = "PNG")
+
+### This uses the pooled data
+aic1p <- run_model(sig=c(2,-1), bias=c(2,-1), dat=dat2.mat,modname = 'aic1p')
+aic2p <- run_model(sig=c(2,-1), bias=c(0,0), dat=dat2.mat,modname = 'aic2p')
+aic3p <- run_model(sig=c(1,-1), bias=c(0,0), dat=dat2.mat,modname = 'aic3p')
+aic4p <- run_model(sig=c(5,-1), bias=c(0,0),
+                  rep(list(c(1,4,8,12,16, 20)),2), ## age knots
+                  dat=dat2.mat,modname = 'aic4p')
+aicsp <- c(aic1p, aic2p, aic3p, aic4p)
+aicsp-min(aicsp)
+which.min(aicsp)
+
+## looks like aic2p and 4p are identical...
+## stick with aic2p as it is simpler
+
+
+## Do some manual processing of selected model
+xx <- readLines( here("data", "ageing_error","real_data","aic2p","AGEMAT.rep"))
+l1 <- grep("Reader Age CV SD Expected age", xx)+1
+l2 <- grep("Estimated age-structure by data set", xx)-2
+out <- do.call(rbind, strsplit(xx[l1:l2], ' ')) %>% as.data.frame %>%
+  mutate_if(is.character, as.numeric) %>%
+  setNames(c('reader', 'age', 'CV', 'SD', 'expected_age')) %>%
+  mutate(reader=as.factor(reader)) %>%
+  filter(expected_age<25)
+
+p1 <- ggplot(out, aes(expected_age, age-expected_age,
+                color=reader, fill=reader,
+                ymin=age-SD-expected_age,
+                ymax=age+SD-expected_age))+
+  geom_line() +
+  geom_ribbon(alpha=.3) +
+  coord_cartesian(ylim=c(-10,10)) +  scale_color_manual(values = docPal) +
+  scale_fill_manual(values = docPal) +theme(legend.position = 'none')
+p2 <- ggplot(out, aes(expected_age, CV, color=reader)) + geom_line() +  scale_color_manual(values = docPal) +
+  scale_fill_manual(values = docPal) 
+
+
+require(patchwork)
+ggsave(p1 | p2,  file = here("data", "ageing_error","real_data","aic2p","compplots.png"))
+```
+
+# Summary Figures 1: New Ageing Error Matrix for GOA FHS
+
+::: panel-tabset
+## Estimated vs. Observed Age Structure
+
+```{r fig1, fig.cap="Overall age structure comparison between observed and read ages, with data specific to GOA FHS.", out.width="100%", eval = T, echo = FALSE}
+knitr::include_graphics("Estimated vs Observed Age Structure.png")
+```
+
+## Reader 1 vs Reader 2
+
+```{r fig2, fig.cap="Distribution of age reads among reader-pairs. Numbers within bubbles indicate sample size. Black line indicates identiy (agreement between readers). Blue histograms indicate the number of reads at each given age bin.", out.width="100%", eval = T, echo = FALSE}
+knitr::include_graphics("Reader 1 vs Reader 2.png")
+```
+
+## True Age vs Reads, by Reader
+
+```{r fig3, fig.cap="True age vs Read age, by reader, and associated SD. These data are specific to GOA FHS.", out.width="100%",eval = T, echo = FALSE}
+knitr::include_graphics("True vs Reads (by reader).png")
+```
+
+## Comparison Plots
+
+```{r fig4, fig.cap="Observed error in age reads vs age, by reader. ", out.width="100%",eval = T, echo = FALSE}
+knitr::include_graphics("compplots.png")
+```
+:::
+
+# Summary Figures 2: Comparison between Matrices
+
+::: panel-tabset
+## Old vs New Ageing Error Matrix
+
+```{r fig5,echo = FALSE,  fig.cap="Ageing error matrix used in the 2017 base model (black line) and new ageing error matrix selected via AIC under the Punt et. al. (2008) approach (blue lines). The new matrix uses data specific to GOA FHS and suggests a linear increase in aging error through bin 29. ", out.width="100%", eval = T, echo = FALSE}
+knitr::include_graphics("ageerr_compare.png")
+```
+
+## Comparing Matrices within Model 17.1a
+
+```{r fig6,echo = FALSE,  fig.cap="SSB, recruitment deviations, and fits to the survey time series for the proposed 2022 base model (17.1a) with the new aging error matrix (green lines and points) and the previous matrix (grey lines and points). The differences in fits and derived quantities are fairly negligible.", out.width="75%",eval = T, echo = FALSE}
+knitr::include_graphics("compare2_spawnbio_uncertainty.png")
+knitr::include_graphics("compare12_recdevs_uncertainty.png")
+knitr::include_graphics("compare13_indices.png")
+```
+:::

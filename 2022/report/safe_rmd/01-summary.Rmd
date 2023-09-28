@@ -1,0 +1,28 @@
+# Executive Summary
+
+## Summary of Changes in Assessment Inputs
+
+1. Added catch data: finalized catch for 2017-2021, estimated catch biomass for 2022 using observed catches through  `r date` added to average catches thereafter;
+2. Added design-based Gulf of Alaska Trawl Survey biomass data for 2019 and 2021; 
+3. Added Gulf of Alaska Trawl Survey length composition data for 2019 and 2021;
+4. Added Fishery length composition data from 2018-2022, current through `r date`.
+5. Updated all historical data to reflect what is currently available in AFSC and AKFIN databases.
+6. Updated aging error matrix using Punt et al. (2008) method for GOA Flathead Sole double reads; previous values were from BSAI FHS.
+
+
+## Summary of Results
+No new models were considered this year.  The previously accepted model, referred to herein as `r old_model_name` was updated with new data, as described above, and the modeling software was bridged from Stock Synthesis v3.24u to v3.30.16. The present model is referred to as `r base_model_name`.
+
+The key results of the assessment, based on the author’s preferred model (`r base_model_name`), are compared to the accepted 2021 partial update assessment [@Kapur2021] in the table below.
+
+```{r, child= "01a-main_table.Rmd", eval = T}
+```
+
+Projections are based on  catches of `r c1` t used in place of maximum permissible ABC for `r year` and `r c2` t used in place of maximum permissible ABC for `r year+1` and `r year+2`. The `r year` catch was estimated using the true observed catches from AKFIN (through `r date`), plus the average weekly catches from Oct 14-Dec 31 from the last five years. The `r year+1` and `r year+2` catch was estimated as the average of the total catch in each of the last 5 years (`r paste0(c(year-5,year-1), collapse = "-")`). 
+
+
+```{r, child= "01b-apportionment.Rmd", eval = T}
+
+```
+
+ 

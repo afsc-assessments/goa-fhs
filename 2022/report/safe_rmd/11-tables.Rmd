@@ -1,0 +1,301 @@
+\newpage
+
+# Tables
+
+
+```{r catchbyarea, echo = FALSE, warning = FALSE, message = FALSE}
+
+catch_area <- bind_rows(read.csv(here::here('data','catch',paste0('2022-10-13-catch_forSS.csv'))) %>%
+  filter(yr < 1991) %>% select(YEAR = yr, "TTONS" = catch_mt) %>%
+  mutate("WGULF" = NA, "CG" = NA, "EGULF" = NA ),
+  read.csv(here::here('data','catch','2022-10-13-catch-byArea.csv')))
+
+
+catch_area[catch_area < 1&!is.na(catch_area)] <- round(catch_area[catch_area < 1 & !is.na(catch_area)],2)
+catch_area[catch_area > 1&!is.na(catch_area)] <- round(catch_area[catch_area > 1 & !is.na(catch_area)],0)
+catch_area$YEAR <- as.character(catch_area$YEAR) 
+
+names(catch_area) <- c('Year','Total Catch (t)','Western Gulf','Central Gulf','Eastern Gulf')
+flextable::regulartable(catch_area) %>%  
+      flextable::set_caption("Total and regional observed annual catch (t) of GOA Flathead sole through Oct 13,2022. Data are from NMFS Observer Program and Alaska Regional Office. Note that in the base model, a total catch of 687 mt was used as the 2022 full year estimate.") %>%
+  flextable::colformat_num(big.mark = ",")
+```
+
+```{r catchvsharvest, echo = FALSE, warning = FALSE, message = FALSE}
+
+spex <- read.csv(here::here('data','catch',paste0('2022-09-29-harvestSpex.csv'))) %>%
+  tidyr::pivot_wider(., id_cols = 'Yr',names_from = variable, values_from = value) %>%
+  filter(Yr > 1994)
+
+## manually reshape the raw catches for discard/retained percentage
+catch_discard <- read.csv(here::here('data','catch',paste0('2022-10-13-catch-raw.csv'))) %>%
+  # merge(., spex, by.x = 'YEAR', by.y ='Yr') %>%
+  filter(TYPE == 'D') %>%
+  group_by(YEAR) %>%
+  dplyr::summarise(discT = sum(TONS) )
+
+spex2 <- merge(catch_discard, spex, by.x = 'YEAR', by.y ='Yr') %>%
+  mutate( "Total Catch" = round(Catch,0),
+          catchRet = 100*round(1-discT/Catch,2) )%>%
+  select(Year = YEAR, OFL, ABC, TAC, "Total Catch"  , "% Retained" = catchRet)  
+spex2$Year <- as.character(spex2$Year)        
+# spex2$`Total Catch`[spex2$Year==2022] <- base_model$catch$Obs[base_model$catch$Yr==2022]
+#   spex2$`Total Catch` <- round(spex2$`Total Catch`,0)
+  
+flextable::regulartable(spex2) %>%  
+      flextable::set_caption("Historical OFLs, ABCs, TACs, total catch (used in model) and percent retention through 13 Oct, 2022.") %>%
+  flextable::colformat_num(big.mark = ",")
+```
+
+\pagebreak
+
+
+
+```{r tab4survbioareadepth, echo = FALSE, warning = FALSE, message = FALSE}
+## from Megsie subj "goa survey counts by depth for fhs"
+
+SAD<- read.csv(here('data','survey','FHS_area_depth.csv')) 
+SAD$YEAR <- as.character(SAD$YEAR)
+tidyr::pivot_wider(SAD, id_cols = c(YEAR,REGULATORY_AREA_NAME), names_from = Depth.range, values_from = total_biomass) %>%   
+  arrange(REGULATORY_AREA_NAME,YEAR) %>%
+  flextable::as_grouped_data(., groups = 'REGULATORY_AREA_NAME') %>%
+  
+  flextable::as_flextable( hide_grouplabel=T) %>%  
+  flextable::set_header_labels(YEAR = "") %>% 
+  # color(part = "footer", color = "#800000") %>%
+  flextable::bold( bold = TRUE, part="header") %>% 
+  flextable::align(i = ~ !is.na(REGULATORY_AREA_NAME), align = "center") %>% 
+  flextable::bold(i = ~ !is.na(REGULATORY_AREA_NAME)) %>%  
+  flextable::set_caption("Survey biomass by area and depth.") %>%
+  flextable::colformat_double(j =2:7, digits = 0)
+ 
+```
+
+
+```{r tab5inputsurv, echo = FALSE, warning = FALSE, message = FALSE}
+survSS <- read.csv(here('data','survey','2022-04-18-index_forSS.csv')) %>%
+  select(-month, -fleet, Year = yr, 'Observed Biomass (t)' = obs, 'CV' = sterr) 
+
+survSS[survSS < 1&!is.na(survSS)] <- round(survSS[survSS < 1 & !is.na(survSS)],2)
+survSS[survSS > 1&!is.na(survSS)] <- round(survSS[survSS > 1 & !is.na(survSS)],0)
+survSS$Year <- as.character(survSS$Year)
+
+
+flextable::regulartable(survSS) %>%  
+      flextable::set_caption("Survey biomass estimates and CVs used in the assessment as an absolute index of abundance.")
+```
+
+```{r tab6selex, echo = FALSE, warning = FALSE, message = FALSE}
+survSS <- read.csv(here('tables','table6_selex.csv')) 
+
+flextable::regulartable(survSS) %>%  
+      flextable::set_caption("Treatment of selectivity parameters for survey and fishery fleet. Bracketed values indicate parameter bounds, if applicable.") %>%
+  flextable::width(.,j=1,width=3) %>%
+   flextable::width(.,j=2:3,width=2)
+```
+
+
+```{r likelihoodcomponents, echo = FALSE, warning = FALSE, message = FALSE}
+m17like <- m2017$likelihoods_used %>%
+  mutate(component = rownames(.)) %>%
+  filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+  select(component, 'Model 17.0 (2017)' = values)
+
+
+m02 <- SS_output(here::here('model_runs','01_bridging','cole','m02_2017_3.30.17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
+bridgelike <- m02$likelihoods_used %>%
+  mutate(component = rownames(.)) %>%
+  filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+  select( 'Model 17.1a (2022) with 2017 data' = values)
+
+baselike <- base_model$likelihoods_used %>%
+  mutate(component = rownames(.)) %>%
+  filter(component %in% c('TOTAL','Survey','Length_comp','Age_comp','Recruitment')) %>%
+  select( 'Model 17.1a (2022)' = values)
+
+flextable::regulartable(bind_cols(m17like, bridgelike,baselike)) %>%  
+      flextable::set_caption("Likelihood components for the base case 2022 model, the base case model with new data removed (data are as for the 2015 model), and the 2017 model. Values for likelihood components for the 2022 base case model cannot be compared directly with the other two models. The likelihoods for the 2017 model and the 2022 model with 2017 data vary slightly due to changes in the underlying software.") 
+```
+
+
+```{r parestgrowth, echo = FALSE, warning = FALSE, message = FALSE}
+pargrowth <-read.csv(here::here('tables','parcompare_growth.csv'))
+pargrowth[,2:3] <- round(pargrowth[,2:3],3)
+names(pargrowth) <- c('Parameter',base_model_name,old_model_name)
+flextable::regulartable(pargrowth) %>%  
+  flextable::set_caption("Final parameter estimates of growth parameters and unfished recruitment in log space for Model 17.1a (2022) and Model 17.0 (2017).") %>%
+  flextable::width( width = c(3,2,2))
+```
+
+
+```{r parestselexfish, echo = FALSE, warning = FALSE, message = FALSE}
+parsel1 <-read.csv(here::here('tables','parcompare_selexfishery.csv'))
+parsel1[,2:3] <- round(parsel1[,2:3],3)
+names(parsel1) <- c('Parameter',base_model_name,old_model_name)
+flextable::regulartable(parsel1) %>%  
+  flextable::set_caption("Final parameter estimates of fishery selectivity parameters for Model 17.1a (2022) and Model 17.0 (2017).") %>%
+  flextable::width( width = c(3,2,2))
+```
+
+
+```{r parestselexsurv, echo = FALSE, warning = FALSE, message = FALSE}
+parsel2 <-read.csv(here::here('tables','parcompare_selexsurvey.csv'))
+parsel2[,2:3] <- round(parsel2[,2:3],3)
+names(parsel2) <- c('Parameter',base_model_name,old_model_name)
+flextable::regulartable(parsel2) %>%  
+  flextable::set_caption("Final parameter estimates of survey selectivity parameters for Model 17.1a (2022) and Model 17.0 (2017).") %>%
+  flextable::width( width = c(3,2,2))
+```
+ 
+
+```{r bigts, echo = FALSE, warning = FALSE, message = FALSE}
+
+## total biomass sb, rec f with sds each from each model by year
+
+
+ # Recruitment deviations and standard deviations for the proposed 2017 model.
+bigts <- bind_rows(bind_rows(  
+  m2017$derived_quants[grep('SSB_', m2017$derived_quants$Label),c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('SSB_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Spawning Biomass' = Value, SD = StdDev) %>%
+    filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
+    
+    m2017$derived_quants[grep('Recr_',m2017$derived_quants$Label),
+                            c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('Recr_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Recruitment' = Value, SD = StdDev) %>%
+    filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
+  #    m2017$timeseries %>%
+  #   mutate(SD = NA) %>%
+  # select( Year = Yr, 'Recruitment' = Recruit_0 , SD) %>% reshape2::melt(id = c('Year','SD')),
+    
+  m2017$parameters[grep('RecrDev_', m2017$parameters$Label),c('Label','Value','Parm_StDev')] %>%
+  mutate(Year = as.numeric(sapply(str_split(Label, "_",  n = 3), `[`, 3)), Value = round(Value,4),
+         Period =  sapply(str_split(Label, "_",  n = 3), `[`, 1)) %>%
+  select( Year, 'Recruitment Deviation' = Value, 'SD'=Parm_StDev)  %>% reshape2::melt(id = c('Year','SD')),
+  
+m2017$derived_quants[grep('F_', m2017$derived_quants$Label),c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('F_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Apical F' = Value, SD = StdDev) %>%   filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD'))) %>% 
+  mutate(Model = 'Model 17.0 (2017)',
+         SD = round(SD,4),
+         'Value (SD)' = paste0(value," (",SD,")")) %>%
+  select(Model,Year,variable, value, SD),
+
+bind_rows(  
+  base_model$derived_quants[grep('SSB_',base_model$derived_quants$Label),
+                            c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('SSB_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Spawning Biomass' = Value, SD = StdDev) %>%
+    filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
+  
+    base_model$derived_quants[grep('Recr_',base_model$derived_quants$Label),
+                            c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('Recr_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Recruitment' = Value, SD = StdDev) %>%
+    filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD')),
+  
+  # base_model$timeseries %>% 
+  #   mutate(SD = NA) %>%
+  #   select( Year = Yr, 'Recruitment' = Recruit_0 , SD)  %>% reshape2::melt(id = c('Year','SD')),
+  base_model$parameters[grep('RecrDev_', base_model$parameters$Label),c('Label','Value','Parm_StDev')] %>%
+    mutate(Year = as.numeric(sapply(str_split(Label, "_",  n = 3), `[`, 3)), Value = round(Value,4),
+           Period =  sapply(str_split(Label, "_",  n = 3), `[`, 1)) %>%
+    select( Year, 'Recruitment Deviation' = Value, 'SD'=Parm_StDev)  %>% reshape2::melt(id = c('Year','SD')),
+  
+base_model$derived_quants[grep('F_', base_model$derived_quants$Label),c('Label','Value','StdDev')] %>%
+  mutate(Year = as.numeric(gsub('F_',"",Label)), Value = round(Value,4)) %>%
+  select(Year, 'Apical F' = Value, SD = StdDev) %>%   filter(!is.na(Year)) %>% reshape2::melt(id = c('Year','SD'))) %>% 
+  
+  mutate(SD = round(SD,4),
+           Model = 'Model 17.1a (2022)',
+         'Value (SD)' = paste0(value," (",SD,")")) %>%
+  select(Model,Year,variable, value,SD )) %>%
+  filter(Year < 2023)
+   
+## custom rounding
+bigts$value[bigts$value<1] <- round(bigts$value[bigts$value<1],4)
+bigts$value[bigts$value>1] <- round(bigts$value[bigts$value>1],0)
+bigts$SD[bigts$SD<1&!is.na(bigts$SD)] <- round(bigts$SD[bigts$SD<1&!is.na(bigts$SD)],4)
+bigts$SD[bigts$SD>1&!is.na(bigts$SD)] <- round(bigts$SD[bigts$SD>1&!is.na(bigts$SD)],0)
+
+bigts$value[is.na(bigts$value)] <- ""
+bigts$SD[is.na(bigts$SD)] <- ""
+
+## blank out NA years
+bigts$value[bigts$Model == 'Model 17.0 (2017)' & bigts$Year>2018] <- ""
+bigts$SD[bigts$Model == 'Model 17.0 (2017)' & bigts$Year>2018] <- ""
+# bigts$value[bigts$Model == 'Model 17.1a (2022)' & bigts$Year>2022] <- ""
+# bigts$SD[bigts$Model == 'Model 17.1a (2022)' & bigts$Year>2022] <- ""
+
+## compound column
+bigts$value_SD <- paste0( ifelse(is.na(bigts$value),"",prettyNum(bigts$value,big.mark = ",")) ,
+                          " (",
+                         ifelse(is.na(bigts$SD),"",prettyNum(bigts$SD,big.mark = ",")),
+                         ")")
+bigts$Year <- as.character(bigts$Year)
+ 
+bigts %>%
+  arrange(variable) %>%
+  filter(variable != 'Recruitment Deviation' & Year > 1978) %>%
+tidyr::pivot_wider(., id_cols = c(Year),   names_from = c(Model,variable), values_from = c(value_SD)) %>% 
+  
+  data.frame() %>%
+   flextable::regulartable( )%>%
+  flextable::add_header_row(values = c("Year", 
+                              "Spawning Biomass", 
+                              "Spawning Biomass", 
+                              "Recruitment",
+                              "Recruitment",
+                              # "Recruitment Deviation",
+                              # "Recruitment Deviation",
+                              "Apical F","Apical F")) %>%
+  flextable::autofit(part = "all") %>%
+    flextable::align(align = "center", part = "all")%>% 
+   flextable::merge_h(part = "header") %>%
+    flextable::merge_v(part = "header")   %>%
+    flextable::set_caption("Spawning Biomass, Recruitment, and Apical fishing mortality with associated standard deviations (in parentheses) from Model 17.0 (2017) and Model 17.1a (2022).")  %>% 
+  flextable::autofit()
+  # flextable::width(  width = c(1,rep(2,6)))
+```
+
+ 
+```{r projSB, echo = FALSE, warning = FALSE, message = FALSE}
+projsb <-read.csv(here::here('tables','proj_SSBMean.csv')) %>%
+  filter(Year < 2036)
+projsb$Year <- as.character(projsb$Year)
+flextable::regulartable(projsb) %>%  
+  flextable::set_caption("Projected mean stock spawning biomass (t) for the seven harvest scenarios listed in the Harvest Recommendations section.")  
+```
+
+```{r projF, echo = FALSE, warning = FALSE, message = FALSE}
+projF <-read.csv(here::here('tables','proj_F_Mean.csv')) %>%
+  filter(Year < 2036)
+projF$Year <- as.character(projF$Year)
+flextable::regulartable(projF) %>%  
+  flextable::set_caption("Projected mean fishing mortality for the seven harvest scenarios listed in the Harvest Recommendations section.")  
+```
+
+```{r projcatch, echo = FALSE, warning = FALSE, message = FALSE}
+projC <-read.csv(here::here('tables','proj_CMean.csv')) %>%
+  filter(Year < 2036)
+projC$Year <- as.character(projC$Year)
+flextable::regulartable(projC) %>%  
+  flextable::set_caption("Projected mean catch (t) for the seven harvest scenarios listed in the Harvest Recommendations section.") 
+```
+
+\newpage
+
+```{r nontarg, echo = FALSE, warning = FALSE, message = FALSE, out.height = "60%", tab.cap = "Non-target catch in the directed GOA flathead sole fishery as a proportion of total weight of bycatch of each species. Conditional highlighting from white (lowest numbers) to green (highest numbers) is applied. No seabird bycatch was recorded in the GOA flathead sole fishery. 2015 and 2016 appear to just contain the nontarget catch for flathead trips, and are therefore > 1. These data have not been updated since 2016."}
+flextable::regulartable(data = data.frame(NA))
+knitr::include_graphics(here('tables','nontargetcatch.png'))
+
+```
+
+```{r prohibcath, echo = FALSE, warning = FALSE, message = FALSE}
+prohib <-read.csv(here::here('tables','prohibitedSpecies.csv'))  
+prohib[prohib == 0] <- ""
+flextable::regulartable(prohib) %>%  
+  flextable::set_caption("Prohibited species catch caught in the GOA flathead sole fishery in 2018, 2019 and 2021") 
+
+```

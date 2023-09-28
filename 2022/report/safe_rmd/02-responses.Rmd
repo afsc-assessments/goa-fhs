@@ -1,0 +1,64 @@
+## Responses to SSC and Plan Team Comments on Assessments in General {#responses}
+
+> "The Team recommends all GOA authors evaluate any bottom trawl survey information used in
+their assessment prior to 1990 including the 1984 and 1987 surveys and conduct sensitivity analyses
+to evaluate their usefulness to the assessment. This may apply for Aleutian Islands surveys but this
+was only raised during GOA assessment considerations."
+
+This was also raised in the FHS-specific CIE review (discussed below). Sensitivity analyses were conducted leaving out these data, and derived quantities remained nearly identical for the recent period.
+
+
+> "The SSC requests that all authors fill out the risk table in 2019…" (SSC December 2018)  
+
+A risk table has been included in this assessment; 2021 was a partial assessment. No important concerns or issues were identified, so no reduction from maxABC is recommended.
+
+> "Any new model that diverges substantially from the currently accepted model will be marked with the two-digit year …" (SSC December 2016)  
+
+The model presented this year follows this convention and is labeled as `r base_model_name`, to reflect that the structure has not changed from the previously accepted full model from 2017. The latter is referred to as `r old_model_name`.
+
+## Responses to SSC and Plan Team Comments Specific to this Assessment
+> "The SSC concurs with the PT and author that a priority for future assessments is to analyze ageing error data for GOA flathead sole using methods described in Punt et al. (2008) and to incorporate a resulting ageing error matrix into the assessment. In addition, the SSC supports the PT and author’s recommendations that future analyses should explore the relationship between natural mortality and catchability in the model, alternative parameter values, and the effects of these parameters on estimation of selectivity and other parameters. Finally, the SSC encourages the author to explore ways to better account for scientific uncertainty, especially uncertainty associated with parameters that are currently fixed in the model. (SSC Dec 2017)"
+
+(ref:profileSummary) This assessment re-conducted the likelihood profiling exercises on catchability (q), natural mortality (M), and combinations thereof done in the previous full assessment [@Turnock2017]. The data weights remained unchanged during profiling. For this cycle, we extended the upper limit of $q$ values included in the profile to $log(10)$ (about 2.3), and also conducted a profile on unfished recruitment $R_0$. Results from these investigations are shown in Figures 10.\@ref(fig:profileM) to 10.\@ref(fig:profileR0). When each parameter is profiled independently (Figures 10.\@ref(fig:profileM) and 10.\@ref(fig:profileLNq)), the minimum total negative log-likelihood for `r base_model_name` occurred at q = 1.56 and M = 0.26 (in `r old_model_name`, these values were 1.4 and 0.28, respectively; though values over 1.4 for $q$ were not explored in 2017). The profile on $q$ is shallow for all data besides the age data below 1.6, and both the index and length composition data profiles on $q$ were minimized closer to 1. It appears that given the current model structure, there is conflict between the age and length data regarding the value of $M$, whereby the age data suggests the highest overall value for $M$ (0.28) and the length composition data suggests $M$ to be half of that (0.14). This conflict was also observed during the last assessment [@Turnock2017]. When $q$ and $M$ for both sexes are profiled concurrently, the total likelihood was minimized at roughly the same values as those found in the independent exercise (1.64 for $q$ and 0.27 for $M$, Figure 10.\@ref(fig:profileqm)), qualitatively similar to that of the previous assessment). However, there are a range of combinations of these values which were statistically indistinguishable. Profiles wherein natural mortality was fixed at various combinations for each sex indicated that the total likelihood was minimized when $M$ for both sexes was 0.255 (Figure 10.\@ref(fig:profilemm). We did not have time to examine the individual components of these 2-dimensional likelihood profiles; revisiting selectivity is likely needed to aid interpretation of these results, which was out of scope for the current assessment. A profile on $R_0$ (Figure 10.\@ref(fig:profileR0)) indicated that unfished recruitment is well-estimated in the present model configuration, where the length data suggests a slightly higher value for $R_0$ than other datasets.  This finding is consistent with observations during the data weighting process, whereby the length data consistently suggest a higher model scale (higher $R0$ and lower $M$), and the dynamics change greatly if those data are not up-weighted. For future iterations, assessors should consider the interaction between data weights (which up-weight all lengths and down-weight all CAAL data), the corresponding fits to the survey (which are poor in the last two years) and length compositions (which improve when M is below 0.18). \n Overall, it was out of the scope of the present assessment to propose any of these explorations as alternative models, but there is a strong basis for revisiting any or all of these parameterizations to satisfy the SSC/PT requests moving forward. See also [Data Gaps and Research Priorities].
+
+
+(ref:profileSummary)
+
+
+\newline
+
+(ref:aed)  A comparison of the biomass time series for the new base model using both this updated ageing error matrix (`r base_model_name`) and using the matrix from the previously accepted assessment is shown in Figure 10.\@ref(fig:ageErrCompare). The ageing error matrix has been updated using the latest age-read data specific for GOA `r species`. A detailed overview of how the matrix values were chosen is available at https://mkapur-noaa.github.io/goa-fhs-2022/AgeingError_Writeup_Static.html.
+
+(ref:aed)
+
+## Responses to CIE (2019) Comments agreed upon by all three reviewers
+
+The comments below are from Appendix 4 of the CIE review conducted in July 2019 by panelists Cordue, Tingley, and Trzcinski. Note that this review included rex and Dover soles in addition to flathead, and the Appendix indicates that some comments might be applicable to flathead only in a general sense.
+
+> "The Gulf of Alaska Bottom Trawl Surveys (BTS) conducted in 1984 and 1987 used different vessels, a different approach and with different timing. These surveys should not be considered as part of the same timeseries as the subsequent BTS timeseries. Specifically, the biomass estimates and the composition data from these two surveys should be dropped from each of these assessments, and probably from all
+other assessments also...The surveys in 1990 and 1993 had a different timing (later) and somewhat different survey structure. While clearly not as ‘different’ as the 1984 and 1987 surveys, there is sufficient
+difference that model sensitivities should be run on a species-by-species (stock-by-stock) basis
+that include and exclude the biomass and composition data from these two surveys."
+
+(ref:senslink) A stable web site with abbreviated results from sensitivity runs explored during this assessment is available online at https://mkapur-noaa.github.io/goa-fhs-2022/sensitivities_goa_fhs_2022.html. Because we are not proposing any of these model runs as alternative models, they have been excluded from this document, but qualitative descriptions of the results are included in the applicable sections.
+
+We did not have time to conduct more than one sensitivity analysis for this topic (e.g., removing 1980s survey data, separating early 1990s survey data, and combinations thereof). Instead, we conducted one sensitivity analysis where all survey biomass, length composition, and conditional age-at-length data before 1990 were truncated (removed) due to the differences in survey design. Because the intent with this assessment was to keep the data and model structure as similar as possible to the 2017 assessment, the survey biomass and length data from the 1980s are still included in the base model. Like the 2017 assessment, the 2022 model does not include disabled Conditional Age-at-Length (CAAL) data from the survey before 1990. 
+
+Given the structure of the current model, we did not see strong differences in terminal year biomass, recruitment deviations, or survey fits between these two models.  For thoroughness, if future cycles retain these early survey years and include the calculation or estimation of catchability $q$ different from 1.0, it would be worth considering introducing a time-block on catchability and/or selectivity. The next full assessment for this stock will follow advice from the Plan Team to remove survey biomass and length composition data from the 1980s.
+
+(ref:senslink)
+
+> "A more consistent, analytical and defensible approach to the scaling and stratification of fisheries data should be followed. This should meet accepted ‘best practice’ approaches, including, for example, studying the spatial and temporal patterns of length and age followed by appropriate
+stratification and scaling."
+
+The authors agree. Revisiting the methods by which, for example, composition data are expanded from survey hauls is an active area of research. We did not revisit it for this assessment cycle.
+
+>"Models should not assume that the survey q is equal to 1. Informed priors should be developed
+on a stock-by-stock basis."
+
+ `r base_model_name` has $q$ fixed at 1, as in the previous assessment (`r old_model_name`). We explored a sensitivity run where $q$ was either estimated with bounds from -15 to 15, or calculated analytically from the biomass available to the survey. In both cases, $q$ was either estimated or calculated to be ~1.6, consistent with the location of the MLE shown in the likelihood profile (Figure 10.\@ref(fig:profileLNq)). However, these changes resulted in worse fits to the survey and drastically different biomass time series, so further research is needed before incorporating either approach (with the potential inclusion of a prior) as suggested by the CIE. The author recommends discussions with the Survey group about the encounter rate of `r species`, and the potential for design-based indices to alleviate some of these issues.
+
+
+> "Recruitment deviates should not be estimated where there is no information to inform the estimation, i.e. there has to be age data from a survey or fishery to inform the estimation process."
+
+We conducted a sensitivity for `r base_model_name` wherein the "early" period for recruitment deviations begins at the onset of survey biomass & length composition data in 1983 (though see note above about differences in survey design). In that sensitivity model, terminal SSB values are lower than `r base_model_name`, there is a notably low recruitment deviation estimated in 2018, and survey fits in the recent years are lower (and more accurate) than `r base_model_name`. This sensitivity also fit the first and third year of survey biomass data more accurately, and effectively captured the declining trend in survey abundance (whereas the fits to the same data for `r base_model_name` suggest an overall upward trend).
