@@ -19,9 +19,6 @@ species <- 10130
 ggplot2::theme_set(afscassess::theme_report()) 
 pull_date <- lubridate::as_date('2023-09-28')
 
-## load last year's model
-base_model <- r4ss::SS_output(here::here(2022,'model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
-
 ## Data pull ----
 ## only run this once or when you want to update data
 # afscdata::goa_fhs(year,off_yr = TRUE)
@@ -119,7 +116,7 @@ write(sppcatch,file=here::here(year,'projection','spp_catch.dat'),append=FALSE)
 write.table(catchvec, file=here::here(year,'projection','spp_catch.dat'), 
             row.names=FALSE, col.names=FALSE, append = TRUE)
 
-## make sure that the spp_catch is also in the /data folder
+## make sure that the newest spp_catch is also in the /data folder
 file.copy(here::here(year,'projection','spp_catch.dat'),
           here::here(year,'projection','data','spp_catch.dat'),overwrite = TRUE)
 ## run projection
@@ -128,6 +125,80 @@ shell('main')
 
 
 ## Tables ----
+### Main SAFE Table ----
+rec_table1 <-
+  read.table(here::here(year,'projection','percentdb.out')) %>%
+  as.data.frame(stringsAsFactors=FALSE) %>%
+  transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+            value=as.numeric(V5)) %>%
+  filter(year %in% c(2024,2025) & scenario==1 &
+           metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
+  arrange(year, metric) %>%
+  tidyr::pivot_wider(names_from=year, values_from=value)
+
+rec_table2 <-
+  read.table(here::here(year,'projection','alt2_proj.out'), header=TRUE) %>%
+  filter(Year %in% c(2024,2025)) %>%
+  tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+  tidyr::pivot_wider(names_from=Year, values_from=value)
+rec_table1$scenario <- rec_table2$Stock <- NULL
+rec_table <- bind_rows(rec_table1, rec_table2)
+## change order to match SAFE format & magnitudes
+rec_table <- rec_table[c(11,6,3,4,5,2,1,1,9,8,8),] 
+rec_table[c(6:8),2:3] <- round(rec_table[c(6:8),2:3],2)
+rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
+
+
+previous_rec_table <- read.csv(here::here(2022,'projection',"REC_TABLE.CSV"))
+names(previous_rec_table) <- c('metric','2022','2023','X2023','2024')
+previous_rec_table[,c('X2023','2024')] <- apply(previous_rec_table[,c('X2023','2024')],2,
+                                                 FUN = function(x) as.numeric(gsub(",","",x)))
+
+safe0 <- rbind(c(rep(0.2,4)),
+               c(rep('3a',4)),
+               cbind(previous_rec_table[,c('X2023','2024')], 
+                     rec_table[,2:3]) )
+
+
+rownames(safe0) <-c('M', 
+                    'Tier',
+                    "Projected total (3+) biomass (t)",
+                    "Projected Female spawning biomass (t)",
+                    "B100%",
+                    "B40%",
+                    "B35%",
+                    "FOFL",
+                    "maxFABC",
+                    "FABC",
+                    "OFL (t)",
+                    "maxABC (t)",
+                    "ABC (t)"
+)
+
+
+safe1 = as.matrix(noquote(apply(safe0, 2, function(x) prettyNum(x, big.mark = ",")))) 
+# safe1 <- data.frame(safe1);names(safe1) <- names(safe0)
+
+
+status = matrix(NA, nrow = 5, ncol = 4)
+# colnames(status) <- c(2020,2021,2021,2022)
+rownames(status) <- c('blank','Status','Overfishing','Overfished','Approaching Overfished')
+status[2,] <- c(this_year-1,this_year,this_year,this_year+1)
+status[1,c(1,3)] <- status[2,c(2,4)] <- status[3,c(2,4)] <- 'no'
+status = data.frame(status)
+names(status) = names(safe0)mes(status) <-names(data.frame(safe1)) <- c(this_year,this_year+1, this_year+1, this_year+2)
+
+safe <- data.frame(rbind(safe1,status) ) %>% mutate(item = rownames(.)) %>%
+  select(item,y1 = X2023, y2 = X2024, y3 = X2024.1, y4=X2025)
+
+c1 = round(as.numeric(catchvec[2,2]))
+c2 = round(as.numeric(catchvec[3,2]))
+c3 = round(as.numeric(catchvec[4,2]))
+
+safe::main_table(data = safe, year = 2023, tier = '3', c1,c2,c3)
+
+write.csv(safe, file = here::here(year,'tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
+write.csv(rec_table, here::here(year, 'projection','rec_table.csv'), row.names=FALSE)
 
 
 ## Figures ----
