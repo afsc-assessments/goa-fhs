@@ -23,6 +23,28 @@ pull_date <- lubridate::as_date('2023-09-28')
 ## only run this once or when you want to update data
 # afscdata::goa_fhs(year,off_yr = TRUE)
 
+## separately, dwnld survey obs by area (for apportionment)
+message("Querying survey biomass data...")
+username_AFSC <- rstudioapi::showPrompt(title="Username", message="Enter your AFSC username:", default="")
+password_AFSC <- rstudioapi::askForPassword(prompt="Enter your AFSC password:")
+AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
+test <- paste0("SELECT GOA.BIOMASS_AREA.YEAR as YEAR,\n ",
+               "GOA.BIOMASS_AREA.REGULATORY_AREA_NAME as AREA,\n",
+               "GOA.BIOMASS_AREA.AREA_BIOMASS as BIOM,\n ",
+               "GOA.BIOMASS_AREA.AREA_POP as POP,\n ",
+               "GOA.BIOMASS_AREA.BIOMASS_VAR as BIOMVAR,\n ",
+               "GOA.BIOMASS_AREA.POP_VAR as POPVAR,\n ",
+               "GOA.BIOMASS_AREA.HAUL_COUNT as NUMHAULS,\n ",
+               "GOA.BIOMASS_AREA.CATCH_COUNT as NUMCAUGHT\n ",
+               "FROM GOA.BIOMASS_AREA\n ",
+               "WHERE GOA.BIOMASS_AREA.SPECIES_CODE in (",species,")\n ",
+               "ORDER BY GOA.BIOMASS_AREA.YEAR")
+index_by_area <- RODBC::sqlQuery(af, test)
+if(!is.data.frame(index_by_area))
+  stop("Failed to query GOA survey data by area")
+write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
+
+
 ## Projections ----
 ### Estimate Catches----
 ## checked by eye that these matched, though EGOA values are off for many
@@ -123,6 +145,64 @@ file.copy(here::here(year,'projection','spp_catch.dat'),
 setwd(here::here(year,'projection'))
 shell('main')
 
+## Run Appportionment with REMA ----
+## In 2022 we transitioned to REMA from the ADMB code
+## and illustrated a successful bridge. 
+## This time, going to run REMA only.
+## A GOA Survey occured in 2023 so we'd expect these values to update.
+## Fit all three areas at at once (defaults to univariate structure, no info leakage among them)
+library(rema)
+
+## biomass, cv, strata, year
+
+read.csv(here::here(year,'data','raw','goa_total_bts_biomass_data.csv')) %>%
+  group_by()
+
+input <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS MULTIVAR"),
+                             biomass_dat  = bind_rows(biomass_dat))
+m2 <- fit_rema(input2) ##save each M separately
+output <- tidy_rema(rema_model = m2)
+
+
+load("~/assessments/2022/goa-fhs-2022/RE/2022-10-03-rema_output.rdata") ## output
+
+egfrac <- read.csv(here::here(year,'apportionment','biomass_fractions_egoa.csv'))
+props <- output$proportion_biomass_by_strata %>% 
+  filter(year == 2021) %>% 
+  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+  select(Western, Central, WestYakutat,Southeast)
+
+sum(props)==1
+
+
+
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2]) 
+abc24 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+  rbind( round(props*100,2) ,.) %>%
+  data.frame() %>%
+  mutate(Total = c("",abc23,abc24),
+         Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+         Quantity = c("Area Apportionment %", 
+                      "ABC (t)",
+                      "ABC (t)")) %>% select(Quantity, Year, everything())
+
+## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
+
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+
+
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+
+
 
 ## Tables ----
 ### Main SAFE Table ----
@@ -196,7 +276,7 @@ c2 = round(as.numeric(catchvec[3,2]))
 c3 = round(as.numeric(catchvec[4,2]))
 
 safe::main_table(data = safe, year = 2023, tier = '3', c1,c2,c3)
-
+save(safe,file = here::here(year,'tables',paste0(Sys.Date(),'-safe_table.rdata')) )
 write.csv(safe, file = here::here(year,'tables',paste0(Sys.Date(),'-safe_table.csv')), row.names=TRUE)
 write.csv(rec_table, here::here(year, 'projection','rec_table.csv'), row.names=FALSE)
 
