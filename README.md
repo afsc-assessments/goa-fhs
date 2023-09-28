@@ -1,6 +1,12 @@
-# goa-fhs-2022
+# goa-fhs
 
-Gulf of Alaska flathead sole stock assessment, 2022. Maia Sosa Kapur [maia.kapur\@noaa.gov](mailto:maia.kapur@noaa.gov){.email}
+Gulf of Alaska flathead sole stock assessments (full and harvest projections). Maia Sosa Kapur [maia.kapur\@noaa.gov](mailto:maia.kapur@noaa.gov){.email}
+
+2023: Harvest Projection
+2022: Full Assessment
+2021: Harvest Projection
+2020: Harvest Projection (C Monnahan)
+
 
 Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency on [safe](https://github.com/BenWilliams-NOAA/safe) and apportionments via [rema](https://github.com/afsc-assessments/rema) both v0.1.0.
 
