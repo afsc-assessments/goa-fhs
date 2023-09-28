@@ -33,11 +33,20 @@ output$biomass_by_strata %>%
                     "TOTAL GOA_obs_CV"=sqrt(biomass_var )/total_biomass ),
         by = 'year') %>%
   mutate(year = as.character(year)) %>%
-  select(year, 'TOTAL GOA_obs','TOTAL GOA_obs_CV',everything())  %>%
+  select(year, 
+         grep('TOTAL',names(.)), 
+         grep('WESTERN',names(.)),
+          grep('CENTRAL',names(.)), 
+         grep('EASTERN',names(.))) %>%
   
   flextable::regulartable(.) %>%  
-  flextable::set_caption("Flathead sole survey biomass (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model.") %>%
-  flextable::add_header_row(top = TRUE, values = c("", "2010", "2011"), colwidths = c(1,3,3))
+  flextable::set_caption("Flathead sole survey biomass (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model. Small discrepancies (<1 t) in Total column may occur due to rounding.") %>%
+  flextable::add_header_row(top = TRUE, values = c("", 'Total','Western','Central','Eastern'), colwidths = c(1,rep(2,4))) %>%
+    flextable::set_header_labels(values = c('Year', rep(c('Bio (t)','CV'),4))) %>%
+    flextable::colformat_double(j = seq(3,9,2), big.mark = ',', digits = 2)  %>%
+  flextable::colformat_double(j = seq(2,9,2), big.mark = ',', digits = 0) %>%
+  flextable::bold(i = 18,j = 1) %>%
+  flextable::vline(j = c(1,3), part = 'all')
 ```
 
 \pagebreak
