@@ -1,10 +1,18 @@
 # Tables
 
 ```{r tab1}
-knitr::kable(data.frame(year = 1999:2000,
-                 catch = 1:2), 
-             caption = "Summary of key management measures and the time series of catch, ABC, and TAC for northern rockfish in the Gulf of Alaska",
-             booktabs = TRUE)
+
+read.csv(here::here(this_year,'data','user_input','goa_fhs_catch_1978_1990.csv'), sep='\t') %>%
+  mutate(WGOA = NA, CGOA = NA, EGOA = NA) %>%
+  select(year, total = catch, WGOA, CGOA, EGOA) %>% 
+  bind_rows(., read.csv(here(this_year,'data','output','catches_by_area.csv'))) %>%
+  flextable::regulartable(.) %>%  
+  flextable::set_caption("Total catch (t) of GOA flathead sole by area. Catch for 2021 is current up to October 28, 2021. Columns left blank indicate confidential catch information by area. Bolded years are not used in the base model.") %>%
+  flextable::set_header_labels(year = 'Year', total = 'Total Catch (t)', WGOA = 'Western Gulf', CGOA= 'Central Gulf',EGOA = 'Eastern Gulf')
+flextable::colformat_char(j =1)
+flextable::colformat_num(big.mark = ',') %>%
+  flextable::colformat_double(i = c(1), j = c(3:7), digits = 2) %>%
+  flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0)
 ```
 
 \pagebreak
@@ -12,7 +20,7 @@ knitr::kable(data.frame(year = 1999:2000,
 ```{r tab2}
 flextable::regulartable(data.frame(year = 1999:2000,
                  catch = 1:2)) %>%  
-      flextable::set_caption("Commercial catch (t) and management action for northern rockfish in the Gulf of Alaska, 1961-present. The *Description of the catch time series* Section describes procedures use to estimate catch during 1961-1993. Ctach estimates for 1993-2019 are from NMFS Observer Program and Alaska Regional Office updated through October XX, 2020.")
+      flextable::set_caption("Flathead sole survey biomass (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model.")
 ```
 
 \pagebreak
