@@ -1,0 +1,24 @@
+#_SETUP_FILE_FOR_PROJ_MODEL
+#_Number_of_years	with	specified	catch
+4
+# Number of runs
+1
+#	OY	Minimum
+116000 #	for	age-structured	species
+#	OY	Maximum
+8e+05 #	for	age-structured	species
+#	Pollock	PCOD	SAB	YFN	GTBT	ATF	RKS	FHS	AKP	POP	NRF	ATM
+#	1	2	3	4	5	6	7	8	9	10 11	12
+#	Pollock	PCOD SAB YFN	GTBT ATF RKS FHS AKP POP NRF ATM
+#	1	2	3	4	5	6	7	8	9	10 11	12
+# data files for	each species
+C:/Users/maia.kapur/Work/assessments/goa-fhs/2023/projection/data/projection_data.dat
+# Population	scalars
+1000
+#	New	Alt	4	Fabc	SPRs (Rockfish	=	0.75,	other	0.6)
+0.75
+#	Catch	in	each	future	year
+2022 563.6474200182
+2023 598.216066750767
+2024 1610.60144820202
+2025 1610.60144820202
