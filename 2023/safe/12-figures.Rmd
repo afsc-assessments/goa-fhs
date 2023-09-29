@@ -1,14 +1,6 @@
 # Figures
 
-```{r, fig.cap = "pressure"}
-plot(pressure)
+```{r fig1, fig.cap = "Catch to total biomass ratio using total biomass for age 3+ individuals for GOA flathead sole. Blue points are catches included in the projection model; open points are estimated or projected, whereas solid points are complete observed years."}
+knitr::include_graphics(here::here(this_year,'figs','Fig1_catchvsbio.png'))
 ```
 
-```{r fig1, fig.cap="Estimated and observed long-term and recent commercial catch of northern rockfish in the Gulf of Alaska.", eval = F}
-
-knitr::include_graphics(here::here(year, model, "figs", "catch.png"))
-```
-
-```{r fig2, fig.cap="Fishery length compositions for GOA northern rockfish. Observed = bars, lines are the predicted lengths from author recommended model.", eval = F}
-
-knitr::include_graphics(here::here(year, model, "figs", "fishery_length_comp.png"))
