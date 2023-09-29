@@ -1,5 +1,21 @@
 {
     "debugBreakpointsState": {
-        "breakpoints": []
+        "breakpoints": [
+            {
+                "id": 2,
+                "path": "~/assessments/proj_functions/write_sppcatch.r",
+                "line_number": 24,
+                "function_steps": "11",
+                "function_name": "write_sppcatch",
+                "state": 1,
+                "editor_state": 1,
+                "editor_line_number": 24,
+                "is_pending_debug_completion": false,
+                "needs_updated_steps": false,
+                "type": 0,
+                "is_package_breakpoint": false,
+                "package_name": ""
+            }
+        ]
     }
 }
