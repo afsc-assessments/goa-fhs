@@ -313,26 +313,30 @@ pdt <- data.frame(read.table(here::here(this_year,'projection',"bigfile.out"), h
 pdt.long <- tidyr::pivot_longer(pdt, 
                                 cols=c(-Alternative, -Spp, -Yr), 
                                 names_to='metric') %>%
-  mutate(Alternative=factor(Alternative)) %>% 
-  group_by(Yr, Alternative, metric) %>%
-  summarize(med=median(value), 
+  dplyr::mutate(Alternative=factor(Alternative)) %>% 
+  dplyr::group_by(Yr, Alternative, metric) %>%
+  dplyr::summarise(med=median(value), 
             lwr=quantile(value, .1), 
             upr=quantile(value, .9), 
             .groups='drop')
 
-fig1a <- mod_22$timeseries %>% select(Yr, Bio_smry) %>%
-  merge(.,mod_22$catch %>% select(Yr, Obs), by = 'Yr') %>%
-  filter(Yr != 2020) %>%
-  mutate(catch_over_biomass  = Obs/Bio_smry)
+fig1a <- mod_22$timeseries %>% 
+  dplyr::select(Yr, Bio_smry) %>%
+  merge(.,mod_22$catch %>% 
+          dplyr::select(Yr, Obs), by = 'Yr') %>%
+  dplyr::filter(Yr != 2022) %>%
+  dplyr::mutate(catch_over_biomass  = Obs/Bio_smry)
+
+catchvec<-matrix(unlist(catchvec),ncol =2 )
 
 fig1b <- data.frame(Yr = catchvec[,1],
                     Bio_smry = pdt %>% 
-                      filter(Yr < max(catchvec[,1])+1) %>% 
-                      group_by(Yr) %>%
-                      summarise(Bio_smry = 1000*round(mean(Tot_biom),2)) %>% 
-                      select(Bio_smry) ,
+                      dplyr::filter(Yr < max(catchvec[,1])+1) %>% 
+                      dplyr::group_by(Yr) %>%
+                      dplyr::summarise(Bio_smry = 1000*round(mean(Tot_biom),2)) %>% 
+                      dplyr::select(Bio_smry) ,
                     Obs = catchvec[,2]) %>%
-  mutate(catch_over_biomass  = Obs/Bio_smry)
+  dplyr::mutate(catch_over_biomass  = Obs/Bio_smry)
 fig1 <- rbind(fig1a, fig1b)
 
 
@@ -340,10 +344,10 @@ fig1 <- rbind(fig1a, fig1b)
 ggplot(subset(fig1), 
        aes(x = Yr, y = catch_over_biomass)) +
   geom_line(lwd = 1, col = 'grey77') + 
-  geom_point(data = subset(fig1, Yr > 2022),
-             lwd = 1,  col = 'blue', pch = 1) +
-  geom_point(data = subset(fig1, Yr %in% c(2020,2021,2022)),
+  geom_point(data = subset(fig1, Yr == 2022),
              lwd = 1,  col = 'blue', pch = 16) +
+  geom_point(data = subset(fig1, Yr >= this_year),
+             lwd = 1,  col = 'blue', pch = 1) +
   scale_x_continuous(labels = seq(1960,2025,5), 
                      breaks = seq(1960,2025,5))+
   scale_y_continuous(limits = c(0,0.02),
@@ -352,5 +356,5 @@ ggplot(subset(fig1),
   labs(x = 'Year', y = 'Catch/Summary Biomass (age 3+)')
 
 ggsave(last_plot(), height = 5, width = 8, dpi = 520,
-       file = here('figs',paste0(Sys.Date(),'-Fig1_catchvsbio.png')))
+       file = here::here(this_year,'figs',paste0('Fig1_catchvsbio.png')))
 
