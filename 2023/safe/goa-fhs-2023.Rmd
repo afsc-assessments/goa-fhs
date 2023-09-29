@@ -1,7 +1,7 @@
 ---
 params: 
   chapter: 10
-  species: "Assessment of the Flathead Sole Stock in the Gulf of Alaska"
+  species: "Flathead sole"
   species_complex: "no"
   area: "Gulf of Alaska"
   tier: 3
@@ -33,6 +33,10 @@ csl: "fishfish.csl"
 
 ---
 
+This report may be cited as:
+Kapur, M.,2023. Assessment of the Flathead Sole Stock in the Gulf of Alaska. North Pacific Fishery Management Council, Anchorage, AK. Available from https://www.npfmc.org/library/safe-reports/
+  
+
 ```{r setup, include=FALSE, echo = FALSE}
 # remotes::install_github("crsh/rmdfiltr")
 knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.pos = "!h", out.extra = "")
@@ -56,13 +60,19 @@ title: `r title`
 # load
 library(safe)
 # globals
-species = params$species
+species = 'Flathead sole'
 this_year = 2023
 date = 'October 22, 2023'
+pull_date <- lubridate::date('2023-09-28')
 model = "base"
-end_proj = year + 15
-best_f = 0.0641 # from the best_f function in groundfishr package
-ofl = 8000 # placeholder while i figure things out
+end_proj = this_year + 15 
+ofl_24<-49414
+ofl_25<-50322
+abc_24<-40503
+abc_25<-41258
+
+ofl_24_22 <-49073
+abc_24_22 <-40222
 
 load(here::here(this_year,'data', 'output','catches_for_proj.rdata'))
 c1 <- round(as.numeric(catchvec[2,2]),0) # estimated catch in current year
@@ -70,8 +80,10 @@ c2 <- round(as.numeric(catchvec[3,2]),0)# proj catch year + 1
 c3 <- round(as.numeric(catchvec[4,2]),0) # proj catch year + 2
 ```
 
+
 ```{r, child="01-summary.Rmd", eval = T}
 ```
+
 
 ```{r, child="11-tables.Rmd", eval = T}
 ```
