@@ -2,13 +2,13 @@
 
 ```{r tab1}
 catches <- read.csv(here::here(this_year,'data','user_input','goa_fhs_catch_1978_1990.csv'), sep='\t') %>%
-  mutate(WGOA = NA, CGOA = NA, EGOA = NA) %>%
-  select(year, total = catch, WGOA, CGOA, EGOA) %>% 
-  bind_rows(., read.csv(here(this_year,'data','output','catches_by_area.csv')))
+  dplyr::mutate(WGOA = NA, CGOA = NA, EGOA = NA) %>%
+  dplyr::select(year, total = catch, WGOA, CGOA, EGOA) %>% 
+  dplyr::bind_rows(., read.csv(here::here(this_year,'data','output','catches_by_area.csv')))
 
 catches$year <- as.character(catches$year)
 flextable::regulartable(catches) %>%  
-  flextable::set_caption("Total catch (t) of GOA flathead sole by area. Catch for 2021 is current up to October 28, 2021. Columns left blank indicate confidential catch information by area. Bolded years are not used in, or differ from, the base model.") %>% 
+  flextable::set_caption(paste0("Total catch (t) of GOA flathead sole by area. Catch for ", this_year," is current up to ", pull_date,". Columns left blank indicate confidential catch information by area. Bolded years are not used in, or differ from, the base model. Note that the value for ",this_year," is the observed catch and the extrapolated catches used for this year in the projection model are higher."))%>% 
   flextable::set_header_labels(year = 'Year', total = 'Total Catch (t)', WGOA = 'Western Gulf', CGOA= 'Central Gulf',EGOA = 'Eastern Gulf') %>%
   flextable::colformat_double(j = 5, big.mark = ',', digits = 2)  %>%
   flextable::colformat_double(j = 2:4, big.mark = ',', digits = 0) %>%
@@ -20,33 +20,33 @@ flextable::regulartable(catches) %>%
 ```{r tab2}
 load(here::here(this_year,'apportionment','rema_output.rdata'))## loads as "output"
 output$biomass_by_strata %>%
-  select(year, strata, obs, obs_cv) %>%
-  filter(!is.na(obs)) %>% ## drop interpolated years
+  dplyr::select(year, strata, obs, obs_cv) %>%
+  dplyr::filter(!is.na(obs)) %>% ## drop interpolated years
   tidyr::pivot_wider(., id_cols = year, 
                      names_from = strata,
                      values_from = c(obs, obs_cv),
                      names_glue = "{strata}_{.value}") %>%
   merge(., 
         read.csv(here::here(this_year,'data','raw','goa_total_bts_biomass_data.csv')) %>% 
-          group_by(year) %>% 
-          summarise("TOTAL GOA_obs" = total_biomass,  
+          dplyr::group_by(year) %>% 
+          dplyr::summarise("TOTAL GOA_obs" = total_biomass,  
                     "TOTAL GOA_obs_CV"=sqrt(biomass_var )/total_biomass ),
         by = 'year') %>%
-  mutate(year = as.character(year)) %>%
-  select(year, 
+  dplyr::mutate(year = as.character(year)) %>%
+  dplyr::select(year, 
          grep('TOTAL',names(.)), 
          grep('WESTERN',names(.)),
           grep('CENTRAL',names(.)), 
          grep('EASTERN',names(.))) %>%
   
   flextable::regulartable(.) %>%  
-  flextable::set_caption("Flathead sole survey biomass (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model. Small discrepancies (<1 t) in Total column may occur due to rounding.") %>%
+  flextable::set_caption("Biomass of Flathead sole in the GOA groundfish bottom trawl survey (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model. Small discrepancies (<1 t) in Total column may occur due to rounding.") %>%
   flextable::add_header_row(top = TRUE, values = c("", 'Total','Western','Central','Eastern'), colwidths = c(1,rep(2,4))) %>%
     flextable::set_header_labels(values = c('Year', rep(c('Bio (t)','CV'),4))) %>%
     flextable::colformat_double(j = seq(3,9,2), big.mark = ',', digits = 2)  %>%
   flextable::colformat_double(j = seq(2,9,2), big.mark = ',', digits = 0) %>%
   flextable::bold(i = 18,j = 1) %>%
-  flextable::vline(j = c(1,3), part = 'all')
+  flextable::vline(j = c(seq(1,9,2)), part = 'all')
 ```
 
 \pagebreak
