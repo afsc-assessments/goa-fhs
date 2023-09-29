@@ -1,33 +1,27 @@
 # Executive Summary
 
-The Gulf of Alaska flathead sole stock is typically assessed every four years and was last assessed in 2022 (Kapur et. al., 2022). In years without a full assessment, we present an executive summary to recommend harvest levels for the next two years. Please refer to the 2017 full stock assessment report for further information regarding the assessment model (Turnock et al., 2017, available online at https://www.afsc.noaa.gov/REFM/Docs/2017/GOAflathead.pdf). A full stock assessment was scheduled for 2021, but due to limited staff resources, the full stock assessment will be postponed. 
-Flathead sole is assessed using an age-structured model and Tier 3 determination. Thus, the single species projection model was run using parameter values from the accepted 2017 flathead sole assessment model (Turnock et al. 2017), together with updated catch information for 2017-2020, and estimated catches for 2021 and 2022-2023 to predict stock status for flathead sole in 2022 and 2023 and to make ABC recommendations for those years. Projections are conducted using numbers-at-age for flathead sole from age 3-21+ and historical recruitment of age 3 individuals is used to calculate OFLs and ABCs. 
+The Gulf of Alaska flathead sole stock is typically assessed every four years and was last assessed in 2022  (Kapur et. al., 2022). In years without a full assessment, we present an executive summary to recommend harvest levels for the next two years. Please refer to the 2022 full stock assessment report for further information regarding the assessment model (Kapur, M., and Monnohan, C., 2022, available online at https://apps-afsc.fisheries.noaa.gov/Plan_Team/2022/GOAflathead.pdf). 
 
+Flathead sole is assessed using an age-structured model and Tier 3 determination. Thus, the single species projection model was run using parameter values from the accepted 2022 flathead sole assessment model (Turnock et al. 2017), together with updated catch information for `r this_year-1`, and estimated catches for `r paste0(c((this_year-1),(this_year+2)),collapse = '-')` to predict stock status for flathead sole and to make ABC recommendations for those years. Projections are conducted using numbers-at-age for flathead sole from age 3-21+ and historical recruitment of age 3 individuals is used to calculate OFLs and ABCs. 
 
 ## Summary of Changes in Assessment Inputs
-Changes in input data: The updated information for this partial assessment includes replacing the estimated 2020 catch with the final catch value from the Alaska Regional Office (https://www.fisheries.noaa.gov/sites/default/files/akro/car110_goa2020.html) (1,911 t), and estimating the 2021-2023 catches. The 2021 projected catch was calculated as the current catch of 10/28/2021 added to the average 10/28/2021 – December 31 catches over the previous 5 years (totaling 673 t). The 2022 and 2023 projected catches were calculated as the average catch over the previous 5 years (2,251 t). Note that in the projection model, the estimated catches for the present and two future years are input in place of maxABC, which is appropriate given that recent catches are much less than the maximum ABC for this stock.
+
+Changes in input data: The updated information for this partial assessment includes replacing the estimated `r this_year-1` catch with the final catch value from the Alaska Regional Office (https://www.fisheries.noaa.gov/sites/default/files/akro/car110_goa2020.html) (`r prettyNum(round(as.numeric(catchvec[1,2]),0),big.mark = ',')` t), and estimating the `r this_year`-`r this_year+2`  catches. The `r this_year` projected catch was calculated as the current catch of `r pull_date` added to the average `r format(as.Date(pull_date), "%d %B")` – December 31 catches over the previous 5 years (totaling 673 t). The `r this_year`  and `r this_year+1`  projected catches were calculated as the average catch over the previous 5 years (`r prettyNum(c2,big.mark = ',')`t). Note that in the projection model, the estimated catches for the present and two future years are input in place of *maxABC*, which is appropriate given that recent catches are much less than the maximum ABC for this stock.
 
 
 ## Summary of Results
 
-The ABC for flathead sole is 40,175 t in 2022 and 40,046 t in 2023 and the OFL is 48,928 t in 2022 and 48,757 t in 2023. The new ABC recommendation and OFL values are similar to those developed in 2020 for 2022 (39,851 t and 48,534 t, respectively). The principal reference values are shown in the following table.
+The ABC for flathead sole is `r prettyNum(abc_24,big.mark = ',')`  t in `r this_year+1`  and `r prettyNum(abc_25,big.mark = ',')` t in `r this_year+2`  and the OFL is `r prettyNum(ofl_24,big.mark = ',')`  t in `r this_year+1`  and `r prettyNum(ofl_25,big.mark = ',')`  t in `r this_year+2`. The new ABC recommendation and OFL values are similar to those developed in 2022 for `r this_year+1`  (`r prettyNum(abc_24_22,big.mark = ',')` t and `r prettyNum(ofl_24_22,big.mark = ',')` t, respectively). The principal reference values are shown in the following table.
+
 
 ```{r, child= "01a-main_table.Rmd", eval = T}
 
 ```
-
-
-Text table of area apportionments (if any) for the recommended one- and two-year ahead ABCs and OFLs, with a brief description of the apportionment methodology.
 
 ```{r, child= "01b-apportionment.Rmd", eval = T}
 
 ```
 
 
-If so are so kind as to provide tables for the plan team, place them here
-
-```{r, child= "01c-plan_team.Rmd", eval = T}
-
-```
-
-
+## References
+Kapur, M. and Monnahan, C. 2022. Assessment of the Assessment of the Flathead Sole Stock in the Gulf of Alaska.  North Pacific Fishery Management Council, Anchorage, AK. Available from https://apps-afsc.fisheries.noaa.gov/Plan_Team/2022/GOAflathead.pdf
