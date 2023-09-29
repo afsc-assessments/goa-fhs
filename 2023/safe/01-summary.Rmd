@@ -21,7 +21,5 @@ The ABC for Flathead sole is `r prettyNum(abc_24,big.mark = ',')`  t in `r this_
 
 ```
 
-## References
-Kapur, M. and Monnahan, C. 2022. Assessment of the Assessment of the Flathead Sole Stock in the Gulf of Alaska.  North Pacific Fishery Management Council, Anchorage, AK. Available from https://apps-afsc.fisheries.noaa.gov/Plan_Team/2022/GOAflathead.pdf
 
 \newpage
