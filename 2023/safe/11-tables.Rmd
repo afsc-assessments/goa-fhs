@@ -4,15 +4,21 @@
 catches <- read.csv(here::here(this_year,'data','user_input','goa_fhs_catch_1978_1990.csv'), sep='\t') %>%
   dplyr::mutate(WGOA = NA, CGOA = NA, EGOA = NA) %>%
   dplyr::select(year, total = catch, WGOA, CGOA, EGOA) %>% 
-  dplyr::bind_rows(., read.csv(here::here(this_year,'data','output','catches_by_area.csv')))
+  dplyr::bind_rows(., read.csv(here::here(this_year,'data','output','catches_by_area.csv'))) %>%
+  filter( year >= 2000)
+
+catches$EGOA<-round(catches$EGOA, 0)
+catches$EGOA[catches$EGOA==0] <- "<1"
 
 catches$year <- as.character(catches$year)
 flextable::regulartable(catches) %>%  
-  flextable::set_caption(paste0("Total catch (t) of GOA flathead sole by area. Catch for ", this_year," is current up to ", pull_date,". Columns left blank indicate confidential catch information by area. Bolded years are not used in, or differ from, the base model. Note that the value for ",this_year," is the observed catch and the extrapolated catches used for this year in the projection model are higher."))%>% 
+  flextable::set_caption(paste0("Total catch (t) of GOA flathead sole by area since 2000. Catch for ", this_year," is current up to ", pull_date,". Columns left blank indicate confidential catch information by area. Bolded years are not used in, or differ from, the base model. Note that the value for ",this_year," is the observed catch and the extrapolated catches used for this year in the projection model are higher. Values have been rounded to the nearest whole number."))%>% 
   flextable::set_header_labels(year = 'Year', total = 'Total Catch (t)', WGOA = 'Western Gulf', CGOA= 'Central Gulf',EGOA = 'Eastern Gulf') %>%
-  flextable::colformat_double(j = 5, big.mark = ',', digits = 2)  %>%
   flextable::colformat_double(j = 2:4, big.mark = ',', digits = 0) %>%
-  flextable::bold(i = 45:46,j = 1)
+  flextable::bold(i = 23:24,j = 1) %>%
+  flextable::font(fontname = "Times New Roman", part = "all") %>% 
+  flextable::fontsize(size = 10, part = "all") %>%
+  flextable::autofit()
 ```
 
 \pagebreak
@@ -30,23 +36,25 @@ output$biomass_by_strata %>%
         read.csv(here::here(this_year,'data','raw','goa_total_bts_biomass_data.csv')) %>% 
           dplyr::group_by(year) %>% 
           dplyr::summarise("TOTAL GOA_obs" = total_biomass,  
-                    "TOTAL GOA_obs_CV"=sqrt(biomass_var )/total_biomass ),
+                           "TOTAL GOA_obs_CV"=sqrt(biomass_var )/total_biomass ),
         by = 'year') %>%
   dplyr::mutate(year = as.character(year)) %>%
   dplyr::select(year, 
-         grep('TOTAL',names(.)), 
-         grep('WESTERN',names(.)),
-          grep('CENTRAL',names(.)), 
-         grep('EASTERN',names(.))) %>%
+                grep('TOTAL',names(.)), 
+                grep('WESTERN',names(.)),
+                grep('CENTRAL',names(.)), 
+                grep('EASTERN',names(.))) %>%
   
   flextable::regulartable(.) %>%  
-  flextable::set_caption("Biomass of Flathead sole in the GOA groundfish bottom trawl survey (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model. Small discrepancies (<1 t) in Total column may occur due to rounding.") %>%
+  flextable::set_caption("Biomass of flathead sole in the GOA groundfish bottom trawl survey (Bio, t) and coefficient of variation (CV) by year and regulatory area. Bolded years are not included in base model. Small discrepancies (<1 t) in Total column may occur due to rounding.") %>%
   flextable::add_header_row(top = TRUE, values = c("", 'Total','Western','Central','Eastern'), colwidths = c(1,rep(2,4))) %>%
-    flextable::set_header_labels(values = c('Year', rep(c('Bio (t)','CV'),4))) %>%
-    flextable::colformat_double(j = seq(3,9,2), big.mark = ',', digits = 2)  %>%
+  flextable::set_header_labels(values = c('Year', rep(c('Bio (t)','CV'),4))) %>%
+  flextable::colformat_double(j = seq(3,9,2), big.mark = ',', digits = 2)  %>%
   flextable::colformat_double(j = seq(2,9,2), big.mark = ',', digits = 0) %>%
   flextable::bold(i = 18,j = 1) %>%
-  flextable::vline(j = c(seq(1,9,2)), part = 'all')
+  flextable::vline(j = c(seq(1,9,2)), part = 'all') %>%
+  flextable::font(fontname = "Times New Roman", part = "all") %>% 
+  flextable::fontsize(size = 11, part = "all")
 ```
 
 \pagebreak

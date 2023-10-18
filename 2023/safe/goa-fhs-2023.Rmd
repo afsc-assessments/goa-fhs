@@ -1,7 +1,7 @@
 ---
 params: 
   chapter: 10
-  species: "Flathead sole"
+  species: "flathead sole"
   species_complex: "no"
   area: "Gulf of Alaska"
   tier: 3
@@ -57,6 +57,7 @@ title: `r title`
 ```{r load, warning=F, message=F}
 # load
 library(safe)
+library(dplyr)
 # globals
 species = 'Flathead sole'
 this_year = 2023

@@ -1,21 +1,35 @@
 
 ## Area Allocation of Harvest
 
-Area apportionment for ABC of `r species` is currently based on the proportion of survey biomass projected for each area using the  survey averaging random effects model REMA (`v0.1.0`) developed by the survey averaging working group (see https://github.com/afsc-assessments/rema for more information).  A bridging exercise performed in 2022 confirmed that this package, written in Template Model Builder, produces the same results as the ADMB-RE package used for this stock in previous years when fitting the three geographic strata simultaneously (Kapur & Monnohan, 2022). 
+Area apportionment for ABC of `r species` is currently based on the proportion of survey biomass projected for each area using the survey averaging random effects model REMA (`v0.1.0`) developed by the survey averaging working group (see https://github.com/afsc-assessments/rema for more information).  Apportionment to the Eastern Gulf is partitioned among the West Yakutat and East Yakutat-Southeast Outside region using the most recent biomass ratio among those areas obtained from the bottom trawl survey.
 
-The following table shows the recommended ABC apportionment for `r this_year+1` and `r this_year+2`. The author notes that in previous projections of the `r species` model (including those done in 2021), the time series of recruitment and spawning biomass used for projections began in 1984 (the start of the main period for recruitment deviations), not 1977 as requested by a 1999 memo by R. Marasco. Inputs to the projection model continue to use the time series of recruitment and SSB beginning in 1984, which corresponds to the onset of most survey data. Projections assume recruitment at age 3.
+The following table shows the recommended ABC apportionment for `r this_year+1` and `r this_year+2`. The author notes that in previous projections of the `r species` model (including those done in 2021), the time series of recruitment and spawning biomass used for projections began in 1984 (the start of the main period for recruitment deviations), not 1977 is typically used.  The Alaska Fisheries Science Center has recognized that an environmental “regime shift” affecting the long-term productive capacity of the groundfish stocks in the BSAI occurred during the period 1976-1977, thus most recruitment time series generally start in 1977 except in special cases. Inputs to the projection model continue to use the time series of recruitment and SSB beginning in 1984, which corresponds to the onset of most survey data. Projections assume recruitment at age 3.
 
 
 ```{r}
 appo <- read.csv(here::here(this_year,'apportionment','2023-09-28-AreaApportionment.csv'))
 appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
+appo[1,8] <- 100
 appo$Year <- as.character(appo$Year)
 flextable::flextable(appo[,-1]) %>%
+  flextable::add_header_row(top = T,  
+                        values = c(rep('',4),'Eastern',''),
+                        colwidths = c(rep(1,4),2,1)) %>%
+  flextable::align(align = 'center',part = 'header') %>%
+  
   flextable::hline_top(part='all') %>% 
   flextable::hline_bottom() %>%
+  flextable::hline(i = 1, part = 'body') %>%
+  flextable::merge_at(i = 1, j = c(1,2)) %>%
+  flextable::align(i = 1, j = 1, align = 'center') %>%
+  flextable::vline(i = 1, j = c(3,4,6), part = 'body')%>%
+  flextable::vline(i = 2:3, j = c(2,3,4,6), part = 'body')%>%
   flextable::colformat_num(big.mark = ',') %>%
   flextable::colformat_double(i = c(1), j = c(3:7), digits = 2) %>%
   flextable::colformat_double(i = c(2:3), j = c(3:7), digits = 0) %>%
-  # flextable::set_header_labels(j = c(1,5), values = c('','West Yakutat')) %>%
-  flextable::autofit()
+  flextable::set_header_labels(values = c('Quantity','Year','Western','Central','W. Yakutat','E. Yakutat/SEO','Total')) %>%
+  flextable::autofit() %>%  
+
+  flextable::font(fontname = "Times New Roman", part = "all") %>% 
+  flextable::fontsize(size = 11, part = "all")
 ```
