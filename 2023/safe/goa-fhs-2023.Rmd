@@ -1,6 +1,6 @@
 ---
 params: 
-  chapter: 10
+  chapter: 8
   species: "flathead sole"
   species_complex: "no"
   area: "Gulf of Alaska"
