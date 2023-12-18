@@ -49,12 +49,15 @@ modlabs = c('Model 17.0 (Accepted 2017)','Mod 17.1a (Proposed 2022)')
 m2017 <- SS_output(here::here('model_runs','2017-mod'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 m2017_dat <- SS_readdat_3.24(file = here::here('model_runs','2017-mod','GOA_Flathead_17_dat.dat'))
 base_dat <-  SS_readdat(file = here::here('model_runs','m0_8-newMI-biasAdj','data.ss'))
-base_model <- SS_output(here('model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
+base_model <- SS_output(here('2022','model_runs','m0_8-newMI-biasAdj'), covar=TRUE, verbose=FALSE, printstats=FALSE) 
 # base_thru17 <- SS_output(here('model_runs','m0_8-thru17'), covar=TRUE, verbose=FALSE, printstats=FALSE)
 modcomp <- SSsummarize(list(m2017,base_model))
 
 SSplotComparisons(modcomp,   legendlabels = modlabs, col = c(m2017Col,baseCol),
                   png = T, plotdir = here('model_runs','m0_8-newMI-biasAdj'))
+
+write.csv(base_model$recruit, file = here('2022','tables','recruitment_ts.csv'), row.names = FALSE)
+
 ```
 
 ## base vs recdevstart 1983
