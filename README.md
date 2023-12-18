@@ -4,7 +4,7 @@ Gulf of Alaska flathead sole stock assessments (full and harvest projections). M
 
 2023: Harvest Projection
 
-2022: Full Assessment (M Kapur)
+2022: Full Assessment (M Kapur). Note that the linked appendices in the SAFE associated with this assessment are still live, but instead of "mkapur-noaa" use "afsc-assessments" in the url, e.g. https://afsc-assessments.github.io/goa-fhs/AgeingError_Writeup_Static.html
 
 2021: Partial (since renamed "harvest projection")
 
