@@ -3,9 +3,12 @@
 Gulf of Alaska flathead sole stock assessments (full and harvest projections). Maia Sosa Kapur [maia.kapur\@noaa.gov](mailto:maia.kapur@noaa.gov){.email}
 
 2023: Harvest Projection
-2022: Full Assessment
-2021: Harvest Projection
-2020: Harvest Projection (C Monnahan)
+
+2022: Full Assessment (M Kapur). Note that the linked appendices in the SAFE associated with this assessment are still live, but instead of "mkapur-noaa" use "afsc-assessments" in the url, e.g. https://afsc-assessments.github.io/goa-fhs/AgeingError_Writeup_Static.html
+
+2021: Partial (since renamed "harvest projection")
+
+2020: Partial (since renamed "harvest projection") (C Monnahan)
 
 
 Code here builds upon work by C. McGilliard and C. Monnohan. Document dependency on [safe](https://github.com/BenWilliams-NOAA/safe) and apportionments via [rema](https://github.com/afsc-assessments/rema) both v0.1.0.
