@@ -1,6 +1,6 @@
-## M Sosa Kapur building upon C McGilliard and C Monnahan
+## M Sosa Kapur 
 # maia.kapur@noaa.gov
-# Fall 2023
+# Summer 2024
 
 ## NOTES ##
 ## B Williams Indicated that GOA FHS is now in the gfdatapull package.
@@ -19,34 +19,15 @@ require(reshape2)
 require(afscassess)
 require(afscdata)
 
-year <- 2023
+year <- 2024
 # afscdata::setup_folders(year) ## run one time
 afscdata::goa_fhs(year,off_yr = TRUE)
-
-# newsbssdir <- "C:/Users/maia.kapur/Work/assessments/newsbss/"
-
-# username_AFSC <- showPrompt(title="Username", message="Enter your AFSC username:", default="")
-# password_AFSC <- askForPassword(prompt="Enter your AFSC password:")
-# AFSC <- odbcConnect("AFSC",username_AFSC,password_AFSC,  believeNRows = FALSE)
-# 
-# username_AKFIN <- showPrompt(title="Username", message="Enter your AKFIN username:", default="")
-# password_AKFIN <- askForPassword(prompt="Enter your AKFIN password:")
-# AKFIN <- odbcConnect("AKFIN",username_AKFIN,password_AKFIN,  believeNRows = FALSE)
-# 
-# species <- 10130 #throughout make sure the SpeciesCode = 10130 for the survey, 103 for observer data
-# sp_area <- "'GOA'"
-# fyear <- 2022
-
-## load last model, converted version
-# mod17 <-  SS_output(here('model_runs','2017-mod'))
-
-# mod17 <-  SS_output(here('model_runs','01_bridging','cole','m02_2017_3.30.17'))
-# SSplotData(mod17) ## we need one fishery of catches, one survey, 2x Lcomps, and 1x CAALS
-
+ 
 # Catches ---- 
 ## manually download any needed years of weekly catches from 
-#* dwnld catch ----
 ## https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish
+
+#* dwnld catch ----
 
 source(paste0(newsbssdir,"functions/get_catch.R"))
 fsh_sp_area <- "'CG','SE','WG','WY','EY'"
