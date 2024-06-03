@@ -14,14 +14,7 @@
 *shared
 .Rhistory
 *dep*
-Rproj.user*
+*.Rproj.user*
 .RData
-.Rproj.user/D4E32EAC/ctx/ctx-60846/environment
 .RData
-*Rproj*
 figs/Capture.PNG
-.Rproj.user
-.Rproj.user/shared/notebooks/paths
-.Rproj.user/D4E32EAC/pcs/windowlayoutstate.pper
-.Rproj.user/D4E32EAC/pcs/source-pane.pper
-.Rproj.user/D4E32EAC/pcs/files-pane.pper
