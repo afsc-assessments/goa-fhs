@@ -27,18 +27,6 @@ afscdata::goa_fhs(year,off_yr = TRUE)
 ## manually download any needed years of weekly catches from 
 ## https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish
 
-#* dwnld catch ----
-
-source(paste0(newsbssdir,"functions/get_catch.R"))
-fsh_sp_area <- "'CG','SE','WG','WY','EY'"
-message("Querying AKFIN to get catch..")
-catch0 <- GET_CATCH(fsh_sp_area=fsh_sp_area,
-                    fsh_sp_label="'FSOL'",
-                    final_year=2023,
-                    ADD_OLD_FILE=FALSE)$CATCH
-catch0 <- arrange(catch0, YEAR, ZONE, GEAR1)
-write.csv(catch0, file=here(year,'data','raw',paste0(Sys.Date(),'-catch-raw.csv') ), row.names=FALSE)
-
 #* non-commercial catch (for table only) ----
 ## downloaded fom AKFIN, manually deleted rows and saved as CSV
 
