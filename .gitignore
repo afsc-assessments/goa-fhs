@@ -14,7 +14,7 @@
 *shared
 .Rhistory
 *dep*
-*.Rproj.user*
+*proj.user*
 .RData
 .RData
 figs/Capture.PNG
