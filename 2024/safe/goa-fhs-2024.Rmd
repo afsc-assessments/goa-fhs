@@ -74,13 +74,13 @@ b40_25 <- execsumm[4,1] ## biomass at abc
 b35_25 <-  execsumm[5,1]  # aka MSST or biomass at ofl
 ssb_25 <- execsumm[2,1] # 2025 spawning biomass
 tb_25 <- execsumm[1,1] # 2025 total biomass
-abc_23 <- 68203; abc_23p <- prettyNum(abc_23,big.mark=',') ## 2023 model's ABC for 2025 FROM FEDERAL REGISTER 
+abc_23 <- 41258; abc_23p <- prettyNum(abc_23,big.mark=',') ## most recent model's ABC for 2025 FROM FEDERAL REGISTER 
 abc_25 <- round(execsumm[10,1]) ## this year's ABC for 2025 
 
 catchvec<- read.csv(here::here(this_year,'data', 'output','2024-06-04-catch_for_spm.csv'))
-c1 <- round(as.numeric(catchvec[2,2]),0) # estimated catch in current year
-c2 <- round(as.numeric(catchvec[3,2]),0)# proj catch year + 1
-c3 <- round(as.numeric(catchvec[4,2]),0) # proj catch year + 2
+c1 <- round(as.numeric(catchvec[3,2]),0) # estimated catch in current year
+c2 <- round(as.numeric(catchvec[4,2]),0)# proj catch year + 1
+c3 <- round(as.numeric(catchvec[5,2]),0) # proj catch year + 2
 ```
 
 
