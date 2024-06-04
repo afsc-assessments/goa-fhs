@@ -55,7 +55,8 @@ catch <- catch0 %>%
          TTONS = sum(WGULF, CG, EGULF), .by = YEAR) %>%
   select(YEAR, TTONS, WGULF, CG, EGULF) 
 
-write.csv(catch, file=here(year, 'data','output',paste0(Sys.Date(),'-catches_observed.csv') ), row.names=FALSE)
+write.csv(catch, file=here(year, 'data','output',
+                           paste0(Sys.Date(),'-catch_observed.csv') ), row.names=FALSE)
 
 files <- list.files(here::here(year,'data','raw','weekly_catches'), full.names=TRUE)
 test <- lapply(1:length(files), function(i){
@@ -90,7 +91,7 @@ catch_projection <- cbind(YEAR = this_year+c(-2:2),
                                          round(catch$TTONS[catch$YEAR == this_year] + catch_to_add,0),
                                          rep(mean_catch,2)))
 
-write.csv(catch, file=here(year,'data','output',
+write.csv(catch_projection, file=here(year,'data','output',
                            paste0(Sys.Date(),'-catch_for_spm.csv') ), row.names=FALSE)
 
 
