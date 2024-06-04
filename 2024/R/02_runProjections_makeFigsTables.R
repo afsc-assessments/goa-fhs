@@ -1,27 +1,20 @@
-## Code to produce results 
+## Code to run SPM projections
+## and REMA apportionment
 require(dplyr)
 require(tidyr)
 require(ggplot2)
 require(here)
 require(tidyr)
+require(rema)
 
 
 ## Execute spm module ----
 ## just ensure the values at the bottom of spm.dat match the catches you want
 ## no change to other inputs
-
-
-## once spp_catch is set up you can run the projection module
 setwd(here(year,'projection_spm')) 
 shell('spm')
 
-# setwd(here(year,'projection')) 
-# shell('main')
-## TABLES ----
-
-## SAFE table ---- 
-#*  projection model results ----
-
+#* render SAFE table ---- 
 rec_table1 <-
   read.table(here::here(year,'projection_spm','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
@@ -46,13 +39,99 @@ rec_table <- bind_rows(rec_table1, rec_table2)
 ## biomass reference points. Here I'm manually dividing them by two.
 rec_table[3:5,2:3]<-rec_table[3:5,2:3]/2
 
-
 ## change order to match SAFE format & magnitudes
 rec_table <-rec_table[c(12,6,3,4,5,2,1,1,10,9,9),] 
 
 # rec_table[c(1:5,9:11),2:3] <-formatC(rec_table[c(1:5,9:11),2:3] , format="d", big.mark=",") 
 write.csv(rec_table, 
           file = here::here(year,'projection_spm',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
+
+## REMA apportionment ----
+idx = 1; biomass_dat <- p <- list()
+## admb/tmb bridge: fit each model individually 
+for(i in c('Eastern','Western','Central')){
+  ## 1 load data: could use `rwout.rep` from the ADMB version of this model.
+  
+  tempdir <- here::here('re',i)
+  admb_re <- read_admb_re(filename = paste0(tempdir,'/rwout.rep'),
+                          # optional label for the single biomass survey stratum
+                          biomass_strata_names = i,
+                          model_name = paste0("ADMB: BSAI FHS ",i))
+  ## save the formatted biomass_dat for each region
+  biomass_dat[[idx]] <- admb_re$biomass_dat 
+  # 
+  input <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS ",i), 
+                              admb_re  = admb_re)
+  ## fit REMA
+  m <- fit_rema(input) ##save each M separately
+  compare <- compare_rema_models(rema_models = list(m),
+                                 admb_re = admb_re,
+                                 biomass_ylab = 'Biomass (t)')
+  p[[idx]] <- compare$plots$biomass_by_strata+ggsidekick::theme_sleek()+theme(legend.position = 'bottom') +
+    scale_y_continuous(limits = c(0,250000))
+  idx = idx+1
+}
+p## shows that bridges are identical
+require(patchwork)
+ggsave(p[[2]] |p[[3]]  |  p[[1]]  , file = here::here('re','admb_re_bridge.png'), width = 12, height = 10, unit = 'in', dpi = 520)
+## now fit them all at once (defaults to univariate structure, no info leakage among them)
+input2 <- prepare_rema_input(model_name = paste0("TMB: BSAI FHS MULTIVAR"),
+                             biomass_dat  = bind_rows(biomass_dat))
+m2 <- fit_rema(input2) ##save each M separately
+output <- tidy_rema(rema_model = m2)
+# save(output, file = here('re',paste0(Sys.Date(),'-rema_output.rdata')))
+# kableExtra::kable(output$parameter_estimates) 
+# plots <- plot_rema(tidy_rema = output, biomass_ylab = 'Biomass (t)') # optional y-axis label
+# plots$biomass_by_strata
+# ggsave(plots$biomass_by_strata, file = here::here('re','rema_outs.png'), width = 12, height = 10, unit = 'in', dpi = 520)
+
+# compare <- compare_rema_models(rema_models = list(m),
+#                                admb_re = admb_re,
+#                                biomass_ylab = 'Biomass (t)')
+# compare$plots$biomass_by_strata
+## final apportionment qtties; still need to include Eastern downscaling and ABCs
+# kableExtra::kable(tail(output$proportion_biomass_by_strata, 3)) 
+
+
+load("~/assessments/2022/goa-fhs-2022/RE/2022-10-03-rema_output.rdata") ## output
+
+egfrac <- read.csv(here::here('data','survey','2021-10-01_Biomass Fractions in Eastern GOA.csv'))
+props <- output$proportion_biomass_by_strata %>% 
+  filter(year == 2021) %>% 
+  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+  select(Western, Central, WestYakutat,Southeast)
+
+sum(props)==1
+
+
+
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2]) 
+abc24 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+  rbind( round(props*100,2) ,.) %>%
+  data.frame() %>%
+  mutate(Total = c("",abc23,abc24),
+         Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+         Quantity = c("Area Apportionment %", 
+                      "ABC (t)",
+                      "ABC (t)")) %>% select(Quantity, Year, everything())
+
+## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
+
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+
+
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+
+
 
 
 ## Table 1 total Catch by area ----
