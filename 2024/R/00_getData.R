@@ -20,105 +20,15 @@ require(afscassess)
 require(afscdata)
 
 year <- 2024
+## load previous full assessment
+mod <- r4ss::SS_output(here::here('2022','model_runs','m0_8-newMI-biasAdj'))
 # afscdata::setup_folders(year) ## run one time
-afscdata::goa_fhs(year,off_yr = TRUE)
- 
-# Catches ---- 
+# afscdata::goa_fhs(year,off_yr = TRUE)
 ## manually download any needed years of weekly catches from 
 ## https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish
 
-#* non-commercial catch (for table only) ----
-## downloaded fom AKFIN, manually deleted rows and saved as CSV
 
-test <- paste0("SELECT GOA.BIOMASS_TOTAL.YEAR as YEAR,\n ",
-               "GOA.BIOMASS_TOTAL.TOTAL_BIOMASS as BIOM,\n ",
-               "GOA.BIOMASS_TOTAL.TOTAL_POP as POP,\n ",
-               "GOA.BIOMASS_TOTAL.BIOMASS_VAR as BIOMVAR,\n ",
-               "GOA.BIOMASS_TOTAL.POP_VAR as POPVAR,\n ",
-               "GOA.BIOMASS_TOTAL.HAUL_COUNT as NUMHAULS,\n ",
-               "GOA.BIOMASS_TOTAL.CATCH_COUNT as NUMCAUGHT\n ",
-               "FROM GOA.BIOMASS_TOTAL\n ",
-               "WHERE GOA.BIOMASS_TOTAL.SPECIES_CODE in (",species,")\n ",
-               "ORDER BY GOA.BIOMASS_TOTAL.YEAR")
-# index0 <- sqlQuery(AFSC, test)
-# if(!is.data.frame(index)) stop("Failed to query GOA survey data")
-# write.csv(index0, here('data','survey',paste0(Sys.Date(),'-index_raw.csv') ),row.names=FALSE)
-
-
-#* prohibited catch ----
-test <- paste0("SELECT * FROM COUNCIL.COMPREHENSIVE_PSC WHERE TRIP_TARGET_CODE ='L' AND FMP_AREA = 'GOA' AND YEAR BETWEEN 2015 AND 2022")
- 
-
- 
-index0 <- sqlQuery(AKFIN, test);if(!is.data.frame(index)) stop("Failed to query GOA survey data")
-index0 %>% select(YEAR, SPECIES_GROUP_NAME,PSCNQ_ESTIMATE,HALIBUT_MORTALITY_TONS ) %>%
-  group_by(YEAR,SPECIES_GROUP_NAME) %>%
-  summarise("Halibut Mortality (t)" = round(sum(HALIBUT_MORTALITY_TONS, na.rm = T),3),
-            "PSCNQ Estimate (numbers)" = round(sum(PSCNQ_ESTIMATE, na.rm = T),3)) %>%
-  filter(YEAR > 2017) %>%
-  pivot_wider(id_cols = SPECIES_GROUP_NAME, names_from = YEAR,
-              values_from = c("Halibut Mortality (t)" , "PSCNQ Estimate (numbers)")) %>%
-write.csv(., here('tables','prohibitedSpecies.csv') ,row.names=FALSE)
-
-#* nontarget catch ----
- 
-test <- paste0("WITH FHS AS
-(SELECT YEAR, NONTARGET_GROUP_NAME SPECIES, ROUND(SUM(NONTARGET_ESTIMATE_WEIGHT),2) FHS_WT
-  FROM COUNCIL.COMPREHENSIVE_NONTARGET
-  WHERE TRIP_TARGET_CODE ='L'
-  AND FMP_AREA = 'GOA'
-  AND YEAR BETWEEN 2003 AND 2022
-  GROUP BY YEAR, NONTARGET_GROUP_NAME
-  ORDER BY YEAR, NONTARGET_GROUP_NAME),
-GF AS
-(SELECT YEAR, NONTARGET_GROUP_NAME SPECIES, ROUND(SUM(NONTARGET_ESTIMATE_WEIGHT),2) GF_WT
-  FROM COUNCIL.COMPREHENSIVE_NONTARGET
-  WHERE FMP_AREA = 'GOA'
-  AND YEAR BETWEEN 2003 AND 2022
-  GROUP BY YEAR, NONTARGET_GROUP_NAME
-  ORDER BY YEAR, NONTARGET_GROUP_NAME)
-SELECT GF.YEAR, GF.SPECIES, GF.YEAR, FHS.FHS_WT, GF.GF_WT, ROUND(FHS.FHS_WT/GF.GF_WT , 2) PROP
-FROM FHS
-FULL JOIN GF ON FHS.SPECIES = GF.SPECIES AND FHS.YEAR=GF.YEAR
-ORDER BY GF.YEAR, GF.SPECIES")
-index0 <- sqlQuery(AKFIN, test);if(!is.data.frame(index0)) stop("Failed to query GOA survey data")
-write.csv(index0, here('tables','nonTargetcatch.csv') ,row.names=FALSE)
-## make the color-coded "table" as a tileplot
-index <- index0 %>% group_by(SPECIES)%>% filter(sum(!is.na(FHS_WT))>0) %>% ungroup() 
-index$SPECIES <- factor(index$SPECIES, levels = rev(sort(unique(index$SPECIES))))
-ggplot(data = index , 
-       aes(y = SPECIES, x = YEAR, fill = PROP)) +
-  geom_tile() +
-  scale_y_discrete(sort(index$SPECIES))+
-  scale_x_continuous(position = "top", limits = c(2003,2019),
-                     breaks = seq(2003,2019), labels = seq(2003,2019)) +
-  coord_equal() +
-  scale_fill_viridis_c(na.value = 'white') +
-  geom_text(check_overlap = T, aes(label = PROP), col = 'white') +
-  theme(legend.position = 'none', axis.title.y = element_blank(), axis.title.x = element_blank())
-  # scale_fill_manual(values = met.brewer(name = 'Degas', type = 'continuous'))
-ggsave(last_plot(),
-       file = here('tables','nontargetcatch.png'),
-       width = 7, height = 10, unit = 'in', dpi = 520)
-## note that even tho a nontrivial % is discarded, the previous model treated them all as landings
-## (didn't model discards separately, and included in total summator)
-catchA <- catch0 %>%
-  select(YEAR, ZONE, TONS) %>%
-  group_by(YEAR, ZONE) %>%
-  summarise(STONS = sum(TONS)) %>%
-  tidyr::pivot_wider(., id_cols = YEAR, names_from = ZONE, values_from = STONS) %>%
-  mutate(EGULF = sum(WY,EY,SE,na.rm = T), 
-         WGULF = WG,
-         TTONS = sum(WGULF, CG, EGULF)) %>%
-  select(YEAR, TTONS, WGULF, CG, EGULF) 
-
-write.csv(catchA, file=here('data','catch',paste0(Sys.Date(),'-catch-byArea.csv') ), row.names=FALSE)
-
-#* spot check catch ----
-## even though the document mentions Trawl gear, we are using the sum of all gears.
-subset(mod17$catch, Yr == 2016) %>% select(Obs);with(subset( catch0, YEAR == 2016), sum(TONS))
-subset(mod17$catch, Yr == 2011) %>% select(Obs);with(subset( catch0, YEAR == 2011), sum(TONS))
-subset(mod17$catch, Yr == 2000) %>% select(Obs);with(subset( catch0, YEAR == 2000), sum(TONS))
+# Catches ---- 
 
 ## For projection model need to predict total catches in this
 ## year. Use weekly catches from from previous years to get
@@ -126,26 +36,26 @@ subset(mod17$catch, Yr == 2000) %>% select(Obs);with(subset( catch0, YEAR == 200
 
 
 #* estimate & format catch for SS ----
-## data from 1978-1990 seem to be from a different source. paste from assessment.
-this_year = lubridate::year(Sys.Date())
-last_yr = this_year-1
+## data from 1978-1990 seem to be from a different source. 
+## paste from assessment.
+catch0 <- read.csv(here::here(year,'data','raw','fsh_catch_data.csv')) 
+names(catch0) <- toupper(names(catch0))
+this_year <- lubridate::year(Sys.Date())
+last_yr <- this_year-1
 catch <- catch0 %>% 
-  group_by(YEAR) %>% 
-  summarise(catch = sum(TONS)) %>%
-  merge(., 
-        data.frame(cbind(YEAR = mod17$catch$Yr,
-                         TONS = mod17$catch$Obs)) %>%
-          filter(YEAR < 1991),
-        by = 'YEAR', all = T) %>%
-  mutate(catch_mt = ifelse(is.na(catch), round(TONS,2), round(catch,2)),
-         catch_se = 0.01,
-         seas = 1,
-         fleet = 1) %>%
-  select( -catch   , -TONS) %>%
-  select(yr = YEAR, seas , fleet , catch_mt , catch_se )
-
-
-files <- list.files(here::here('data','catch','weekly_catches'), full.names=TRUE)
+  select(YEAR, FMP_SUBAREA, WEIGHT_POSTED) %>%
+  summarise(STONS = sum(WEIGHT_POSTED),.by = c(YEAR,FMP_SUBAREA)) %>%
+  tidyr::pivot_wider(., id_cols = YEAR, 
+                     names_from = FMP_SUBAREA,
+                     values_from = STONS) %>%
+  ## calculate totals - reformatting happens in .Rmd
+  summarise(EGULF = sum(WY,EY,SE,na.rm = TRUE), 
+         WGULF = WG,
+         CG,
+         TTONS = sum(WGULF, CG, EGULF), .by = YEAR) %>%
+  select(YEAR, TTONS, WGULF, CG, EGULF) 
+  
+files <- list.files(here::here('data','raw','weekly_catches'), full.names=TRUE)
 test <- lapply(1:length(files), function(i){
   skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
   data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
