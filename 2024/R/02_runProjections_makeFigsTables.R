@@ -7,7 +7,7 @@ require(tidyr)
 
 
 ## Execute spm module ----
-## just ensure the values at the bottom of sppcatch match the catches you want
+## just ensure the values at the bottom of spm.dat match the catches you want
 ## no change to other inputs
 
 
@@ -15,40 +15,44 @@ require(tidyr)
 setwd(here(year,'projection_spm')) 
 shell('spm')
 
-
+# setwd(here(year,'projection')) 
+# shell('main')
 ## TABLES ----
 
-## SAFE table ----
-# see Cole's report.R 
+## SAFE table ---- 
 #*  projection model results ----
 
-## ## Use R to process output into easy file to create the harvest
-## ## table in report.xlsx.
-
-## note that this uses alternative 2, which should be fraction of FABC
-## but because these are higher than alt 1 i'm inclined to think this is actually
-## the setup where catches=ABC
-
 rec_table1 <-
-  read.table('percentdb.out') %>%
+  read.table(here::here(year,'projection_spm','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
   transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
             value=as.numeric(V5)) %>%
-  filter(year %in% (this_year+1:2) & scenario==1 &
+  filter(year %in% c(2025,2026) & scenario==1 &
            metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
   arrange(year, metric) %>%
-  pivot_wider(names_from=year, values_from=value)
+  tidyr::pivot_wider(names_from=year, values_from=value)
+rec_table1[3:6,3:4] <- rec_table1[3:6,3:4]
+
 rec_table2 <-
-  read.table('alt2_proj.out', header=TRUE) %>%
-  filter(Year %in% (this_year+1:2)) %>%
-  pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
-  pivot_wider(names_from=Year, values_from=value)
+  read.table(here::here(year,'projection_spm','alt_proj.out'), header=TRUE) %>%
+  filter(Year %in% c(2025,2026) & Alt==1) %>%
+  tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+  tidyr::pivot_wider(names_from=Year, values_from=value)
 rec_table1$scenario <- rec_table2$Stock <- NULL
+rec_table2[,2:3] <- rec_table2[,2:3]
 rec_table <- bind_rows(rec_table1, rec_table2)
+
+## There's an error in spm.tpl where the sex ratio calcs didn't happen for the 
+## biomass reference points. Here I'm manually dividing them by two.
+rec_table[3:5,2:3]<-rec_table[3:5,2:3]/2
+
+
 ## change order to match SAFE format & magnitudes
-rec_table <- rec_table[c(11,6,3,5,4,2,1,1,9,8,8),] 
-rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
-write.csv(rec_table, 'rec_table.csv', row.names=FALSE)
+rec_table <-rec_table[c(12,6,3,4,5,2,1,1,10,9,9),] 
+
+# rec_table[c(1:5,9:11),2:3] <-formatC(rec_table[c(1:5,9:11),2:3] , format="d", big.mark=",") 
+write.csv(rec_table, 
+          file = here::here(year,'projection_spm',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
 
 
 ## Table 1 total Catch by area ----
