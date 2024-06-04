@@ -4,10 +4,16 @@ require(tidyr)
 require(ggplot2)
 require(here)
 require(tidyr)
-## Execute proj module ----
+
+
+## Execute spm module ----
+## just ensure the values at the bottom of sppcatch match the catches you want
+## no change to other inputs
+
+
 ## once spp_catch is set up you can run the projection module
-setwd(here('projection','Projections')) 
-shell('main')
+setwd(here(year,'projection_spm')) 
+shell('spm')
 
 
 ## TABLES ----
