@@ -84,8 +84,9 @@ mean_catch <- catch %>%
   summarise(mean(TTONS)) %>%
   as.numeric() %>%
   round()
-catch_projection <- cbind(YEAR = this_year+c(0:2),
-                          CATCH_MT =   c(round(catch$TTONS[catch$YEAR == this_year] + catch_to_add,0),
+catch_projection <- cbind(YEAR = this_year+c(-1:2),
+                          CATCH_MT =   round(c(catch$TTONS[catch$YEAR == this_year-1]),
+                            round(catch$TTONS[catch$YEAR == this_year] + catch_to_add,0),
                                          rep(mean_catch,2))
                           )
 
