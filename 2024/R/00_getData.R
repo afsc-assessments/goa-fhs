@@ -8,13 +8,15 @@
 ## with 2022 values at next full assessment.
 
 # Packages and RODBC setup ----
-require(RODBC)
+# require(RODBC)
 require(dplyr)
 require(tidyverse)
 require(here)
 require(ggplot2); require(ggsidekick)
-# require(r4ss); require(lubridate)
+require(r4ss);
+require(lubridate)
 require(reshape2)
+require(data.table)
 # require(rstudioapi) ## enables masking of RODBC name, password
 require(afscassess)
 require(afscdata)
@@ -95,6 +97,70 @@ write.csv(catch_projection, file=here(year,'data','output',
                            paste0(Sys.Date(),'-catch_for_spm.csv') ), row.names=FALSE)
 
 
+
+## survey data by area and depth (for REMA) ----
+afsc <- afscdata::connect(db = 'afsc')
+
+
+# gap_products.akfin_biomass.area_id,
+# INNER JOIN gap_products.akfin_biomass ON gap_products.akfin_area.area_id = gap_products.akfin_biomass.area_id
+# GOA the numbers are are 803 for Central GOA, 804 for Eastern GOA and 805 for Western GOA
+biom_query_area<- "SELECT
+gap_products.akfin_biomass.species_code,
+gap_products.akfin_biomass.year,
+gap_products.akfin_biomass.biomass_mt,
+gap_products.akfin_biomass.population_count,
+gap_products.akfin_biomass.biomass_var,
+gap_products.akfin_biomass.population_var,
+gap_products.akfin_biomass.n_haul,
+gap_products.akfin_biomass.n_count,
+gap_products.akfin_biomass.area_id,
+gap_products.akfin_area.area_id,
+gap_products.akfin_area.description
+FROM
+gap_products.akfin_biomass
+INNER JOIN gap_products.akfin_area ON gap_products.akfin_biomass.area_id = gap_products.akfin_area.area_id
+WHERE gap_products.akfin_biomass.area_id
+in ('803','804','805')
+AND gap_products.akfin_biomass.survey_definition_id
+in '47'
+AND gap_products.akfin_biomass.species_code
+= '10130'
+AND gap_products.akfin_biomass.year
+>= '1984'
+AND gap_products.akfin_area.design_year
+>= '1984' 
+ORDER BY
+year
+"
+
+
+BIOM = sql_run(afsc, biom_query_area) %>% data.table::data.table() %>%
+  dplyr::rename_all(toupper)
+
+head(BIOM)
+
+sql_run(afsc,"SELECT table_name FROM all_tables WHERE owner ='gap_products'")
+
+dd <- sqlColumns(AFSC, "GOA.BIOMASS_INPFC_DEPTH")
+message("Querying survey biomass data by area x depth...")
+test <- paste0("SELECT GOA.BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
+               # "GOA.BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
+               "GOA.BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
+               "GOA.BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
+               "FROM GOA.BIOMASS_INPFC_DEPTH\n ",
+               "WHERE GOA.BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
+               "ORDER BY GOA.BIOMASS_INPFC_DEPTH.YEAR")
+index_by_depth_area <- sqlQuery(AFSC, test)
+if(!is.data.frame(index_by_area))
+  stop("Failed to query GOA survey data by area")
+write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
+
 # #* plot catch in mt ----
 # catch %>%  
 #   ggplot(., aes(x = yr, y = catch_mt))+
@@ -139,23 +205,6 @@ write.csv(catch_projection, file=here(year,'data','output',
 # write.csv(index0, here('data','survey',paste0(Sys.Date(),'-index_raw.csv') ),row.names=FALSE)
 # 
 # ## Survey data by area (for viz) 
-# 
-# message("Querying survey biomass data...")
-# test <- paste0("SELECT GOA.BIOMASS_AREA.YEAR as YEAR,\n ",
-#                "GOA.BIOMASS_AREA.REGULATORY_AREA_NAME as AREA,\n",
-#                "GOA.BIOMASS_AREA.AREA_BIOMASS as BIOM,\n ",
-#                "GOA.BIOMASS_AREA.AREA_POP as POP,\n ",
-#                "GOA.BIOMASS_AREA.BIOMASS_VAR as BIOMVAR,\n ",
-#                "GOA.BIOMASS_AREA.POP_VAR as POPVAR,\n ",
-#                "GOA.BIOMASS_AREA.HAUL_COUNT as NUMHAULS,\n ",
-#                "GOA.BIOMASS_AREA.CATCH_COUNT as NUMCAUGHT\n ",
-#                "FROM GOA.BIOMASS_AREA\n ",
-#                "WHERE GOA.BIOMASS_AREA.SPECIES_CODE in (",species,")\n ",
-#                "ORDER BY GOA.BIOMASS_AREA.YEAR")
-# index_by_area <- sqlQuery(AFSC, test)
-# if(!is.data.frame(index_by_area))
-#   stop("Failed to query GOA survey data by area")
-# write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
 # 
 # ## survey data by area and depth (for table)
 # dd <- sqlColumns(AFSC, "GOA.BIOMASS_INPFC_DEPTH")
