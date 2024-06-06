@@ -264,3 +264,51 @@ write.csv(apportionment2,
           file = here::here(year,'apportionment',
                             paste0(Sys.Date(),"-AreaApportionment.csv")))
 
+
+# Make Catch Figure ----
+fig1a <- mod$timeseries %>% select(Yr, Bio_smry) %>%
+  merge(.,mod$catch %>% select(Yr, Obs), by = 'Yr') %>%
+  mutate(catch_over_biomass  = Obs/Bio_smry)
+
+## projection catch values in Stock_catch, use Tot_biom from pdt
+
+## summarise values in pdt - bigfile is now alt_proj.out
+pdt <- data.frame(read.table(here::here(year,
+                                        'projection_spm',
+                                        "alt_proj.out"), 
+                             header=TRUE))
+pdt.long <- pivot_longer(pdt, cols=c(-Alt, -Stock, -Yr), names_to='metric') %>%
+  mutate(Alt=factor(Alt)) %>% group_by(Yr, Alt, metric) %>%
+  summarize(med=median(value), lwr=quantile(value, .1), upr=quantile(value, .9), .groups='drop')
+g <- ggplot(pdt.long, aes(Yr,  med, ymin=lwr, ymax=upr, fill=Alt, color=Alt)) +
+  facet_wrap('metric', scales='free_y') + ylim(0,NA) +
+  geom_ribbon(alpha=.4) + theme_bw() +
+  labs(x='Year', y='Estimated 80% CI')
+
+fig1a <- base17mod$timeseries %>% select(Yr, Bio_smry) %>%
+  merge(.,base17mod$catch %>% select(Yr, Obs), by = 'Yr') %>%
+  mutate(catch_over_biomass  = Obs/Bio_smry)
+
+
+fig1b <- data.frame(Yr = seq(2017,2023,1),
+                    Bio_smry = pdt %>% filter(Yr < 2024) %>% group_by(Yr) %>%
+                      summarise(Bio_smry = 1000*round(mean(Tot_biom),2)) %>% 
+                      select(Bio_smry) ,
+                    Obs = catch_projection$catch) %>%
+  mutate(catch_over_biomass  = Obs/Bio_smry)
+
+
+fig1 <- rbind(fig1a, fig1b)
+
+
+## plot with diff colors for extrapolated and forecasted catches
+ggplot(subset(fig1, Yr < 2018), aes(x = Yr, y = catch_over_biomass)) +
+  geom_line(lwd = 1, col = 'dodgerblue2') +
+  geom_line(data = subset(fig1, Yr > 2016 & Yr < 2021),
+            lwd = 1, col = 'grey') +
+  geom_line(data = subset(fig1, Yr > 2019),
+            lwd = 1, linetype = 'dotted',  col = 'grey') +
+  scale_x_continuous(labels = seq(1978,2020,10), 
+                     breaks = seq(1978,2021,10))+
+  labs(x = 'Year', y = 'Catch/Summary Biomass (age 3+)')+
+  ggsidekick::theme_sleek()
