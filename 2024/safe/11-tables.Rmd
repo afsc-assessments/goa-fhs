@@ -2,7 +2,6 @@
 
 ```{r tab1}
 catches <-  read.csv(here::here(this_year,'data','output','2024-06-06-catch_observed.csv')) 
-
 catches$EGOA<-round(catches$EGOA, 0)
 catches$EGOA[catches$EGOA==0] <- "<1"
 

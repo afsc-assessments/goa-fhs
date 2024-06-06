@@ -45,11 +45,11 @@ catch <- catch0 %>%
                      names_from = FMP_SUBAREA,
                      values_from = STONS) %>%
   ## calculate totals - reformatting happens in .Rmd
-  summarise(EGULF = sum(WY,EY,SE,na.rm = TRUE), 
-            WGULF = WG,
-            CG,
-            TTONS = sum(WGULF, CG, EGULF), .by = YEAR) %>%
-  select(YEAR, TTONS, WGULF, CG, EGULF) 
+  summarise(EGOA = sum(WY,EY,SE,na.rm = TRUE), 
+            WGOA = WG,
+            CGOA=CG,
+            TTONS = sum(WGOA, CG, EGOA), .by = YEAR) %>%
+  select(year = YEAR, TTONS, WGOA, CGOA, EGOA) 
 
 write.csv(catch, file=here(year, 'data','output',
                            paste0(Sys.Date(),'-catch_observed.csv') ), row.names=FALSE)
@@ -260,5 +260,7 @@ apportionment2[3,4] <- apportionment2[3,4]+diff24
 abc_y1 - sum(apportionment2[2,3:6])==0
 abc_y2 - sum(apportionment2[3,3:6]) ==0
 
-write.csv(apportionment2,file = here::here(year,'apportionment',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+write.csv(apportionment2,
+          file = here::here(year,'apportionment',
+                            paste0(Sys.Date(),"-AreaApportionment.csv")))
 
