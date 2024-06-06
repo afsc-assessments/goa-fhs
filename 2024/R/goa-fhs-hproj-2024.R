@@ -230,37 +230,35 @@ ggsave(plots$biomass_by_strata, file = here::here(year,'apportionment','rema_out
 ## These come from the AKFIN Dashboard > scroll to "fractional biomass..."
 egfrac <- read.csv(here::here(year, 'apportionment','biomass_fractions_egoa.csv'))
 props <- output$proportion_biomass_by_strata %>% 
-  filter(year == 2021) %>% 
-  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
-         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
-  select(Western, Central, WestYakutat,Southeast)
+  filter(year == 2023) %>% 
+  mutate(WestYakutat = `Eastern GOA`*egfrac$Western.Fraction,
+         Southeast = `Eastern GOA`*egfrac$Eastern.Fraction) %>%
+  select(`Western GOA`, `Central GOA`, WestYakutat,Southeast)
 
 sum(props)==1
 
+rec_table <- read.csv(here::here(year,'projection_spm',
+                                 '2024-06-04-exec_summ.csv'))
 
-
-rec_table <- read.csv(here::here('projection','rec_table.csv'))
-abc23 <- as.numeric( rec_table[10,2]) 
-abc24 <- as.numeric( rec_table[10,3]) 
-apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+abc25 <- as.numeric( rec_table[10,2]) 
+abc26 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc25,abc26) )) %>%
   rbind( round(props*100,2) ,.) %>%
   data.frame() %>%
-  mutate(Total = c("",abc23,abc24),
+  mutate(Total = c("",abc25,abc26),
          Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
          Quantity = c("Area Apportionment %", 
                       "ABC (t)",
                       "ABC (t)")) %>% select(Quantity, Year, everything())
 
 ## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
-
-diff23 <- abc23 - sum(apportionment2[2,3:6])
-diff24 <- abc24 - sum(apportionment2[3,3:6])
+diff23 <- abc25 - sum(apportionment2[2,3:6])
+diff24 <- abc26 - sum(apportionment2[3,3:6])
 apportionment2[2,4] <- apportionment2[2,4]+diff23
 apportionment2[3,4] <- apportionment2[3,4]+diff24
 
+abc25 - sum(apportionment2[2,3:6])==0
+abc26 - sum(apportionment2[3,3:6]) ==0
 
-abc23 - sum(apportionment2[2,3:6])==0
-abc24 - sum(apportionment2[3,3:6]) ==0
-
-write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
+write.csv(apportionment2,file = here::here(year,'apportionment',paste0(Sys.Date(),"-AreaAppportionment.csv")))
 
