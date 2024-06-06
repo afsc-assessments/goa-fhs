@@ -7,8 +7,7 @@
 ## We will pull these data for use in this partial assessment; recommend comparison
 ## with 2022 values at next full assessment.
 
-# Packages and RODBC setup ----
-# require(RODBC)
+# Packages and RODBC setup ---- 
 require(dplyr)
 require(tidyverse)
 require(here)
@@ -16,8 +15,7 @@ require(ggplot2); require(ggsidekick)
 require(r4ss);
 require(lubridate)
 require(reshape2)
-require(data.table)
-# require(rstudioapi) ## enables masking of RODBC name, password
+require(data.table) 
 require(afscassess)
 require(afscdata)
 
