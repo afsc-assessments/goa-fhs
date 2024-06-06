@@ -13,6 +13,7 @@ require(reshape2)
 require(data.table) 
 require(afscassess)
 require(afscdata)
+require(rema)
 
 year <- 2024
 ## load previous full assessment
@@ -194,31 +195,72 @@ write.csv(rec_table,
 ## also we showed there is no need to fit things individually
 
 #* Run REMA ----
-load("~/assessments/goa-fhs/2023/apportionment/rema_output.rdata") ## loads as "output"
+load(here::here('2023','apportionment',"rema_output.rdata")) ## loads as "output"
 biomass_dat <- read.csv(here::here(year, 'data','output','2024-06-05-index_byArea-REMA.csv')) %>%
   select(year, strata,biomass, cv) %>%
   bind_rows(., output$biomass_by_strata %>%
               select(year, strata, biomass=obs, cv = obs_cv) %>%
               filter(year < 1990)) %>%
-  filter(year != 2025) %>%
+
   mutate(strata = case_when(strata == 'CENTRAL GOA'~'Central GOA',
                             strata == 'WESTERN GOA'~'Western GOA',
                             strata == 'EASTERN GOA'~'Eastern GOA',
                             TRUE~strata)) %>%
+  filter(year != 2025 & !is.na(biomass)) %>%
   arrange(year) 
+rm(output) ## delete the 2023 outputs
 
 write.csv(biomass_dat,
           here::here(year,'data','output','biomass_dat_with_1984.csv'), row.names = FALSE)
 
 
-input <- prepare_rema_input(model_name = paste0("TMB: GOA FHS MULTIVAR"), 
+input <- rema::prepare_rema_input(model_name = paste0("TMB: GOA FHS MULTIVAR"), 
                             biomass_dat=biomass_dat,
                             ## alphabetical mirroring of pe independence
                             PE_options = list(pointer_PE_biomass=c(1,2,3)))
 ## fit REMA, save outputs and plots
 m <- fit_rema(input);save(m, file = here::here(year,'apportionment','rema_model.rdata'))
-out <- tidy_rema(m);save(out, file = here::here(year,'apportionment','rema_output.rdata'))
+output <- tidy_rema(m);save(output, file = here::here(year,'apportionment','rema_output.rdata'))
 plots <- plot_rema(tidy_rema = output, biomass_ylab = 'Biomass (t)') # optional y-axis label
 plots$biomass_by_strata +ggsidekick::theme_sleek()
 ggsave(plots$biomass_by_strata, file = here::here(year,'apportionment','rema_outs.png'), width = 12, height = 10, unit = 'in', dpi = 520)
+
+#* Calculate Apportionment ----
+## The biomass fractions for 2024 are the same as in 2023 (I checked)
+## These come from the AKFIN Dashboard > scroll to "fractional biomass..."
+egfrac <- read.csv(here::here(year, 'apportionment','biomass_fractions_egoa.csv'))
+props <- output$proportion_biomass_by_strata %>% 
+  filter(year == 2021) %>% 
+  mutate(WestYakutat = Eastern*egfrac$Western.Fraction,
+         Southeast = Eastern*egfrac$Eastern.Fraction) %>%
+  select(Western, Central, WestYakutat,Southeast)
+
+sum(props)==1
+
+
+
+rec_table <- read.csv(here::here('projection','rec_table.csv'))
+abc23 <- as.numeric( rec_table[10,2]) 
+abc24 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc23,abc24) )) %>%
+  rbind( round(props*100,2) ,.) %>%
+  data.frame() %>%
+  mutate(Total = c("",abc23,abc24),
+         Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
+         Quantity = c("Area Apportionment %", 
+                      "ABC (t)",
+                      "ABC (t)")) %>% select(Quantity, Year, everything())
+
+## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
+
+diff23 <- abc23 - sum(apportionment2[2,3:6])
+diff24 <- abc24 - sum(apportionment2[3,3:6])
+apportionment2[2,4] <- apportionment2[2,4]+diff23
+apportionment2[3,4] <- apportionment2[3,4]+diff24
+
+
+abc23 - sum(apportionment2[2,3:6])==0
+abc24 - sum(apportionment2[3,3:6]) ==0
+
+write.csv(apportionment2,file = here::here('re',paste0(Sys.Date(),"-AreaAppportionment.csv")))
 
