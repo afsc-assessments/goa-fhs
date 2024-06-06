@@ -52,9 +52,9 @@ catch <- catch0 %>%
                      values_from = STONS) %>%
   ## calculate totals - reformatting happens in .Rmd
   summarise(EGULF = sum(WY,EY,SE,na.rm = TRUE), 
-         WGULF = WG,
-         CG,
-         TTONS = sum(WGULF, CG, EGULF), .by = YEAR) %>%
+            WGULF = WG,
+            CG,
+            TTONS = sum(WGULF, CG, EGULF), .by = YEAR) %>%
   select(YEAR, TTONS, WGULF, CG, EGULF) 
 
 write.csv(catch, file=here(year, 'data','output',
@@ -94,72 +94,60 @@ catch_projection <- cbind(YEAR = this_year+c(-2:2),
                                          rep(mean_catch,2)))
 
 write.csv(catch_projection, file=here(year,'data','output',
-                           paste0(Sys.Date(),'-catch_for_spm.csv') ), row.names=FALSE)
+                                      paste0(Sys.Date(),'-catch_for_spm.csv') ), row.names=FALSE)
 
 
 
 ## survey data by area and depth (for REMA) ----
 afsc <- afscdata::connect(db = 'afsc')
 
+BIOM <-  dplyr::tbl(afsc, dplyr::sql('gap_products.area')) %>% 
+  dplyr::rename_all(tolower) %>% 
+  dplyr::filter(survey_definition_id %in% 47, 
+                area_type == 'REGULATORY AREA', 
+                design_year < 2024) %>% 
+  dplyr::left_join(dplyr::tbl(afsc, dplyr::sql('gap_products.biomass')) %>% 
+                     dplyr::rename_all(tolower) %>% 
+                     dplyr::filter(species_code %in% c(10130, 10140))) %>% 
+  dplyr::collect()  
 
-# gap_products.akfin_biomass.area_id,
-# INNER JOIN gap_products.akfin_biomass ON gap_products.akfin_area.area_id = gap_products.akfin_biomass.area_id
-# GOA the numbers are are 803 for Central GOA, 804 for Eastern GOA and 805 for Western GOA
-biom_query_area<- "SELECT
-gap_products.akfin_biomass.species_code,
-gap_products.akfin_biomass.year,
-gap_products.akfin_biomass.biomass_mt,
-gap_products.akfin_biomass.population_count,
-gap_products.akfin_biomass.biomass_var,
-gap_products.akfin_biomass.population_var,
-gap_products.akfin_biomass.n_haul,
-gap_products.akfin_biomass.n_count,
-gap_products.akfin_biomass.area_id,
-gap_products.akfin_area.area_id,
-gap_products.akfin_area.description
-FROM
-gap_products.akfin_biomass
-INNER JOIN gap_products.akfin_area ON gap_products.akfin_biomass.area_id = gap_products.akfin_area.area_id
-WHERE gap_products.akfin_biomass.area_id
-in ('803','804','805')
-AND gap_products.akfin_biomass.survey_definition_id
-in '47'
-AND gap_products.akfin_biomass.species_code
-= '10130'
-AND gap_products.akfin_biomass.year
->= '1984'
-AND gap_products.akfin_area.design_year
->= '1984' 
-ORDER BY
-year
-"
+write.csv(BIOM, here::here(year,'data','raw',paste0(Sys.Date(),'-goa_area_bts_biomass_data.csv') ), row.names=FALSE)
 
-
-BIOM = sql_run(afsc, biom_query_area) %>% data.table::data.table() %>%
-  dplyr::rename_all(toupper)
-
-head(BIOM)
-
-sql_run(afsc,"SELECT table_name FROM all_tables WHERE owner ='gap_products'")
-
-dd <- sqlColumns(AFSC, "GOA.BIOMASS_INPFC_DEPTH")
-message("Querying survey biomass data by area x depth...")
-test <- paste0("SELECT GOA.BIOMASS_INPFC_DEPTH.YEAR as YEAR,\n ",
-               "GOA.BIOMASS_INPFC_DEPTH.SUMMARY_AREA_DEPTH as DEPTH,\n",
-               # "GOA.BIOMASS_INPFC_DEPTH.REGULATORY_AREA_NAME as AREA,\n",
-               "GOA.BIOMASS_INPFC_DEPTH.AREA_BIOMASS as BIOM,\n ",
-               "GOA.BIOMASS_INPFC_DEPTH.AREA_POP as POP,\n ",
-               "GOA.BIOMASS_INPFC_DEPTH.BIOMASS_VAR as BIOMVAR,\n ",
-               "GOA.BIOMASS_INPFC_DEPTH.POP_VAR as POPVAR,\n ",
-               "GOA.BIOMASS_INPFC_DEPTH.HAUL_COUNT as NUMHAULS,\n ",
-               "GOA.BIOMASS_INPFC_DEPTH.CATCH_COUNT as NUMCAUGHT\n ",
-               "FROM GOA.BIOMASS_INPFC_DEPTH\n ",
-               "WHERE GOA.BIOMASS_INPFC_DEPTH.SPECIES_CODE in (",species,")\n ",
-               "ORDER BY GOA.BIOMASS_INPFC_DEPTH.YEAR")
-index_by_depth_area <- sqlQuery(AFSC, test)
-if(!is.data.frame(index_by_area))
-  stop("Failed to query GOA survey data by area")
-write.csv(index_by_area, here('data','survey',paste0(Sys.Date(),'-index_byArea.csv') ), row.names=FALSE)
+## formatting for REMA 
+## need dataframe with strata, year, biomass, cv
+names(BIOM) <- toupper(names(BIOM))
+BIOM %>%
+  select(YEAR, BIOMASS_MT, BIOMASS_VAR,AREA_NAME) %>%
+  mutate(CV = sqrt(BIOMASS_VAR)/BIOMASS_MT) %>%
+  rename(strata = AREA_NAME, year = YEAR, biomass = BIOMASS_MT, cv = CV) %>%
+  select(strata, year, biomass, cv, -BIOMASS_VAR) %>%
+  write.csv(., here::here(year,'data','output',
+                          paste0(Sys.Date(),'-index_byArea-REMA.csv')), 
+            row.names=FALSE)
+## formatting for SAFE
+index_by_area <- BIOM %>%
+  select(YEAR, BIOMASS_MT, BIOMASS_VAR,AREA_NAME) %>%
+  mutate(CV = sqrt(BIOMASS_VAR)/BIOMASS_MT) %>%
+  tidyr::pivot_wider(names_from = AREA_NAME,
+                     values_from = c(BIOMASS_MT, CV, BIOMASS_VAR), 
+                     id_cols = YEAR) %>%
+  
+  mutate(total_biomass = sum(`BIOMASS_MT_Eastern GOA`, `BIOMASS_MT_Central GOA`,
+                             `BIOMASS_MT_Western GOA`, na.rm = TRUE), 
+         total_biomass_var = sum(`BIOMASS_VAR_Eastern GOA`, `BIOMASS_VAR_Central GOA`,
+                                 `BIOMASS_VAR_Western GOA`, na.rm = TRUE), 
+         total_biomass_cv = sqrt(total_biomass_var)/total_biomass, .by = YEAR) %>%
+  select(YEAR, total_biomass, 
+         total_biomass_cv, 
+         `BIOMASS_MT_Western GOA`,
+         `CV_Western GOA`,
+         `BIOMASS_MT_Central GOA`,
+         `CV_Central GOA`,
+         `BIOMASS_MT_Eastern GOA`,
+         `CV_Eastern GOA`) 
+write.csv(index_by_area, here::here(year,'data','output',
+                                    paste0(Sys.Date(),'-index_byArea.csv')), 
+          row.names=FALSE)
 
 # #* plot catch in mt ----
 # catch %>%  
