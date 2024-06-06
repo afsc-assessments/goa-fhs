@@ -1,16 +1,16 @@
 # Tables
 
 ```{r tab1}
-catches <-  read.csv(here::here(this_year,'data','output','2024-06-06-catch_observed.csv')) 
+catches <-  read.csv(here::here(this_year,'data','output','2024-06-06-catch_observed.csv')) %>% filter(year >=2000)
 catches$EGOA<-round(catches$EGOA, 0)
 catches$EGOA[catches$EGOA==0] <- "<1"
 
 catches$year <- as.character(catches$year)
 flextable::regulartable(catches) %>%  
   flextable::set_caption(paste0("Total catch (t) of GOA flathead sole by area since 2000. Catch for ", this_year," is current up to ", pull_date,". Columns left blank indicate confidential catch information by area. Bolded years are not used in, or differ from, the base model. Note that the value for ",this_year," is the observed catch and the extrapolated catches used for this year in the projection model are higher. Values have been rounded to the nearest whole number."))%>% 
-  flextable::set_header_labels(year = 'Year', total = 'Total Catch (t)', WGOA = 'Western Gulf', CGOA= 'Central Gulf',EGOA = 'Eastern Gulf') %>%
+  flextable::set_header_labels(year = 'Year', TTONS = 'Total Catch (t)', WGOA = 'Western Gulf', CGOA= 'Central Gulf',EGOA = 'Eastern Gulf') %>%
   flextable::colformat_double(j = 2:4, big.mark = ',', digits = 0) %>%
-  flextable::bold(i = 23:24,j = 1) %>%
+  flextable::bold(i = 23:25,j = 1) %>%
   flextable::font(fontname = "Times New Roman", part = "all") %>% 
   flextable::fontsize(size = 10, part = "all") %>%
   flextable::autofit()
@@ -22,7 +22,7 @@ flextable::regulartable(catches) %>%
 load(here::here(this_year,'apportionment','rema_output.rdata'))## loads as "output"
 output$biomass_by_strata %>%
   dplyr::select(year, strata, obs, obs_cv) %>%
-  dplyr::filter(!is.na(obs)) %>% ## drop interpolated years
+  dplyr::filter(!is.na(obs) & year >=1990) %>% ## drop interpolated years and pre 1990s
   tidyr::pivot_wider(., id_cols = year, 
                      names_from = strata,
                      values_from = c(obs, obs_cv),
@@ -46,7 +46,7 @@ output$biomass_by_strata %>%
   flextable::set_header_labels(values = c('Year', rep(c('Bio (t)','CV'),4))) %>%
   flextable::colformat_double(j = seq(3,9,2), big.mark = ',', digits = 2)  %>%
   flextable::colformat_double(j = seq(2,9,2), big.mark = ',', digits = 0) %>%
-  flextable::bold(i = 18,j = 1) %>%
+  flextable::bold(i = 16,j = 1) %>%
   flextable::vline(j = c(seq(1,9,2)), part = 'all') %>%
   flextable::font(fontname = "Times New Roman", part = "all") %>% 
   flextable::fontsize(size = 11, part = "all")

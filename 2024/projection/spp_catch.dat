@@ -1,6 +1,6 @@
 #_SETUP_FILE_FOR_THE_BERING_SEA/AI_FISHERIES
 #_Number_of_years	with	specified	catch	(if	begin-yr	=	2005,	and	this	number	is	3,	then	subsequent	values	represent	catches	in	2005,	06,	and	7	(to	    evaluate	alts	for	2008
-4
+5
 # Number of runs
 1
 #	OY	Minimum
@@ -23,7 +23,8 @@ data/projection_data.dat
 #	TAC	model	indices	(for	aggregating)
 1
 #	Catch	in	each	future	year
-2022 563.6474200182
-2023 598.216066750767
-2024 1610.60144820202
-2025 1610.60144820202
+2022 564
+2023 470
+2024 786
+2025 1108
+2026 1108

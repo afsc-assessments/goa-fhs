@@ -186,6 +186,30 @@ rec_table <-rec_table[c(12,6,3,4,5,2,1,1,10,9,9),]
 write.csv(rec_table, 
           file = here::here(year,'projection_spm',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
 
+#* run PROJ ----
+setwd(here(year,'projection')) 
+shell('main')
+rec_table1 <-
+  read.table('percentdb.out') %>%
+  as.data.frame(stringsAsFactors=FALSE) %>%
+  transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+            value=as.numeric(V5)) %>%
+  filter(year %in% (this_year+1:2) & scenario==1 &
+           metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
+  arrange(year, metric) %>%
+  pivot_wider(names_from=year, values_from=value)
+rec_table2 <-
+  read.table('alt2_proj.out', header=TRUE) %>%
+  filter(Year %in% (this_year+1:2)) %>%
+  pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+  pivot_wider(names_from=Year, values_from=value)
+rec_table1$scenario <- rec_table2$Stock <- NULL
+rec_table <- bind_rows(rec_table1, rec_table2)
+## change order to match SAFE format & magnitudes
+rec_table <- rec_table[c(11,6,3,5,4,2,1,1,9,8,8),] 
+rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
+write.csv(rec_table, 
+          file = here::here(year,'projection',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
 
 # REMA apportionment ----
 ## With Jane I discovered that dropping the data before 1990s

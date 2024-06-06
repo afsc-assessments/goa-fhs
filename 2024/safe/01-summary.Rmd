@@ -10,7 +10,7 @@ Changes in input data: The updated information for this harvest projection inclu
 
 ## Summary of Results
 
-The ABC for flathead sole is `r prettyNum(abc_25,big.mark = ',')`  t in `r this_year+1`  and `r prettyNum(abc_25,big.mark = ',')` t in `r this_year+2`  and the OFL is `r prettyNum(ofl_25,big.mark = ',')`  t in `r this_year+1`  and `r prettyNum(ofl_25,big.mark = ',')`  t in `r this_year+2`. 
+The ABC for flathead sole is `r prettyNum(abc_25,big.mark = ',')`  t in `r this_year+1`  and `r prettyNum(abc_26,big.mark = ',')` t in `r this_year+2`  and the OFL is `r prettyNum(ofl_25,big.mark = ',')`  t in `r this_year+1`  and `r prettyNum(ofl_26,big.mark = ',')`  t in `r this_year+2`. 
 
 
 ```{r, child= "01a-main_table.Rmd", eval = T}

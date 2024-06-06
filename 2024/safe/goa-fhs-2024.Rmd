@@ -65,8 +65,9 @@ date = 'October 22, 2023'
 pull_date <- lubridate::date('2023-09-28')
 model = "base"
 end_proj = this_year + 15 
-execsumm <- read.csv(here::here(year,'projection_spm', '2024-06-04-exec_summ.csv'))[,2:3]
+execsumm <- read.csv(here::here(this_year,'projection_spm', '2024-06-04-exec_summ.csv'))[,2:3]
 ofl_25 <- round(execsumm[9,1]) ## ofl in mt
+ofl_26 <- round(execsumm[9,2]) ## ofl in mt
 Fofl_25 <- round(execsumm[6,1],2)
 Fabc_25 <- round(execsumm[7,1],2)
 b0_25 <- round(execsumm[3,1]) ## unfished ssb, invariant across time
@@ -76,7 +77,7 @@ ssb_25 <- execsumm[2,1] # 2025 spawning biomass
 tb_25 <- execsumm[1,1] # 2025 total biomass
 abc_23 <- 41258; abc_23p <- prettyNum(abc_23,big.mark=',') ## most recent model's ABC for 2025 FROM FEDERAL REGISTER 
 abc_25 <- round(execsumm[10,1]) ## this year's ABC for 2025 
-
+abc_26 <- round(execsumm[10,2]) ## this year's ABC for 2025 
 catchvec<- read.csv(here::here(this_year,'data', 'output','2024-06-04-catch_for_spm.csv'))
 c1 <- round(as.numeric(catchvec[3,2]),0) # estimated catch in current year
 c2 <- round(as.numeric(catchvec[4,2]),0)# proj catch year + 1
