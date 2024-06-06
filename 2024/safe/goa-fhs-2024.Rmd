@@ -62,7 +62,7 @@ library(dplyr)
 species = 'Flathead sole'
 this_year = 2024
 date = 'October 22, 2023'
-pull_date <- lubridate::date('2023-09-28')
+pull_date <- lubridate::date('2024-06-04')
 model = "base"
 end_proj = this_year + 15 
 execsumm <- read.csv(here::here(this_year,'projection', '2024-06-06-exec_summ.csv'))[,2:3]
