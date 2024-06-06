@@ -2,7 +2,7 @@
 ## This will download & generate everything used to populate the SAFE
 ## M Kapur maia.kapur@noaa.gov Jun 2024
 
-# Packages and RODBC setup ---- 
+# Packages and setup ---- 
 require(dplyr)
 require(tidyverse)
 require(here)
