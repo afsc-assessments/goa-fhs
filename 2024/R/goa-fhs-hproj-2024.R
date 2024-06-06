@@ -240,25 +240,25 @@ sum(props)==1
 rec_table <- read.csv(here::here(year,'projection_spm',
                                  '2024-06-04-exec_summ.csv'))
 
-abc25 <- as.numeric( rec_table[10,2]) 
-abc26 <- as.numeric( rec_table[10,3]) 
-apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc25,abc26) )) %>%
+abc_y1 <- as.numeric( rec_table[10,2]) 
+abc_y2 <- as.numeric( rec_table[10,3]) 
+apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc_y1,abc_y2) )) %>%
   rbind( round(props*100,2) ,.) %>%
   data.frame() %>%
-  mutate(Total = c("",abc25,abc26),
+  mutate(Total = c("",abc_y1,abc_y2),
          Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
          Quantity = c("Area Apportionment %", 
                       "ABC (t)",
                       "ABC (t)")) %>% select(Quantity, Year, everything())
 
 ## because the rounded totals don't perfectly sum to the ABC, locate the discrepancy and add to the highest area (per Chris)
-diff23 <- abc25 - sum(apportionment2[2,3:6])
-diff24 <- abc26 - sum(apportionment2[3,3:6])
+diff23 <- abc_y1 - sum(apportionment2[2,3:6])
+diff24 <- abc_y2 - sum(apportionment2[3,3:6])
 apportionment2[2,4] <- apportionment2[2,4]+diff23
 apportionment2[3,4] <- apportionment2[3,4]+diff24
 
-abc25 - sum(apportionment2[2,3:6])==0
-abc26 - sum(apportionment2[3,3:6]) ==0
+abc_y1 - sum(apportionment2[2,3:6])==0
+abc_y2 - sum(apportionment2[3,3:6]) ==0
 
 write.csv(apportionment2,file = here::here(year,'apportionment',paste0(Sys.Date(),"-AreaAppportionment.csv")))
 
