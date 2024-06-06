@@ -294,7 +294,7 @@ fig1b <- data.frame(Yr = seq(2017,2023,1),
                     Bio_smry = pdt %>% 
                       filter(Year < (year+1)) %>% 
                       group_by(Year) %>%
-                      summarise(Bio_smry = 1000*round(mean(TotBiom),2)) %>% 
+                      summarise(Bio_smry =  round(mean(TotBiom),2)) %>% 
                       select(Bio_smry) ,
                     Obs = catch_projection$CATCH_MT) %>%
   mutate(catch_over_biomass  = Obs/Bio_smry)
