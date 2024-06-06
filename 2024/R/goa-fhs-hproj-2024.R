@@ -277,24 +277,26 @@ pdt <- data.frame(read.table(here::here(year,
                                         'projection_spm',
                                         "alt_proj.out"), 
                              header=TRUE))
-pdt.long <- pivot_longer(pdt, cols=c(-Alt, -Stock, -Yr), names_to='metric') %>%
-  mutate(Alt=factor(Alt)) %>% group_by(Yr, Alt, metric) %>%
+pdt.long <- pivot_longer(pdt, cols=c(-Alt, -Stock, -Year), names_to='metric') %>%
+  mutate(Alt=factor(Alt)) %>% group_by(Year, Alt, metric) %>%
   summarize(med=median(value), lwr=quantile(value, .1), upr=quantile(value, .9), .groups='drop')
-g <- ggplot(pdt.long, aes(Yr,  med, ymin=lwr, ymax=upr, fill=Alt, color=Alt)) +
+g <- ggplot(pdt.long, aes(Year,  med, ymin=lwr, ymax=upr, fill=Alt, color=Alt)) +
   facet_wrap('metric', scales='free_y') + ylim(0,NA) +
   geom_ribbon(alpha=.4) + theme_bw() +
   labs(x='Year', y='Estimated 80% CI')
 
-fig1a <- base17mod$timeseries %>% select(Yr, Bio_smry) %>%
-  merge(.,base17mod$catch %>% select(Yr, Obs), by = 'Yr') %>%
+fig1a <- mod$timeseries %>% select(Yr, Bio_smry) %>%
+  merge(.,mod$catch %>% select(Yr, Obs), by = 'Yr') %>%
   mutate(catch_over_biomass  = Obs/Bio_smry)
 
 
 fig1b <- data.frame(Yr = seq(2017,2023,1),
-                    Bio_smry = pdt %>% filter(Yr < 2024) %>% group_by(Yr) %>%
-                      summarise(Bio_smry = 1000*round(mean(Tot_biom),2)) %>% 
+                    Bio_smry = pdt %>% 
+                      filter(Year < (year+1)) %>% 
+                      group_by(Year) %>%
+                      summarise(Bio_smry = 1000*round(mean(TotBiom),2)) %>% 
                       select(Bio_smry) ,
-                    Obs = catch_projection$catch) %>%
+                    Obs = catch_projection$CATCH_MT) %>%
   mutate(catch_over_biomass  = Obs/Bio_smry)
 
 
