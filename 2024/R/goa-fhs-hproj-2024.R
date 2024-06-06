@@ -154,7 +154,7 @@ write.csv(index_by_area, here::here(year,'data','output',
 setwd(here(year,'projection_spm')) 
 shell('spm')
 
-#* render SAFE table ---- 
+#* render SAFE table with SPM ---- 
 rec_table1 <-
   read.table(here::here(year,'projection_spm','percentdb.out')) %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
@@ -189,6 +189,7 @@ write.csv(rec_table,
 #* run PROJ ----
 setwd(here(year,'projection')) 
 shell('main')
+#* render SAFE table with PROJ ---- 
 rec_table1 <-
   read.table('percentdb.out') %>%
   as.data.frame(stringsAsFactors=FALSE) %>%
@@ -206,7 +207,7 @@ rec_table2 <-
 rec_table1$scenario <- rec_table2$Stock <- NULL
 rec_table <- bind_rows(rec_table1, rec_table2)
 ## change order to match SAFE format & magnitudes
-rec_table <- rec_table[c(11,6,3,5,4,2,1,1,9,8,8),] 
+rec_table <- rec_table[c(11,6,3,4,5,2,1,1,9,8,8),] 
 rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
 write.csv(rec_table, 
           file = here::here(year,'projection',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
