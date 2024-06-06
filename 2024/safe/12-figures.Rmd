@@ -1,0 +1,9 @@
+# Figures
+
+```{r fig1, fig.cap = "Catch to total biomass ratio using total biomass for age 3+ individuals for GOA flathead sole. Blue points are catches included in the projection model; open points are estimated or projected, whereas solid points are complete observed years."}
+knitr::include_graphics(here::here(this_year,'figs','Fig1_catchvsbio.png'))
+```
+
+
+## References
+Kapur, M. and Monnahan, C. 2022. Assessment of the Assessment of the Flathead Sole Stock in the Gulf of Alaska.  North Pacific Fishery Management Council, Anchorage, AK. Available from https://apps-afsc.fisheries.noaa.gov/Plan_Team/2022/GOAflathead.pdf
