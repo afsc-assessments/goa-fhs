@@ -290,13 +290,14 @@ fig1a <- mod$timeseries %>% select(Yr, Bio_smry) %>%
   mutate(catch_over_biomass  = Obs/Bio_smry)
 
 
-fig1b <- data.frame(Yr = seq(2017,2023,1),
-                    Bio_smry = pdt %>% 
-                      filter(Year < (year+1)) %>% 
+fig1b <- data.frame(Yr = year+c(-1:2),
+                    Bio_smry = pdt%>% 
+                      filter(Year %in% (year+c(-1:2))) %>% 
                       group_by(Year) %>%
                       summarise(Bio_smry =  round(mean(TotBiom),2)) %>% 
                       select(Bio_smry) ,
-                    Obs = catch_projection$CATCH_MT) %>%
+                    Obs = catch_projection$CATCH_MT[catch_projection$YEAR %in%
+                                                      (year+c(-1:2))]) %>%
   mutate(catch_over_biomass  = Obs/Bio_smry)
 
 
@@ -304,13 +305,20 @@ fig1 <- rbind(fig1a, fig1b)
 
 
 ## plot with diff colors for extrapolated and forecasted catches
-ggplot(subset(fig1, Yr < 2018), aes(x = Yr, y = catch_over_biomass)) +
-  geom_line(lwd = 1, col = 'dodgerblue2') +
-  geom_line(data = subset(fig1, Yr > 2016 & Yr < 2021),
-            lwd = 1, col = 'grey') +
-  geom_line(data = subset(fig1, Yr > 2019),
-            lwd = 1, linetype = 'dotted',  col = 'grey') +
-  scale_x_continuous(labels = seq(1978,2020,10), 
-                     breaks = seq(1978,2021,10))+
-  labs(x = 'Year', y = 'Catch/Summary Biomass (age 3+)')+
-  ggsidekick::theme_sleek()
+ggplot(subset(fig1), 
+       aes(x = Yr, y = catch_over_biomass)) +
+  geom_line(lwd = 1, col = 'grey77') + 
+  geom_point(data = subset(fig1, Yr == (year-(1:2))),
+             col = 'blue', pch = 16) +
+  geom_point(data = subset(fig1, Yr >= this_year),
+              col = 'blue', pch = 1) +
+  scale_x_continuous(labels = seq(1960,(year+2),5), 
+                     breaks = seq(1960,(year+2),5))+
+  scale_y_continuous(limits = c(0,0.02),
+                     breaks = seq(0,0.02,0.01), 
+                     labels = seq(0,0.02,0.01))+
+  ggsidekick::theme_sleek()+
+  labs(x = 'Year', y = 'Catch/Summary Biomass (age 3+)')
+
+ggsave(last_plot(), height = 5, width = 8, dpi = 520,
+       file = here::here(year,'projection_spm',paste0('Fig1_catchvsbio.png')))
