@@ -1,11 +1,7 @@
 # Tables
 
 ```{r tab1}
-catches <- read.csv(here::here(this_year,'data','user_input','goa_fhs_catch_1978_1990.csv'), sep='\t') %>%
-  dplyr::mutate(WGOA = NA, CGOA = NA, EGOA = NA) %>%
-  dplyr::select(year, total = catch, WGOA, CGOA, EGOA) %>% 
-  dplyr::bind_rows(., read.csv(here::here(this_year,'data','output','catches_by_area.csv'))) %>%
-  filter( year >= 2000)
+catches <-  read.csv(here::here(this_year,'data','output','2024-06-06-catch_observed.csv')) 
 
 catches$EGOA<-round(catches$EGOA, 0)
 catches$EGOA[catches$EGOA==0] <- "<1"
