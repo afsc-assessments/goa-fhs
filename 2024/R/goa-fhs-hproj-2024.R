@@ -261,8 +261,8 @@ props <- output$proportion_biomass_by_strata %>%
 
 sum(props)==1
 
-rec_table <- read.csv(here::here(year,'projection_spm',
-                                 '2024-06-04-exec_summ.csv'))
+rec_table <- read.csv(here::here(year,'projection',
+                                 '2024-06-06-exec_summ.csv'))
 
 abc_y1 <- as.numeric( rec_table[10,2]) 
 abc_y2 <- as.numeric( rec_table[10,3]) 
@@ -294,6 +294,8 @@ fig1a <- mod$timeseries %>% select(Yr, Bio_smry) %>%
   merge(.,mod$catch %>% select(Yr, Obs), by = 'Yr') %>%
   mutate(catch_over_biomass  = Obs/Bio_smry)
 
+
+#* SPM version ----
 ## projection catch values in Stock_catch, use Tot_biom from pdt
 
 ## summarise values in pdt - bigfile is now alt_proj.out
@@ -325,17 +327,34 @@ fig1b <- data.frame(Yr = year+c(-1:2),
   mutate(catch_over_biomass  = Obs/Bio_smry)
 
 
+fig1 <- rbind(fig1a, fig1b) 
+
+#* proj version ----
+pdt <- data.frame(read.table(here::here(year,'projection',"bigfile.out"), header=TRUE))
+pdt.long <- pivot_longer(pdt, cols=c(-Alternative, -Spp, -Yr), names_to='metric') %>%
+  mutate(Alternative=factor(Alternative)) %>% group_by(Yr, Alternative, metric) %>%
+  summarize(med=median(value), lwr=quantile(value, .1), upr=quantile(value, .9), .groups='drop')
+
+fig1b <- data.frame(Yr =  (year+c(-1:2)),
+                    Bio_smry = pdt %>% 
+                      filter(Yr %in%  (year+c(-1:2))) %>% 
+                      group_by(Yr) %>%
+                      summarise(Bio_smry = 1000*round(mean(Tot_biom),2)) %>% 
+                      select(Bio_smry) ,
+                    Obs = catch_projection$CATCH_MT[catch_projection$YEAR %in%
+                                                      (year+c(-1:2))]) %>%
+  mutate(catch_over_biomass  = Obs/Bio_smry)
 fig1 <- rbind(fig1a, fig1b)
 
 
-## plot with diff colors for extrapolated and forecasted catches
+#* render plot ----
 ggplot(subset(fig1), 
        aes(x = Yr, y = catch_over_biomass)) +
   geom_line(lwd = 1, col = 'grey77') + 
   geom_point(data = subset(fig1, Yr == (year-(1:2))),
              col = 'blue', pch = 16) +
   geom_point(data = subset(fig1, Yr >= this_year),
-              col = 'blue', pch = 1) +
+             col = 'blue', pch = 1) +
   scale_x_continuous(labels = seq(1960,(year+2),5), 
                      breaks = seq(1960,(year+2),5))+
   scale_y_continuous(limits = c(0,0.02),
@@ -343,6 +362,5 @@ ggplot(subset(fig1),
                      labels = seq(0,0.02,0.01))+
   ggsidekick::theme_sleek()+
   labs(x = 'Year', y = 'Catch/Summary Biomass (age 3+)')
-
 ggsave(last_plot(), height = 5, width = 8, dpi = 520,
-       file = here::here(year,'projection_spm',paste0('Fig1_catchvsbio.png')))
+       file = here::here(year,'projection',paste0('Fig1_catchvsbio.png')))

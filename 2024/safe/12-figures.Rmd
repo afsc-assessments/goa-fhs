@@ -1,7 +1,7 @@
 # Figures
 
 ```{r fig1, fig.cap = "Catch to total biomass ratio using total biomass for age 3+ individuals for GOA flathead sole. Blue points are catches included in the projection model; open points are estimated or projected, whereas solid points are complete observed years."}
-knitr::include_graphics(here::here(this_year,'projection_spm','Fig1_catchvsbio.png'))
+knitr::include_graphics(here::here(this_year,'projection','Fig1_catchvsbio.png'))
 ```
 
 

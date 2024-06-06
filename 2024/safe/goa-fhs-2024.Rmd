@@ -65,7 +65,7 @@ date = 'October 22, 2023'
 pull_date <- lubridate::date('2023-09-28')
 model = "base"
 end_proj = this_year + 15 
-execsumm <- read.csv(here::here(this_year,'projection_spm', '2024-06-04-exec_summ.csv'))[,2:3]
+execsumm <- read.csv(here::here(this_year,'projection', '2024-06-06-exec_summ.csv'))[,2:3]
 ofl_25 <- round(execsumm[9,1]) ## ofl in mt
 ofl_26 <- round(execsumm[9,2]) ## ofl in mt
 Fofl_25 <- round(execsumm[6,1],2)
