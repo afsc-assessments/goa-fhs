@@ -49,7 +49,7 @@ catch <- catch0 %>%
             WGOA = WG,
             CGOA=CG,
             TTONS = sum(WGOA, CG, EGOA), .by = YEAR) %>%
-  select(year = YEAR, TTONS, WGOA, CGOA, EGOA) 
+  select(YEAR, TTONS, WGOA, CGOA, EGOA) 
 
 write.csv(catch, file=here(year, 'data','output',
                            paste0(Sys.Date(),'-catch_observed.csv') ), row.names=FALSE)
@@ -66,14 +66,22 @@ weekly_catches <- weekly_catches %>%
   ## No species for Bering flounder, probably in FHS already
   filter(grepl("Flathead", x=species)) %>%
   mutate(date=mdy(date), week=week(date),  year=year(date))
-catch_this_year <- weekly_catches %>% filter(year==this_year) %>%
-  pull(catch) %>% sum
+catch_this_year <- weekly_catches %>% 
+  filter(year==this_year) %>%
+  pull(catch) %>% 
+  sum
 ## Get average catch between now and end of year for previous 5 years.
 ## add to what came from AKFIN cause slight inconsistency with weekly catches to date.
-catch_to_add <- weekly_catches %>% filter(year>=this_year-5 & week > week(today())) %>%
-  group_by(year) %>% summarize(catch=sum(catch), .groups='drop') %>%
-  pull(catch) %>% mean
-message("Predicted ", this_year, " catch = ", round(catch$catch_mt[catch$yr == this_year] + catch_to_add,0)) ##9272
+catch_to_add <- weekly_catches %>% 
+  filter(year>=this_year-5 & week > week(today())) %>%
+  group_by(year) %>% 
+  summarize(catch=sum(catch), .groups='drop') %>%
+  pull(catch) %>% 
+  mean
+message("Predicted ", 
+        this_year, " catch = ", 
+        round(catch$TTONS[catch$YEAR == this_year] + 
+                catch_to_add,0)) 
 
 
 mean_catch <- catch %>% 
@@ -81,6 +89,7 @@ mean_catch <- catch %>%
   summarise(mean(TTONS)) %>%
   as.numeric() %>%
   round()
+
 catch_projection <- cbind(YEAR = this_year+c(-2:2),
                           CATCH_MT =   c(round(catch$TTONS[catch$YEAR == this_year-2]),
                                          round(catch$TTONS[catch$YEAR == this_year-1]),
@@ -254,6 +263,7 @@ ggsave(plots$biomass_by_strata, file = here::here(year,'apportionment','rema_out
 ## The biomass fractions for 2024 are the same as in 2023 (I checked)
 ## These come from the AKFIN Dashboard > scroll to "fractional biomass..."
 egfrac <- read.csv(here::here(year, 'apportionment','biomass_fractions_egoa.csv'))
+load("~/assessments/goa-fhs/2024/apportionment/rema_output.rdata") ## "output"
 props <- output$proportion_biomass_by_strata %>% 
   filter(year == 2023) %>% 
   mutate(WestYakutat = `Eastern GOA`*egfrac$Western.Fraction,
@@ -268,7 +278,7 @@ rec_table <- read.csv(here::here(year,'projection',
 abc_y1 <- as.numeric( rec_table[10,2]) 
 abc_y2 <- as.numeric( rec_table[10,3]) 
 apportionment2 <- apply(props, 2, FUN = function(x) round(x*c(abc_y1,abc_y2) )) %>%
-  rbind( round(props*100,2) ,.) %>%
+  rbind( round(round(props*100,3),2) ,.) %>%
   data.frame() %>%
   mutate(Total = c("",abc_y1,abc_y2),
          Year = noquote(c("",year(Sys.Date())+1,year(Sys.Date())+2)),
