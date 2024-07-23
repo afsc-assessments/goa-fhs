@@ -7,7 +7,7 @@ params:
   tier: 3
 
 author: "Maia S. Kapur"
-date: "November 2023"
+date: "November 2024"
 
 # don't do anything below this line unless you are cool with the consequences
 output:
@@ -61,7 +61,7 @@ library(dplyr)
 # globals
 species = 'Flathead sole'
 this_year = 2024
-date = 'October 22, 2023'
+date = 'October 22, 2024'
 pull_date <- lubridate::date('2024-06-04')
 model = "base"
 end_proj = this_year + 15 
