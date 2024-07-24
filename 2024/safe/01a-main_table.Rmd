@@ -8,7 +8,7 @@ safe_2023 <- read.csv(here::here(this_year,'safe','static_tables','safe_2023.csv
 
 ## load base safe values, made using fAK_SCENARIOS.R
 # safe0 <- read.csv(here::here(this_year,'projection', '2024-06-06-exec_summ.csv')) %>% 
-  safe0 <- read.csv(here::here(this_year,'projection', '2024-07-24-exec_summ_3yavg.csv')) %>% 
+  safe0 <- read.csv(here::here(this_year,'projection', '2024-07-24-exec_summ_5yavg.csv')) %>% 
   # t()  %>% 
   data.frame() %>%
   bind_cols(safe_2023[4:14,],.) %>%

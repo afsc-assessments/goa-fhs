@@ -7,7 +7,7 @@ The following table shows the recommended ABC apportionment for `r this_year+1` 
 
 
 ```{r}
-appo <- read.csv(here::here(this_year,'apportionment','2024-07-24-AreaApportionment-3yavg.csv'))
+appo <- read.csv(here::here(this_year,'apportionment','2024-07-24-AreaApportionment-5yavg.csv'))
 appo[2:3,4:7] <-  round(appo[2:3,4:7],0)
 appo[1,8] <- 100
 appo$Year <- as.character(appo$Year)
