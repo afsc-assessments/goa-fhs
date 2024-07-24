@@ -77,7 +77,8 @@ ssb_25 <- execsumm[2,1] # 2025 spawning biomass
 tb_25 <- execsumm[1,1] # 2025 total biomass 
 abc_25 <- round(execsumm[10,1]) ## this year's ABC for 2025 
 abc_26 <- round(execsumm[10,2]) ## this year's ABC for 2025 
-catchvec<- read.csv(here::here(this_year,'data', 'output','2024-06-04-catch_for_spm.csv'))
+# catchvec<- read.csv(here::here(this_year,'data', 'output','2024-06-04-catch_for_spm.csv'))
+catchvec<- read.csv(here::here(this_year,'data', 'output','2024-07-24-catch_for_spm-3y.csv'))
 c1 <- round(as.numeric(catchvec[3,2]),0) # estimated catch in current year
 c2 <- round(as.numeric(catchvec[4,2]),0)# proj catch year + 1
 c3 <- round(as.numeric(catchvec[5,2]),0) # proj catch year + 2
