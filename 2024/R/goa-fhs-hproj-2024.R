@@ -54,7 +54,9 @@ catch <- catch0 %>%
 write.csv(catch, file=here(year, 'data','output',
                            paste0(Sys.Date(),'-catch_observed.csv') ), row.names=FALSE)
 #* projected catches ----
-files <- list.files(here::here(year,'data','raw','weekly_catches'), full.names=TRUE)
+#* https://www.fisheries.noaa.gov/alaska/commercial-fishing/fisheries-catch-and-landings-reports-alaska#goa-groundfish
+files <- list.files(here::here(year,'data','raw','weekly_catches'), 
+                    full.names=TRUE)
 test <- lapply(1:length(files), function(i){
   skip <- grep('ACCOUNT.NAME', readLines(files[i]))-1
   data.frame(read.table(files[i], skip=skip, header=TRUE, sep=',',
@@ -72,20 +74,35 @@ catch_this_year <- weekly_catches %>%
   sum
 ## Get average catch between now and end of year for previous 5 years.
 ## add to what came from AKFIN cause slight inconsistency with weekly catches to date.
+# catch_to_add <- weekly_catches %>% 
+#   filter(year>=this_year-5 & week > week(today())) %>%
+#   group_by(year) %>% 
+#   summarize(catch=sum(catch), .groups='drop') %>%
+#   pull(catch) %>% 
+#   mean
+
 catch_to_add <- weekly_catches %>% 
-  filter(year>=this_year-5 & week > week(today())) %>%
+  filter(year>=this_year-3 & week > week(today())) %>%
   group_by(year) %>% 
   summarize(catch=sum(catch), .groups='drop') %>%
   pull(catch) %>% 
   mean
+
 message("Predicted ", 
         this_year, " catch = ", 
         round(catch$TTONS[catch$YEAR == this_year] + 
                 catch_to_add,0)) 
 
 
+# mean_catch <- catch %>% 
+#   filter(YEAR %in% c((this_year-5):this_year)) %>% 
+#   summarise(mean(TTONS)) %>%
+#   as.numeric() %>%
+#   round()
+
+
 mean_catch <- catch %>% 
-  filter(YEAR %in% c((this_year-5):this_year)) %>% 
+  filter(YEAR %in% c((this_year-3):this_year)) %>% 
   summarise(mean(TTONS)) %>%
   as.numeric() %>%
   round()
@@ -97,7 +114,7 @@ catch_projection <- cbind(YEAR = this_year+c(-2:2),
                                          rep(mean_catch,2)))
 
 write.csv(catch_projection, file=here(year,'data','output',
-                                      paste0(Sys.Date(),'-catch_for_spm.csv') ), row.names=FALSE)
+                                      paste0(Sys.Date(),'-catch_for_spm-3y.csv') ), row.names=FALSE)
 
 # Survey Data----
 ## Years < 1990 should be dropped from the assessment/proj model
