@@ -74,38 +74,38 @@ catch_this_year <- weekly_catches %>%
   sum
 ## Get average catch between now and end of year for previous 5 years.
 ## add to what came from AKFIN cause slight inconsistency with weekly catches to date.
+catch_to_add <- weekly_catches %>%
+  filter(year>=this_year-5 & week > week(today())) %>%
+  group_by(year) %>%
+  summarize(catch=sum(catch), .groups='drop') %>%
+  pull(catch) %>%
+  mean
+
 # catch_to_add <- weekly_catches %>% 
-#   filter(year>=this_year-5 & week > week(today())) %>%
+#   filter(year>=this_year-3 & week > week(today())) %>%
 #   group_by(year) %>% 
 #   summarize(catch=sum(catch), .groups='drop') %>%
 #   pull(catch) %>% 
 #   mean
 
-catch_to_add <- weekly_catches %>% 
-  filter(year>=this_year-3 & week > week(today())) %>%
-  group_by(year) %>% 
-  summarize(catch=sum(catch), .groups='drop') %>%
-  pull(catch) %>% 
-  mean
-
-message("Predicted ", 
-        this_year, " catch = ", 
-        round(catch$TTONS[catch$YEAR == this_year] + 
-                catch_to_add,0)) 
+# message("Predicted ", 
+#         this_year, " catch = ", 
+#         round(catch$TTONS[catch$YEAR == this_year] + 
+#                 catch_to_add,0)) 
 
 
-# mean_catch <- catch %>% 
-#   filter(YEAR %in% c((this_year-5):this_year)) %>% 
-#   summarise(mean(TTONS)) %>%
-#   as.numeric() %>%
-#   round()
-
-
-mean_catch <- catch %>% 
-  filter(YEAR %in% c((this_year-3):this_year)) %>% 
+mean_catch <- catch %>%
+  filter(YEAR %in% c((this_year-5):this_year)) %>%
   summarise(mean(TTONS)) %>%
   as.numeric() %>%
   round()
+
+
+# mean_catch <- catch %>% 
+#   filter(YEAR %in% c((this_year-3):this_year)) %>% 
+#   summarise(mean(TTONS)) %>%
+#   as.numeric() %>%
+#   round()
 
 catch_projection <- cbind(YEAR = this_year+c(-2:2),
                           CATCH_MT =   c(round(catch$TTONS[catch$YEAR == this_year-2]),
@@ -114,7 +114,7 @@ catch_projection <- cbind(YEAR = this_year+c(-2:2),
                                          rep(mean_catch,2)))
 
 write.csv(catch_projection, file=here(year,'data','output',
-                                      paste0(Sys.Date(),'-catch_for_spm-3y.csv') ), row.names=FALSE)
+                                      paste0(Sys.Date(),'-catch_for_spm-5y.csv') ), row.names=FALSE)
 
 # Survey Data----
 ## Years < 1990 should be dropped from the assessment/proj model
@@ -236,7 +236,7 @@ rec_table <- bind_rows(rec_table1, rec_table2)
 rec_table <- rec_table[c(11,6,3,4,5,2,1,1,9,8,8),] 
 rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
 write.csv(rec_table, 
-          file = here::here(year,'projection',paste0(Sys.Date(),'-exec_summ_3yavg.csv')), row.names=FALSE)
+          file = here::here(year,'projection',paste0(Sys.Date(),'-exec_summ_5yavg.csv')), row.names=FALSE)
 
 # REMA apportionment ----
 ## With Jane I discovered that dropping the data before 1990s
@@ -290,7 +290,7 @@ props <- output$proportion_biomass_by_strata %>%
 sum(props)==1
 
 rec_table <- read.csv(here::here(year,'projection',
-                                 '2024-07-24-exec_summ_3yavg.csv'))
+                                 '2024-07-24-exec_summ_5yavg.csv'))
 
 abc_y1 <- as.numeric( rec_table[10,2]) 
 abc_y2 <- as.numeric( rec_table[10,3]) 
@@ -314,7 +314,7 @@ abc_y2 - sum(apportionment2[3,3:6]) ==0
 
 write.csv(apportionment2,
           file = here::here(year,'apportionment',
-                            paste0(Sys.Date(),"-AreaApportionment-3yavg.csv")))
+                            paste0(Sys.Date(),"-AreaApportionment-5yavg.csv")))
 
 
 # Make Catch Figure ----
