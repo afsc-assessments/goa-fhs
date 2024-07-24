@@ -177,40 +177,40 @@ write.csv(index_by_area, here::here(year,'data','output',
 ## catches in catch_projection made above
 ## no change to other inputs
 #* run SPM ----
-setwd(here(year,'projection_spm')) 
-shell('spm')
-
-#* render SAFE table with SPM ---- 
-rec_table1 <-
-  read.table(here::here(year,'projection_spm','percentdb.out')) %>%
-  as.data.frame(stringsAsFactors=FALSE) %>%
-  transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
-            value=as.numeric(V5)) %>%
-  filter(year %in% c(2025,2026) & scenario==1 &
-           metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
-  arrange(year, metric) %>%
-  tidyr::pivot_wider(names_from=year, values_from=value)
-rec_table1[3:6,3:4] <- rec_table1[3:6,3:4]
-
-rec_table2 <-
-  read.table(here::here(year,'projection_spm','alt_proj.out'), header=TRUE) %>%
-  filter(Year %in% c(2025,2026) & Alt==1) %>%
-  tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
-  tidyr::pivot_wider(names_from=Year, values_from=value)
-rec_table1$scenario <- rec_table2$Stock <- NULL
-rec_table2[,2:3] <- rec_table2[,2:3]
-rec_table <- bind_rows(rec_table1, rec_table2)
-
-## There's an error in spm.tpl where the sex ratio calcs didn't happen for the 
-## biomass reference points. Here I'm manually dividing them by two.
-rec_table[3:5,2:3]<-rec_table[3:5,2:3]/2
-
-## change order to match SAFE format & magnitudes
-rec_table <-rec_table[c(12,6,3,4,5,2,1,1,10,9,9),] 
-
-# rec_table[c(1:5,9:11),2:3] <-formatC(rec_table[c(1:5,9:11),2:3] , format="d", big.mark=",") 
-write.csv(rec_table, 
-          file = here::here(year,'projection_spm',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
+# setwd(here(year,'projection_spm')) 
+# shell('spm')
+# 
+# #* render SAFE table with SPM ---- 
+# rec_table1 <-
+#   read.table(here::here(year,'projection_spm','percentdb.out')) %>%
+#   as.data.frame(stringsAsFactors=FALSE) %>%
+#   transmute(scenario=as.numeric(V2), year=as.numeric(V3), metric=V4,
+#             value=as.numeric(V5)) %>%
+#   filter(year %in% c(2025,2026) & scenario==1 &
+#            metric %in% c('SSBMean','SSBFofl', 'SSBFabc', 'SSBF100', 'Fofl', 'Fabc')) %>%
+#   arrange(year, metric) %>%
+#   tidyr::pivot_wider(names_from=year, values_from=value)
+# rec_table1[3:6,3:4] <- rec_table1[3:6,3:4]
+# 
+# rec_table2 <-
+#   read.table(here::here(year,'projection_spm','alt_proj.out'), header=TRUE) %>%
+#   filter(Year %in% c(2025,2026) & Alt==1) %>%
+#   tidyr::pivot_longer(cols=c(-Stock, -Year), names_to='metric', values_to='value') %>%
+#   tidyr::pivot_wider(names_from=Year, values_from=value)
+# rec_table1$scenario <- rec_table2$Stock <- NULL
+# rec_table2[,2:3] <- rec_table2[,2:3]
+# rec_table <- bind_rows(rec_table1, rec_table2)
+# 
+# ## There's an error in spm.tpl where the sex ratio calcs didn't happen for the 
+# ## biomass reference points. Here I'm manually dividing them by two.
+# rec_table[3:5,2:3]<-rec_table[3:5,2:3]/2
+# 
+# ## change order to match SAFE format & magnitudes
+# rec_table <-rec_table[c(12,6,3,4,5,2,1,1,10,9,9),] 
+# 
+# # rec_table[c(1:5,9:11),2:3] <-formatC(rec_table[c(1:5,9:11),2:3] , format="d", big.mark=",") 
+# write.csv(rec_table, 
+#           file = here::here(year,'projection_spm',paste0(Sys.Date(),'-exec_summ_3yavg.csv')), row.names=FALSE)
 
 #* run PROJ ----
 setwd(here(year,'projection')) 
@@ -236,7 +236,7 @@ rec_table <- bind_rows(rec_table1, rec_table2)
 rec_table <- rec_table[c(11,6,3,4,5,2,1,1,9,8,8),] 
 rec_table[c(1:5,9:11),2:3] <- round(rec_table[c(1:5,9:11),2:3]*1000)
 write.csv(rec_table, 
-          file = here::here(year,'projection',paste0(Sys.Date(),'-exec_summ.csv')), row.names=FALSE)
+          file = here::here(year,'projection',paste0(Sys.Date(),'-exec_summ_3yavg.csv')), row.names=FALSE)
 
 # REMA apportionment ----
 ## With Jane I discovered that dropping the data before 1990s
@@ -290,7 +290,7 @@ props <- output$proportion_biomass_by_strata %>%
 sum(props)==1
 
 rec_table <- read.csv(here::here(year,'projection',
-                                 '2024-06-06-exec_summ.csv'))
+                                 '2024-07-24-exec_summ_3yavg.csv'))
 
 abc_y1 <- as.numeric( rec_table[10,2]) 
 abc_y2 <- as.numeric( rec_table[10,3]) 
@@ -314,7 +314,7 @@ abc_y2 - sum(apportionment2[3,3:6]) ==0
 
 write.csv(apportionment2,
           file = here::here(year,'apportionment',
-                            paste0(Sys.Date(),"-AreaApportionment.csv")))
+                            paste0(Sys.Date(),"-AreaApportionment-3yavg.csv")))
 
 
 # Make Catch Figure ----
